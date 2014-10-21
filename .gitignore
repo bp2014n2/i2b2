@@ -1,1 +1,3 @@
 build.properties
+edu.harvard.i2b2.ontology/etc/spring/ontology_application_directory.properties
+edu.harvard.i2b2.crc/etc/spring/crc_application_directory.properties

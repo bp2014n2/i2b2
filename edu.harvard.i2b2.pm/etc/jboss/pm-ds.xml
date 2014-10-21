@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources xmlns="http://www.jboss.org/ironjacamar/schema">
+	<!--  
 	<datasource jta="false" jndi-name="java:/PMBootStrapDS"
 		pool-name="PMBootStrapDS" enabled="true" use-ccm="false">
 		<connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
@@ -17,8 +18,8 @@
 			<share-prepared-statements>false</share-prepared-statements>
 		</statement>
 	</datasource>
+	-->
 	
-	<!--  
 	<datasource jta="false" jndi-name="java:/PMBootStrapDS"
 		pool-name="PMBootStrapDS" enabled="true" use-ccm="false">
 		<connection-url>jdbc:postgresql://localhost:5432/i2b2</connection-url>
@@ -36,7 +37,6 @@
 			<share-prepared-statements>false</share-prepared-statements>
 		</statement>
 	</datasource>
-	-->
 	
 	<!-- 
 	

@@ -1,10 +1,9 @@
 #!/bin/sh
 
 #Insert correct path here
-export JBOSS_HOME=~/JBOSS
-
-
-export I2B2_HOME=~/I2B2
+cd ~/
+export JBOSS_HOME=`pwd`/JBOSS
+export I2B2_HOME=`pwd`/I2B2
 
 # Download all files
 sudo apt-get update

@@ -8,9 +8,9 @@ export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
 mkdir $JBOSS_HOME
 mkdir log
-export LOG_FILE=~/log/log.txt
+export LOG_FILE=`pwd`/log/log.txt
 
-
+echo $LOG_FILE
 # installing software
 sudo apt-get -y install apache2 >> $LOG_FILE
 sudo apt-get -y install libapache2-mod-php5 >> $LOG_FILE

@@ -13,6 +13,7 @@ sudo apt-get -y install apache2
 sudo apt-get -y install libapache2-mod-php5
 sudo apt-get -y install git
 sudo apt-get -y install ant
+sudo apt-get -y install curl
 sudo apt-get -y install openjdk-7-jdk
 sudo apt-get -y install screen
 wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -

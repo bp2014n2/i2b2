@@ -7,7 +7,7 @@ export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
 mkdir $JBOSS_HOME
-mkdir ~/log
+mkdir log
 export LOG_FILE=~/log/log.txt
 
 

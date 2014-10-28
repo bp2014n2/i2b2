@@ -9,7 +9,7 @@ export JBOSS_HOME=`pwd`/jboss
 mkdir $JBOSS_HOME
 mkdir log
 export LOG_FILE=`pwd`/log/log.txt
-
+touch $LOG_FILE
 echo $LOG_FILE
 # installing software
 sudo apt-get -y install apache2 >> $LOG_FILE

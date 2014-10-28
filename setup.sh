@@ -48,11 +48,11 @@ cd ../edu.harvard.i2b2.crc/
 sudo ant -f master_build.xml clean build-all deploy
 
 # start jboss
-sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
+#sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
+sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
 
-
-clear
-echo "Success! Setup finished!";
+#clear
+#echo "Success! Setup finished!";
 
 
 

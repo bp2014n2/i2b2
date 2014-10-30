@@ -52,6 +52,11 @@ sudo ant -f master_build.xml clean build-all deploy >> $LOG_FILE
 cd ../edu.harvard.i2b2.crc/ >> $LOG_FILE
 sudo ant -f master_build.xml clean build-all deploy >> $LOG_FILE
 
+echo "cleaning up"
+sudo rm -rf ~/jboss-as-7.1.1.Final.zip
+sudo rm -rf ~/webclient
+sudo rm -rf ~/i2b2webclient-1703a.zip
+
 echo "starting jboss"
 #sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
 sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0

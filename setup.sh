@@ -31,12 +31,6 @@ echo "downloading jboss"
 curl -s -o ~/jboss-as-7.1.1.Final.zip https://dl.dropboxusercontent.com/u/23263423/jboss-as-7.1.1.Final.zip >> $LOG_FILE
 unzip -d $JBOSS_HOME jboss-as-7.1.1.Final.zip >> $LOG_FILE
 
-echo "configuring cells"
-cd $I2B2_HOME >> $LOG_FILE
-sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i >> $LOG_FILE
-sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i >> $LOG_FILE
-
-echo "building cells"
 cd $I2B2_HOME >> $LOG_FILE
 sudo sh ./build.sh >> $LOG_FILE
 

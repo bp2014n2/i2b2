@@ -44,6 +44,10 @@ echo "cleaning up"
 sudo rm -rf ~/jboss-as-7.1.1.Final.zip
 sudo rm -rf ~/i2b2webclient-1703a.zip
 
+#echo "starting jboss"
+#sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
+#sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
+
 #clear
 echo "setup finished"
 echo "start jboss with the following command"

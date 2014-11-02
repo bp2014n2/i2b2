@@ -37,8 +37,8 @@ sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i >> $LOG_F
 sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i >> $LOG_FILE
 
 echo "building cells"
-cd $I2B2_HOME >> $LOG_FILE
-sudo sh ./build.sh >> $LOG_FILE
+sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
+sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
 
 echo "cleaning up"
 sudo rm -rf ~/jboss-as-7.1.1.Final.zip

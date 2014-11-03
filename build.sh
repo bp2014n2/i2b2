@@ -13,4 +13,5 @@ result=$((result + $?))
 cd ../edu.harvard.i2b2.crc/
 sudo ant -f master_build.xml clean build-all
 result=$((result + $?))
+cd ..
 exit $result

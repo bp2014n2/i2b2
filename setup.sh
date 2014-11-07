@@ -23,13 +23,12 @@ sudo apt-get -y install screen >> $LOG_FILE
 sudo apt-get -y install unzip >> $LOG_FILE
 
 echo "setting up webserver"
-curl -s -o ~/i2b2webclient-1703a.zip http://54.93.194.56/i2b2webclient-1703a.zip >> $LOG_FILE
-sudo unzip -d /var/www/html i2b2webclient-1703a.zip >> $LOG_FILE
 sudo cp -r $I2B2_HOME/admin /var/www/html/ >> $LOG_FILE
+sudo cp -r $I2B2_HOME/webclient /var/www/html/ >> $LOG_FILE
 
 echo "downloading jboss"
-curl -s -o ~/jboss-as-7.1.1.Final.zip http://54.93.194.56/jboss-as-7.1.1.Final.zip >> $LOG_FILE
-unzip -d $JBOSS_HOME jboss-as-7.1.1.Final.zip >> $LOG_FILE
+curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip >> $LOG_FILE
+unzip -d $JBOSS_HOME jboss.zip >> $LOG_FILE
 
 echo "configuring cells"
 cd $I2B2_HOME >> $LOG_FILE
@@ -41,8 +40,7 @@ sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
 sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
 
 echo "cleaning up"
-sudo rm -rf ~/jboss-as-7.1.1.Final.zip
-sudo rm -rf ~/i2b2webclient-1703a.zip
+sudo rm -rf ~/jboss.zip
 
 #echo "starting jboss"
 #sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0

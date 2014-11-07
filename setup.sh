@@ -23,12 +23,12 @@ sudo apt-get -y install screen >> $LOG_FILE
 sudo apt-get -y install unzip >> $LOG_FILE
 
 echo "setting up webserver"
-curl -s -o ~/i2b2webclient-1703a.zip http://54.72.204.160/i2b2webclient-1703a.zip >> $LOG_FILE
+curl -s -o ~/i2b2webclient-1703a.zip http://54.93.194.56/i2b2webclient-1703a.zip >> $LOG_FILE
 sudo unzip -d /var/www/html i2b2webclient-1703a.zip >> $LOG_FILE
 sudo cp -r $I2B2_HOME/admin /var/www/html/ >> $LOG_FILE
 
 echo "downloading jboss"
-curl -s -o ~/jboss-as-7.1.1.Final.zip http://54.72.204.160/jboss-as-7.1.1.Final.zip >> $LOG_FILE
+curl -s -o ~/jboss-as-7.1.1.Final.zip http://54.93.194.56/jboss-as-7.1.1.Final.zip >> $LOG_FILE
 unzip -d $JBOSS_HOME jboss-as-7.1.1.Final.zip >> $LOG_FILE
 
 echo "configuring cells"

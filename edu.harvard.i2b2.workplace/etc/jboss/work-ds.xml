@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources xmlns="http://www.jboss.org/ironjacamar/schema">
+	<!-- 
+
+
 	<datasource jta="false" jndi-name="java:/WorkplaceBootStrapDS"
 		pool-name="WorkplaceBootStrapDS" enabled="true" use-ccm="false">
 		<connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
@@ -34,14 +37,30 @@
 			<share-prepared-statements>false</share-prepared-statements>
 		</statement>
 	</datasource>
+
+ -->
 	
 
-	<!-- 
-
-
+	<datasource jta="false" jndi-name="java:/WorkplaceBootStrapDS"
+		pool-name="WorkplaceBootStrapDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://54.93.194.65:5432/i2b2</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name>i2b2hive</user-name>
+			<password>demouser</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
 	<datasource jta="false" jndi-name="java:/WorkplaceDemoDS"
 		pool-name="WorkplaceDemoDS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://localhost:5432/i2b2</connection-url>
+		<connection-url>jdbc:postgresql://54.93.194.65:5432/i2b2</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
@@ -57,6 +76,9 @@
 		</statement>
 	</datasource>
 
+
+
+	<!-- 
 
 
 	<datasource jta="false" jndi-name="java:/WorkplaceDemoDS"

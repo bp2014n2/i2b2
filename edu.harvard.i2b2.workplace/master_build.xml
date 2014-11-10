@@ -1,5 +1,6 @@
 <project name="edu.harvard.i2b2.workplace">
 
+	<property environment="env"/>
 	<import file="build.xml" />
 
 	<target name="build-all" depends="common_clean" description="Build this and all its dependent projects">

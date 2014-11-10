@@ -22,7 +22,7 @@
 	
 	<datasource jta="false" jndi-name="java:/PMBootStrapDS"
 		pool-name="PMBootStrapDS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:postgresql://54.72.202.236:5432/i2b2</connection-url>
+		<connection-url>jdbc:postgresql://54.93.194.65:5432/i2b2</connection-url>
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>

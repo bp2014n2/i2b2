@@ -1,3 +1,6 @@
+edu.harvard.i2b2.crc/dist/*
+gensrc/**/*
+
 *.class
 
 # Mobile Tools for Java (J2ME)

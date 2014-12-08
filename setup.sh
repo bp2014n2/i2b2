@@ -85,12 +85,6 @@ sudo rm -rf ~/jboss.zip
 
 echo "starting jboss"
 sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
-progress &
-progPid=$!
-{
-    sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
-} >/dev/null
-echo "" ; kill -13 "$progPid";
 
 echo "Setting up dependencies for database... "
 progress &

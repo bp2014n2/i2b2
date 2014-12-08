@@ -17,7 +17,7 @@ echo "######################"
 
 
 # setup environment
-export I2B2_HOME=`pwd`/i2b2
+export I2B2_HOME=`pwd`
 cd ~
 export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
@@ -228,6 +228,7 @@ echo "Downloading Benchmark Queries... "
 progress &
 progPid=$!
 {
+    git config --global http.postBuffer 524288000
     git clone -q https://github.com/bp2014n2/Utils-Queries.git
     cd
     chmod 755 i2b2/get_times.sh

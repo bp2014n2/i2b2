@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 progress() {
   pc=0;
   while true
@@ -12,6 +10,10 @@ progress() {
     done
 }
 
+clear;
+echo "######################"
+echo "Running Setup"
+echo "######################"
 
 
 # setup environment

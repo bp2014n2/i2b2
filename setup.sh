@@ -40,7 +40,7 @@ progPid=$!
     sudo apt-get -y install curl >> $LOG_FILE
     sudo apt-get -y install screen >> $LOG_FILE
     sudo apt-get -y install unzip >> $LOG_FILE
-}  >~/installation_log.txt 2>&1
+}  >$LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
 
 echo "Setting up webserver"
@@ -49,7 +49,7 @@ progPid=$!
 {
     sudo cp -r $I2B2_HOME/admin /var/www/html/ >> $LOG_FILE
     sudo cp -r $I2B2_HOME/webclient /var/www/html/ >> $LOG_FILE
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Downloading jboss"
@@ -58,7 +58,7 @@ progPid=$!
 {
     curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip >> $LOG_FILE
     unzip -d $JBOSS_HOME jboss.zip >> $LOG_FILE
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Configuring cells"
@@ -68,7 +68,7 @@ progPid=$!
     cd $I2B2_HOME >> $LOG_FILE
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i >> $LOG_FILE
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i >> $LOG_FILE
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Building cells"
@@ -77,7 +77,7 @@ progPid=$!
 {
     sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
     sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Cleaning up"
@@ -91,7 +91,7 @@ progress &
 progPid=$!
 {
     sudo apt-get install -y ant unzip postgresql python-pip bc;
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Creating Database... "
@@ -99,11 +99,11 @@ progress &
 progPid=$!
 {
     sudo -u postgres psql -c "CREATE DATABASE i2b2;"
-    wget http://54.93.194.56/setup_postgres.sql
+    wget -q http://54.93.194.56/setup_postgres.sql
     sudo -u postgres psql -d i2b2 -f "setup_postgres.sql"
-    wget http://54.93.194.56/i2b2createdb-1702.zip
+    wget -q http://54.93.194.56/i2b2createdb-1702.zip
     unzip i2b2createdb-1702.zip
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Building i2b2... "
@@ -132,7 +132,7 @@ progPid=$!
     ant -f data_build.xml create_workdata_tables_release_1-7
     ant -f data_build.xml db_workdata_load_data
     cd
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Downloading data... "
@@ -145,7 +145,7 @@ progPid=$!
     aws s3 cp --region eu-central-1 s3://eha-hpcc/i2b2daten/26-11-2014/Datensatz.zip Datensatz.zip
     unzip Datensatz.zip
     sudo chmod 755 -R ./Datensatz
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Dropping Indexes... "
@@ -164,7 +164,7 @@ progPid=$!
     DROP INDEX i2b2demodata.OF_IDX_UPLOADID;
     DROP INDEX i2b2demodata.OF_IDX_SOURCESYSTEM_CD;
     DROP INDEX i2b2demodata.OF_TEXT_SEARCH_UNIQUE;"
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Dropping Indexes... "
@@ -179,7 +179,7 @@ progPid=$!
     COPY i2b2demodata.provider_dimension(PROVIDER_ID, PROVIDER_PATH, NAME_CHAR, PROVIDER_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/datamart/provider_dimension.csv' DELIMITER '|' CSV;
     TRUNCATE i2b2demodata.patient_dimension;
     COPY i2b2demodata.patient_dimension(PATIENT_NUM, VITAL_STATUS_CD, BIRTH_DATE, DEATH_DATE, SEX_CD, AGE_IN_YEARS_NUM, LANGUAGE_CD, RACE_CD, MARITAL_STATUS_CD, RELIGION_CD, ZIP_CD, STATECITYZIP_PATH, INCOME_CD, PATIENT_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/stammdaten/patient_dimension.csv' DELIMITER '|' CSV;"
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Loading Ontologies... "
@@ -191,7 +191,7 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/ontology/icd-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/ontology/modifier-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/ontology/fg-meta.sql
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Loading Stammdaten... "
@@ -202,7 +202,7 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/stammdaten/alter-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/stammdaten/region-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/stammdaten/geschlecht-meta.sql
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Add Indexes... "
@@ -221,7 +221,7 @@ progPid=$!
     CREATE INDEX OF_IDX_UPLOADID ON i2b2demodata.OBSERVATION_FACT(UPLOAD_ID);
     CREATE INDEX OF_IDX_SOURCESYSTEM_CD ON i2b2demodata.OBSERVATION_FACT(SOURCESYSTEM_CD);
     CREATE UNIQUE INDEX OF_TEXT_SEARCH_UNIQUE ON i2b2demodata.OBSERVATION_FACT(TEXT_SEARCH_INDEX);"
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Downloading Benchmark Queries... "
@@ -231,7 +231,7 @@ progPid=$!
     git clone https://github.com/bp2014n2/Utils-Queries.git
     cd
     chmod 755 i2b2/get_times.sh
-} >~/installation_log.txt
+} >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 clear;
@@ -243,8 +243,7 @@ echo "Running Benchmark Queries... "
         echo -e "Running Query \e[1m$f\e[0m"
         progress &
         progPid=$!
-        echo -e "Duration: \e[33m\e[1m" $(../i2b2/get_times.sh $f) "ms \e[0m"
+        echo -e "Duration: \e[33m\e[1m" $(~/i2b2/get_times.sh $f) "ms \e[0m"
         echo "" ; kill -13 "$progPid";
     done
 }
-

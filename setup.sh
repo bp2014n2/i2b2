@@ -22,10 +22,6 @@ cd ~
 export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
-echo "jboss_home"
-echo $JBOSS_HOME
-echo "i2b2 home"
-echo $I2B2_HOME
 mkdir $JBOSS_HOME
 mkdir log
 export LOG_FILE=`pwd`/log/log.txt
@@ -66,10 +62,6 @@ progPid=$!
 echo "" ; kill -13 "$progPid";
 
 echo "Configuring cells"
-echo "jboss_home"
-echo $JBOSS_HOME
-echo "i2b2 home"
-echo $I2B2_HOME
 progress &
 progPid=$!
 {
@@ -80,15 +72,11 @@ progPid=$!
 echo "" ; kill -13 "$progPid";
 
 echo "Building cells"
-echo "jboss_home"
-echo $JBOSS_HOME
-echo "i2b2 home"
-echo $I2B2_HOME
 progress &
 progPid=$!
 {
-    sudo sh $I2B2_HOME/build.sh $JBOSS_HOME >> $LOG_FILE
-    sudo sh $I2B2_HOME/deploy.sh $JBOSS_HOME >> $LOG_FILE
+    sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
+    sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

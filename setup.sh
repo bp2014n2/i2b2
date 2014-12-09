@@ -75,8 +75,8 @@ echo "Building cells"
 progress &
 progPid=$!
 {
-    sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
-    sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
+    sudo sh $I2B2_HOME/build.sh $JBOSS_HOME >> $LOG_FILE
+    sudo sh $I2B2_HOME/deploy.sh $JBOSS_HOME >> $LOG_FILE
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

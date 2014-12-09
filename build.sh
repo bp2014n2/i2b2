@@ -1,10 +1,11 @@
 #!/bin/bash
 
+export JBOSS_HOME=$1
+
 result=0
 cd edu.harvard.i2b2.server-common
 sudo ant clean dist
 result=$((result + $?))
-echo $JBOSS_HOME
 cd ../edu.harvard.i2b2.pm
 sudo ant -f master_build.xml clean build-all
 result=$((result + $?))

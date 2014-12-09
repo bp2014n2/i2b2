@@ -139,6 +139,7 @@ echo "Downloading data... "
 progress &
 progPid=$!
 {
+    sudo pip install six==1.8.0
     sudo pip install awscli
     #mkdir ~/.aws
     #echo -e "[default]\naws_access_key_id=$aws_access_key_id\naws_secret_access_key=$aws_secret_access_key" >> ~/.aws/credentials
@@ -167,7 +168,7 @@ progPid=$!
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
-echo "Dropping Indexes... "
+echo "Loading data... "
 progress &
 progPid=$!
 {
@@ -205,7 +206,7 @@ progPid=$!
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
-echo "Add Indexes... "
+echo "Adding Indexes... "
 progress &
 progPid=$!
 {

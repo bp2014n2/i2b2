@@ -234,20 +234,10 @@ progPid=$!
     git config --global http.postBuffer 524288000
     git clone -q https://github.com/bp2014n2/Utils-Queries.git
     cd
-    chmod 755 i2b2/get_times.sh
+    chmod 755 Utils-Queries/get_times.sh
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 clear;
-echo "Running Benchmark Queries... "
-{
-    cd Utils-Queries/
-    for f in *.sql
-    do
-        echo -e "Running Query \e[1m$f\e[0m"
-        progress &
-        progPid=$!
-        echo -e "Duration: \e[33m\e[1m" $(~/i2b2/get_times.sh $f) "ms \e[0m"
-        echo "" ; kill -13 "$progPid";
-    done
-}
+echo "Setup completed"
+

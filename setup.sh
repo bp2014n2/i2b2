@@ -180,6 +180,8 @@ progPid=$!
     COPY i2b2demodata.provider_dimension(PROVIDER_ID, PROVIDER_PATH, NAME_CHAR, PROVIDER_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/datamart/provider_dimension.csv' DELIMITER '|' CSV;
     TRUNCATE i2b2demodata.patient_dimension;
     COPY i2b2demodata.patient_dimension(PATIENT_NUM, VITAL_STATUS_CD, BIRTH_DATE, DEATH_DATE, SEX_CD, AGE_IN_YEARS_NUM, LANGUAGE_CD, RACE_CD, MARITAL_STATUS_CD, RELIGION_CD, ZIP_CD, STATECITYZIP_PATH, INCOME_CD, PATIENT_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/stammdaten/patient_dimension.csv' DELIMITER '|' CSV;"
+    sudo -u postgres psql -d i2b2 -f Datensatz/datamart/concept_dimension.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/datamart/modifier_dimension.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

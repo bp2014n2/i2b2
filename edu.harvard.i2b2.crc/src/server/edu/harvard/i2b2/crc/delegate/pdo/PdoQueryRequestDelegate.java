@@ -55,7 +55,7 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 		PdoQryHeaderType headerType = null;
 		String response = null;
 		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-
+		List<String> roles = null;
 		try {
 			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
 			RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
@@ -128,13 +128,14 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 					//List<String> roles = (List<String>) rootNode
 					//		.get(securityType.getDomain() + "/" + projectId
 					//				+ "/" + securityType.getUsername());
-					List<String> roles = (List<String>) CacheUtil
+					 roles = (List<String>) CacheUtil
 							.get(securityType.getDomain() + "/" + projectId
 									+ "/" + securityType.getUsername());
 					if (roles != null) {
 						log.debug("User Roles count " + roles.size());
 					}
-					
+					if (!roles.contains("DATA_LDS"))
+						throw new I2B2Exception("Access Denied need at least DATA_LDS");
 					ParamUtil paramUtil = new ParamUtil();
 					paramUtil.clearParam(projectId, securityType.getUsername(), securityType.getDomain(), ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
 					if (projectType.getParam() != null) {
@@ -196,8 +197,14 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 				responseBodyType = handler.execute();
 			} else if (headerType.getRequestType().equals(
 					PdoRequestTypeType.GET_OBSERVATIONFACT_BY_PRIMARY_KEY)) {
+				
+
+				
+
+				//List<String> roles = (List<String>) cache.getRoot().get(rolePath);
+				
 				GetObservationFactFromPrimaryKeyHandler handler = new GetObservationFactFromPrimaryKeyHandler(
-						requestXml);
+						requestXml, roles);
 				responseBodyType = handler.execute();
 			} else if (headerType.getRequestType().equals(
 					PdoRequestTypeType.GET_PDO_TEMPLATE)) {

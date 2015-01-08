@@ -14,6 +14,9 @@ console.time('execute time');
 // create and save the view object
 i2b2.ONT.view.nav = new i2b2Base_cellViewController(i2b2.ONT, 'nav');
 i2b2.ONT.view.nav.visible = false;
+i2b2.ONT.view.nav.modifier = false; 
+
+
 // define the option functions
 // ================================================================================================== //
 i2b2.ONT.view.nav.showOptions = function(subScreen) {
@@ -51,10 +54,15 @@ i2b2.ONT.view.nav.showOptions = function(subScreen) {
 		this.modalOptions.render(document.body);
 	}
 	this.modalOptions.show();
-	// load settings
-	$('ONTNAVMaxQryDisp').value = this.params.max;
-	$('ONTNAVshowSynonyms').checked = parseBoolean(this.params.synonyms);
-	$('ONTNAVshowHiddens').checked = parseBoolean(this.params.hiddens);		
+	// load settings from html
+	i2b2.ONT.view['nav'].params.max = parseInt($('ONTNAVMaxQryDisp').value,10);
+	i2b2.ONT.view['nav'].params.synonyms = $('ONTNAVshowSynonyms').checked;
+	i2b2.ONT.view['nav'].params.hiddens = $('ONTNAVshowHiddens').checked;
+	i2b2.ONT.view['nav'].params.modifiers = $('ONTNAVdisableModifiers').checked;
+
+	//$('ONTNAVMaxQryDisp').value = this.params.max;
+	//$('ONTNAVshowSynonyms').checked = parseBoolean(this.params.synonyms);
+	//$('ONTNAVshowHiddens').checked = parseBoolean(this.params.hiddens);		
 }
 
 // ================================================================================================== //
@@ -89,6 +97,12 @@ i2b2.ONT.view.nav.PopulateCategories = function() {
 	// clear the data first
 	this.yuiTree.removeChildren(tvRoot);
 	// populate the Categories from the data model
+	
+	i2b2.ONT.view['nav'].params.max = parseInt($('ONTNAVMaxQryDisp').value,10);
+	i2b2.ONT.view['nav'].params.synonyms = $('ONTNAVshowSynonyms').checked;
+	i2b2.ONT.view['nav'].params.hiddens = $('ONTNAVshowHiddens').checked;
+	i2b2.ONT.view['nav'].params.modifiers = $('ONTNAVdisableModifiers').checked;
+
 	for (var i=0; i<i2b2.ONT.model.Categories.length; i++) {
 		var catData = i2b2.ONT.model.Categories[i];
 		// add categories to ONT navigate tree

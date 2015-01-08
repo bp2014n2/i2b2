@@ -57,6 +57,10 @@ function QueryToolController() {
 		this.panelControllers[0].refTitle.innerHTML =  'Group 1';
 		$("defineTemporal-button").innerHTML = "Population in which events occur";
 		i2b2.CRC.view.QT.setQueryTiming(0);
+		i2b2.CRC.view.QT.clearTemportal();
+		$('temporalbuilders').innerHTML = "";
+		this.tenporalBuilders = -1;
+		this.doAddTemporal();
 	}
 
 // ================================================================================================== //
@@ -64,7 +68,7 @@ function QueryToolController() {
 		// clear existing query
 		i2b2.CRC.ctrlr.QT.doQueryClear();
 		// show on GUI that work is being done
-		i2b2.h.LoadingMask.show();
+		//i2b2.h.LoadingMask.show();
 
 		// callback processor
 		var scopedCallback = new i2b2_scopedCallback();
@@ -89,8 +93,10 @@ function QueryToolController() {
 				i2b2.CRC.ctrlr.QT.doQueryClear();
 				var dObj = {};
 				dObj.name = i2b2.h.getXNodeVal(results.refXML,'name');
-					$('queryName').innerHTML = dObj.name;
-				dObj.timing = i2b2.h.getXNodeVal(qd[0],'query_timing');
+				$('queryName').innerHTML = dObj.name;
+				dObj.timing = i2b2.h.XPath(qd[0],'descendant-or-self::query_timing/text()');
+				dObj.timing = dObj.timing[0].nodeValue;				
+
 				//i2b2.CRC.view.QT.queryTimingButtonset("label", dObj.timing);
 				i2b2.CRC.view.QT.setQueryTiming(dObj.timing);
 				dObj.specificity = i2b2.h.getXNodeVal(qd[0],'specificity_scale');
@@ -98,6 +104,12 @@ function QueryToolController() {
 	
 				var sqc = i2b2.h.XPath(qd[0], 'subquery_constraint');
 			
+				 for (var j=3; j < qd.length; j++)
+					i2b2.CRC.view.QT.addNewTemporalGroup();
+
+				 for (var j=1; j < sqc.length; j++)
+					i2b2.CRC.ctrlr.QT.doAddTemporal();
+
 				for (var j=0; j <sqc.length; j++) {
 
 					i2b2.CRC.view.QT.setQueryTiming("TEMPORAL");
@@ -106,7 +118,10 @@ function QueryToolController() {
 					 $('instancevent1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/query_id');
 					 $('preloc1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/join_column');
 					 $('instanceopf1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/aggregate_operator');
-					$('postloc['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'operator');
+					 var operator = i2b2.h.XPath(sqc[j],'descendant-or-self::operator/text()');
+					 $('postloc['+j + ']').value = operator[0].nodeValue;
+
+					//$('postloc['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'operator');
 					$('instancevent2['+j + ']').value =i2b2.h.getXNodeVal(sqc[j],'second_query/query_id');
 					$('preloc2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/join_column');
 					$('instanceopf2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/aggregate_operator');
@@ -115,9 +130,10 @@ function QueryToolController() {
 					var span = i2b2.h.XPath(sqc[j], 'span');
 
 					for (var k=0; k < span.length; k++) {
-						$('byspan' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'operator');
-						$('bytimevalue' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'span_value');
-						$('bytimeunit' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'units');
+						$('byspan' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'operator');
+						$('bytimevalue' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'span_value');
+						$('bytimeunit' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'units');
+						$('bytime' + (k + 1) + '[' +j + ']').checked  = true;
 					}
 				}
 				
@@ -1339,14 +1355,12 @@ function QueryToolController() {
 
 // ================================================================================================== //
 	this.doAddTemporal = function() {
-		var html = $('temporalbuilders').innerHTML;
+		//var html = $('temporalbuilders').innerHTML;
 		this.tenporalBuilders = this.tenporalBuilders + 1;
-		html = $('temporalbuilders').innerHTML 
-		
-					+ '		  <div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '"> '
-                    + '          <select id="preloc1[' + this.tenporalBuilders + ']" name="preloc1[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
+	//	html = '		  <div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '"> '
+        html             = '          <select id="preloc1[' + this.tenporalBuilders + ']" name="preloc1[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
                     + '          <select id="instanceopf1[' + this.tenporalBuilders + ']" name="instanceopf1[' + this.tenporalBuilders + ']" style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
-                    + '          <select id="instancevent1[' + this.tenporalBuilders + ']" name="instancevent1[' + this.tenporalBuilders + ']" style="width:100px;"><option  selected="selected">Event 1</option><option>Event 2</option>';
+                    + '          <select id="instancevent1[' + this.tenporalBuilders + ']" name="instancevent1[' + this.tenporalBuilders + ']" style="width:100px;"><option  selected>Event 1</option><option>Event 2</option>';
 					
 					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
 					{	
@@ -1366,7 +1380,7 @@ function QueryToolController() {
                                 
                       + '        <select id="preloc2[' + this.tenporalBuilders + ']" name="preloc2[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
                       + '        <select id="instanceopf2[' + this.tenporalBuilders + ']" name="instanceopf2[' + this.tenporalBuilders + ']"  style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
-                      + '        <select id="instancevent2[' + this.tenporalBuilders + ']" name="instancevent2[' + this.tenporalBuilders + ']" style="width:100px;"><option>Event 1</option><option  selected="selected">Event 2</option>';
+                      + '        <select id="instancevent2[' + this.tenporalBuilders + ']" name="instancevent2[' + this.tenporalBuilders + ']" style="width:100px;"><option>Event 1</option><option  selected>Event 2</option>';
 					
 					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
 					{	
@@ -1375,33 +1389,36 @@ function QueryToolController() {
 
                     html += '  </select>      <br/> '
                                 
-                       + '        <input  id="bytime1[' + this.tenporalBuilders + ']" name="bytime1[' + this.tenporalBuilders + ']" type="checkbox">By <select id="byspan1[' + this.tenporalBuilders + ']" name="byspan1[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL" selected="selected">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '        <input  id="bytime1[' + this.tenporalBuilders + ']" name="bytime1[' + this.tenporalBuilders + ']" type="checkbox">By <select id="byspan1[' + this.tenporalBuilders + ']" name="byspan1[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL" selected>&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
                        + '         <input   id="bytimevalue1[' + this.tenporalBuilders + ']" name="bytimevalue1[' + this.tenporalBuilders + ']" style="width:50px;" type="text" value="1"> '
                        + '          <select   id="bytimeunit1[' + this.tenporalBuilders + ']" name="bytimeunit1[' + this.tenporalBuilders + ']" style="width:100px;"> '
                        + '          <option  value="HOUR">hour(s)</option> '
-                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option   value="DAY" selected>day(s)</option> '
                        + '          <option  value="MONTH">month(s)</option> '
                        + '          <option  value="YEAR">year(s)</option></select> '
                                  
                        + '          <br/> '
                                  
-                       + '         <input id="bytime2[' + this.tenporalBuilders + ']" name="bytime2[' + this.tenporalBuilders + ']" type="checkbox">And <select  id="byspan2[' + this.tenporalBuilders + ']" name="byspan2[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL" selected="selected">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '         <input id="bytime2[' + this.tenporalBuilders + ']" name="bytime2[' + this.tenporalBuilders + ']" type="checkbox">And <select  id="byspan2[' + this.tenporalBuilders + ']" name="byspan2[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL" selected>&le;</option><option value="LESS">&lt;</option></select> '
                        + '         <input id="bytimevalue2[' + this.tenporalBuilders + ']" name="bytimevalue2[' + this.tenporalBuilders + ']"  style="width:50px;" type="text" value="1"> '
                        + '          <select  id="bytimeunit2[' + this.tenporalBuilders + ']" name="bytimeunit2[' + this.tenporalBuilders + ']" style="width:100px;"> '
                        + '          <option  value="HOUR">hour(s)</option> '
-                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option   value="DAY" selected>day(s)</option> '
                        + '          <option  value="MONTH">month(s)</option> '
-                       + '          <option  value="YEAR">year(s)</option></select> '
+                       + '          <option  value="YEAR">year(s)</option></select> ';
 
                                  
                                  
                                  
-                      + '    </div> ';
+                    //  + '    </div> ';
 		
 		
 		 '<div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '">' +  html + '</div>';
-		
-		 $('temporalbuilders').innerHTML = html;
+		 var content = document.createElement ("div");
+		 content.id = "temporalbuilder_" + this.tenporalBuilders;
+		 content.className = "relationshipAmongEvents";
+		 content.innerHTML = html;
+		 $('temporalbuilders').appendChild(content);
 		
 	}
 

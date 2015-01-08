@@ -394,8 +394,8 @@ i2b2.PM.cfg.msgs.getApproval = '<?xml version="1.0" encoding="UTF-8" standalone=
 '    <request_header>\n'+
 '        <result_waittime_ms>{{{result_wait_time}}}000</result_waittime_ms>\n'+
 '    </request_header>\n'+
-'    <message_body>\n'+
-'        <pm:get_approval>\n'+
+'    <message_body>\n'+ 
+'        <pm:get_approval {{{id}}}>\n'+
 //'            <search by="user">{{{sec_user}}}</search>\n'+
 '        </pm:get_approval>\n'+
 '    </message_body>\n'+

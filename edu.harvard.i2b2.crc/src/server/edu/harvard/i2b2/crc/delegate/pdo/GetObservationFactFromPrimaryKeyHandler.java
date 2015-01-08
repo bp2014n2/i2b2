@@ -10,6 +10,8 @@
 package edu.harvard.i2b2.crc.delegate.pdo;
 
 
+import java.util.List;
+
 import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
@@ -32,17 +34,21 @@ public class GetObservationFactFromPrimaryKeyHandler extends RequestHandler {
     private GetObservationFactByPrimaryKeyRequestType getObservationFactByPrimaryKeyRequestType =
         null;
 
+	
     /**
      * Constuctor which accepts i2b2 request message xml
      * @param requestXml
      * @throws I2B2Exception
      */
-    public GetObservationFactFromPrimaryKeyHandler(String requestXml)
+    public GetObservationFactFromPrimaryKeyHandler(String requestXml, List<String> roles)
         throws I2B2Exception {
         try {
             this.getObservationFactByPrimaryKeyRequestType = (GetObservationFactByPrimaryKeyRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.pdo.query.GetObservationFactByPrimaryKeyRequestType.class);
             this.setDataSourceLookup(requestXml);
+           if ( getObservationFactByPrimaryKeyRequestType.getFactOutputOption().isBlob() &&
+        		   !roles.contains("DATA_DEID"))
+        	   	throw new I2B2Exception("Access denied need DATA_DEID or DATA_PROT to get notes");
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }

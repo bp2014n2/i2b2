@@ -61,7 +61,7 @@ i2b2.sdx.TypeControllers.CONCPT.RenderHTML= function(sdxData, options, targetDiv
 	if (sdxData.origData.hasChildren.substring(1,0) === "C"){
 		// render as category
 		icon = 'root';
-		sDD = '';
+		//sDD = '';
 		sIG = ' isGroup="Y"';
 		bCanExp = true;
 	} else if (sdxData.origData.hasChildren.substring(1,0) === "F")  {
@@ -91,16 +91,16 @@ i2b2.sdx.TypeControllers.CONCPT.RenderHTML= function(sdxData, options, targetDiv
 	}
 	if (sdxData.origData.hasChildren.substring(2,1) === "I")
 	{
-		bCanExp = false;
+		bCanExp = true;
 		sDD = " style='color: #c0c0c0;' ";		
 	}
 	else if (sdxData.origData.hasChildren.substring(2,1) === "H")
 	{
 		sDD += " style='color: #c00000;' ";
 	}
-	else if (sdxData.origData.hasChildren.substring(2,1) === "S")
+	else if ((!Object.isUndefined(sdxData.origData.synonym_cd)) && (sdxData.origData.synonym_cd != 'N')) 
 	{
-		sDD += " style='color: #00ff00;' ";
+		sDD += " style='color: #0000ff;' ";
 	}		
 	render.canExpand = bCanExp;
 	render.iconType = 'CONCPT_'+icon;
@@ -484,6 +484,7 @@ i2b2.sdx.TypeControllers.CONCPT.MakeObject = function(c, modifier, cl_options, o
 			o.column_name = i2b2.h.getXNodeVal(c,'columnname');
 			o.operator = i2b2.h.getXNodeVal(c,'operator');
 			o.total_num = i2b2.h.getXNodeVal(c,'totalnum');
+			o.synonym_cd = i2b2.h.getXNodeVal(c,'synonym_cd');
 			o.dim_code = i2b2.h.getXNodeVal(c,'dimcode');
 			o.basecode = i2b2.h.getXNodeVal(c,'basecode');
 			if (cl_options != undefined && cl_options.ont_show_concept_code && o.basecode != undefined) {
@@ -755,7 +756,7 @@ i2b2.sdx.TypeControllers.CONCPT.DragDrop.prototype.onDragDrop = function(e, id) 
 	// retreive the concept data from the dragged element
 	draggedData = this.yuiTreeNode.data.i2b2_SDX;
 	// exit if we are a root node
-	if ((draggedData.origData.hasChildren=="CA") || (draggedData.origData.hasChildren=="OA") || (draggedData.origData.hasChildren=="OAE"))  { return false; }
+	//if ((draggedData.origData.hasChildren=="CA") || (draggedData.origData.hasChildren=="OA") || (draggedData.origData.hasChildren=="OAE"))  { return false; }
 	i2b2.sdx.Master.ProcessDrop(draggedData, id);
 };
 

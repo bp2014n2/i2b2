@@ -20,7 +20,7 @@ i2b2.CRC.ctrlr.dateConstraint = {
 	showDates: function(panelControllerIndex) {
 		var dm = i2b2.CRC.model.queryCurrent;
 		var panelIndex = i2b2.CRC.ctrlr.QT.panelControllers[panelControllerIndex].panelCurrentIndex;
-		if (undefined==dm.panels[panelIndex]) return;
+		if (undefined==dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex]) return;
 		// grab our current values
 		var qn = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex];
 		this.currentPanelIndex = panelIndex;

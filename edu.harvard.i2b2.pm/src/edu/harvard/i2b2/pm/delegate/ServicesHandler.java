@@ -819,9 +819,11 @@ public class ServicesHandler extends RequestHandler {
 			try {
 				response = pmDb.setProjectRequest(value,project, caller);
 			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data for NTLM");
+				e1.printStackTrace();
+				throw new Exception ( "Database error in setting Projet Request: " + e1.getMessage());
 			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data for NTLM");
+				e1.printStackTrace();
+				throw new Exception ("Database error in setting Projet Request: " + e1.getMessage());
 			}
 
 			Iterator it = response.iterator();

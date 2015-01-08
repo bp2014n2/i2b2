@@ -537,7 +537,7 @@ i2b2.CRC.view.modalLabValues = {
 		this.sd.setHeader("Choose value of "+i2b2.h.getXNodeVal(refXML, 'TestName')+" (Test:"+i2b2.h.getXNodeVal(refXML, 'TestID')+")");
 	
 		$('mlvfrmTypeNONE').nextSibling.nodeValue = "No Value";
-		$('mlvfrmTypeFLAG').nextSibling.nodeValue = "By FLag"; // snm0
+		$('mlvfrmTypeFLAG').nextSibling.nodeValue = "By Flag"; // snm0
 		$('mlvfrmTypeVALUE').nextSibling.nodeValue = "By Value";
 	
 		if (dm.valueType == "LRGSTR") {

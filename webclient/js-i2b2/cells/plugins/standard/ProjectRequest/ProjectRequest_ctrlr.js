@@ -457,7 +457,7 @@ i2b2.ProjectRequest.roleRender = function() {
 	
 	
 	//User Params
-	var recList = i2b2.PM.ajax.getAllParam("PM:Admin", {table:"user", id_xml:"<param name='APPROVAL_ID'>"+ document.getElementById("ProjectRequest-OutputApproval").value +"</param>"});
+	var recList = i2b2.PM.ajax.getAllParam("PM:Admin", {table:"user_param", id_xml:"<param name='APPROVAL_ID'>"+ document.getElementById("ProjectRequest-OutputApproval").value +"</param>"});
 	// custom parse functionality
 	var tmp = [];
 	var c = i2b2.h.XPath(recList.refXML, "//user[user_name and param]");
@@ -694,7 +694,7 @@ i2b2.ProjectRequest.getResults = function() {
 				'			<item_is_synonym>'+cdata.synonym+'</item_is_synonym>\n'+
 				'		</item>\n';
 			*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.concepts.length-1)
 				msg_filter += '</concept_include>\n';
 		}
 			
@@ -723,7 +723,7 @@ i2b2.ProjectRequest.getResults = function() {
 				'			<item_is_synonym>'+cdata.synonym+'</item_is_synonym>\n'+
 				'		</item>\n';
 			*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.excconcepts.length-1)
 				msg_filter += '</concept_exclude>\n';
 			
 		}
@@ -742,7 +742,7 @@ i2b2.ProjectRequest.getResults = function() {
 			msg_filter +=
 				'		<patient_set_coll_id>'+i2b2.ProjectRequest.model.prs[i1].sdxInfo.sdxKeyValue+'</patient_set_coll_id>\n';
 		*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.prs.length-1)
 					msg_filter += '</cases>\n';
 
 		}
@@ -756,7 +756,7 @@ i2b2.ProjectRequest.getResults = function() {
 			msg_filter +=
 				'		<patient_set_coll_id>'+i2b2.ProjectRequest.model.excprs[i1].sdxInfo.sdxKeyValue+'</patient_set_coll_id>\n';
 		*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.excprs.length-1)
 					msg_filter += '</exclude_cases>\n';
 		}
 	
@@ -770,7 +770,7 @@ i2b2.ProjectRequest.getResults = function() {
 			msg_filter +=
 				'		<patient_set_coll_id>'+i2b2.ProjectRequest.model.ic[i1].sdxInfo.sdxKeyValue+'</patient_set_coll_id>\n';
 		*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.ic.length-1)
 		msg_filter += '</controls>\n';
 		}
 		
@@ -784,7 +784,7 @@ i2b2.ProjectRequest.getResults = function() {
 			msg_filter +=
 				'		<patient_set_coll_id>'+i2b2.ProjectRequest.model.excic[i1].sdxInfo.sdxKeyValue+'</patient_set_coll_id>\n';
 		*/
-			if (i1 == 0)
+			if (i1 == i2b2.ProjectRequest.model.excic.length-1)
 		msg_filter += '</exclude_controls>\n';
 		}
 	

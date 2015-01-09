@@ -46,7 +46,7 @@
 		<driver-class>org.postgresql.Driver</driver-class>
 		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
 		<security>
-			<user-name>i2b2hive</user-name>
+			<user-name>i2b2imdata</user-name>
 			<password>demouser</password>
 		</security>
 		<validation>

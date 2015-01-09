@@ -136,8 +136,10 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 				(findChildType.getCategory().toLowerCase().equals("@"))) {
 			sql += " query_master_id,name,user_id,group_id,create_date,delete_date,null as request_xml,delete_flag,generated_sql, null as i2b2_request_xml, master_type_cd, null as plugin_id from "
 					+ getDbSchemaName()
-					+ "qt_query_master "
-					+ " where user_id = ? and LOWER(name) like ? and delete_flag = ? "; //and master_type_cd is NULL";
+					+ "qt_query_master where ";
+			if (roles != null && !roles.contains("MANAGER"))
+					sql += "  user_id = ? and ";
+			sql += "  LOWER(name) like ? and delete_flag = ? "; //and master_type_cd is NULL";
 			if (findChildType.getCreateDate() != null)
 			{
 				DateConstrainHandler dateConstrainHandler = new DateConstrainHandler(
@@ -197,9 +199,10 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 					+ getDbSchemaName()
 					+ "qt_query_result_instance qri where "
 					+ "qm.QUERY_MASTER_ID = qi.QUERY_MASTER_ID and "
-					+ "qi.QUERY_INSTANCE_ID = qri.QUERY_INSTANCE_ID and "
-
-					+ "  qm.user_id = ? and LOWER(qri.DESCRIPTION) like ? and qm.delete_flag = ? "; //and qm.master_type_cd is NULL";
+					+ "qi.QUERY_INSTANCE_ID = qri.QUERY_INSTANCE_ID and ";
+					if (roles != null && !roles.contains("MANAGER"))
+						sql += "  qm.user_id = ? and";
+					sql+= " LOWER(qri.DESCRIPTION) like ? and qm.delete_flag = ? "; //and qm.master_type_cd is NULL";
 			if (findChildType.getCreateDate() != null)
 			{
 				DateConstrainHandler dateConstrainHandler = new DateConstrainHandler(
@@ -268,8 +271,9 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 					+ "qt_query_result_instance qri where "
 					+ "qm.QUERY_MASTER_ID = qi.QUERY_MASTER_ID and "
 					+ "qi.QUERY_INSTANCE_ID = qri.QUERY_INSTANCE_ID and "
-					+ "qri.RESULT_INSTANCE_ID = qp.RESULT_INSTANCE_ID and "
-					+ "  qm.user_id = ? and ";
+					+ "qri.RESULT_INSTANCE_ID = qp.RESULT_INSTANCE_ID and ";
+			if (roles != null && !roles.contains("MANAGER"))
+					sql += "  qm.user_id = ? and ";
 			 if ( dataSourceLookup.getServerType().equalsIgnoreCase(
 						DAOFactoryHelper.POSTGRESQL)) 
 				 sql += " CAST(qp.patient_num AS TEXT) like ? and qm.delete_flag = ? "; 
@@ -326,12 +330,15 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 		String userid = userRequestType.getUsername();
 		if (findChildType.getUserId() != null && roles != null && roles.contains("MANAGER"))
 			userid = findChildType.getUserId();
-		else if (findChildType.getUserId() != null)
-			throw new I2B2DAOException ("Permisison denied");
+	//	else if (findChildType.getUserId() != null)
+	//		throw new I2B2DAOException ("Permisison denied");
 		//		if (findChildType.getCreateDate() != null)
 		//			 args = new Object[] { userid, str.toLowerCase(), DELETE_NO_FLAG,findChildType.getCreateDate() };
 		//		else
-		args = new Object[] { userid, str.toLowerCase(), DELETE_NO_FLAG };
+		if (roles != null && roles.contains("MANAGER"))
+			args = new Object[] {  str.toLowerCase(), DELETE_NO_FLAG };
+		else
+			args = new Object[] { userid, str.toLowerCase(), DELETE_NO_FLAG };
 
 		if (!findChildType.getCategory().toLowerCase().equals("@"))
 		{

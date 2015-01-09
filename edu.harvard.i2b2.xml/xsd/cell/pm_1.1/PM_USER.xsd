@@ -264,7 +264,7 @@
 	<xs:complexType name="project_requestType">
 		<xs:sequence>
 			<xs:element name="title" type="xs:string" />
-			<xs:element name="request_xml" type="pm:blobType" />
+			<xs:element name="request_xml" type="xs:string" />
 			<xs:element name="project_id" type="xs:string" />
 			<xs:element name="change_date" type="xs:dateTime" />			
 			<xs:element name="entry_date" type="xs:dateTime" />			

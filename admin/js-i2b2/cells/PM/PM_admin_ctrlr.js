@@ -1423,7 +1423,7 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 			try {
 				$('pmMainTitle').innerHTML = 'APPROVAL &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("APPROVALREC");
-				var response = i2b2.PM.ajax.getApproval("PM:Admin", {id:info.i2b2NodeId});
+				var response = i2b2.PM.ajax.getApproval("PM:Admin", {id:'id = "' + info.i2b2NodeId + '"'});
 				response.parse();
 				var data = response.model[0];
 				if (data.id) { $('pmAdmin-approvalID').value = data.id; }

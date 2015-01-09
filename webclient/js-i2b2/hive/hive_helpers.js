@@ -112,7 +112,9 @@ i2b2.h.getXNodeVal = function(xmlElement, nodeName, includeChildren) {
 				final += gotten[i].nodeValue;
 			}
 		} else {
-				final = gotten[0].nodeValue;			
+			for (var i=0; i<gotten.length; i++) {
+				final += gotten[i].nodeValue;
+			}
 		}
 	} else {
 		final = undefined;

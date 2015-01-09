@@ -804,8 +804,11 @@ public class PMDbDao extends JdbcDaoSupport {
 		List<DBInfoType> queryResult = null;
 		try {
 			String clob = null;
+			
 			if (groupdata.getRequestXml() != null)
 			{
+				clob = groupdata.getRequestXml();
+				/*
 				BlobType blobType = (BlobType)groupdata.getRequestXml();
 				for (int i=0; i < blobType.getContent().size(); i++)
 				{
@@ -818,6 +821,7 @@ public class PMDbDao extends JdbcDaoSupport {
 					//					JDBCUtil.getClobString(clob));
 					//		rData.setRequestXml(blobType);
 				}
+				*/
 			}
 			String addSql = "insert into pm_project_request " + 
 					"(title, request_xml, project_id, change_date, entry_date, submit_char, changeby_char, status_cd) values (?,?,?,?,?,?,?,?)";
@@ -1388,7 +1392,11 @@ public class PMDbDao extends JdbcDaoSupport {
 					}
 					if (((UserType) utype).getParam().get(i).getValue() != null)
 					{
-						sql +=  " and value=?";
+						if (database.equalsIgnoreCase("oracle"))
+							sql +=  " and to_char(value)=?";
+						else
+							sql +=  " and value=?";
+							
 						al.add((((UserType) utype).getParam().get(i).getValue()));
 					}
 
@@ -2389,13 +2397,12 @@ public class PMDbDao extends JdbcDaoSupport {
 		return map;
 	}
 
-
 	private ParameterizedRowMapper getProjectRequest() {
 		ParameterizedRowMapper<ProjectRequestType> map = new ParameterizedRowMapper<ProjectRequestType>() {
 			public ProjectRequestType mapRow(ResultSet rs, int rowNum) throws SQLException {
 				ProjectRequestType rData = new ProjectRequestType();
 				DTOFactory factory = new DTOFactory();
-				rData.setId(rs.getString("id"));
+				rData.setId(Integer.toString(rs.getInt("id")));
 				rData.setProjectId(rs.getString("project_id"));
 				rData.setTitle(rs.getString("title"));
 				rData.setSubmitChar(rs.getString("submit_char"));
@@ -2406,6 +2413,8 @@ public class PMDbDao extends JdbcDaoSupport {
 				else 
 					rData.setEntryDate(long2Gregorian(date.getTime())); 
 
+				rData.setRequestXml(rs.getString("request_xml"));
+				/*
 				Clob clob = rs.getClob("request_xml");
 
 				if (clob != null) {
@@ -2419,6 +2428,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						log.debug(ioe.getMessage());
 					}
 				}
+				*/
 				//rData.setRequestXml(rs.getClob("request_xml"));
 				return rData;
 			} 

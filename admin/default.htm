@@ -6,9 +6,9 @@
 <!--
  *  *************************
  *       i2b2 Web Client
- *           v1.7.03
+ *           v1.7.04
  *  *************************
- *  @modified: 08/13/2014
+ *  @modified: 11/06/2014
  *  Contributors:
  *     Nick Benik
  *     Griffin Weber, MD, PhD
@@ -18,7 +18,7 @@
  */-->
 
 <script type="text/javascript">
-	var i2b2build = "1.7.003   [08/13/2014 4:07 PM] ";
+	var i2b2build = "1.7.004   [11/06/2014 4:07 PM] ";
 </script>
 
 <!-- LOAD YUI FROM Yahoo's CDN
@@ -720,40 +720,40 @@ YAHOO.util.Event.addListener(window, "load", init);
 						  <div class="relationshipAmongEvents" id="temporalbuilder_0">
                               <select id="preloc1[0]" name="preloc1[0]" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select>
                               <select id="instanceopf1[0]" name="instanceopf1[0]" style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select>
-                              <select id="instancevent1[0]" name="instancevent1[0]" style="width:100px;"><option value="Event 1"  selected="selected">Event 1</option><option value="Event 2">Event 2</option></select>
+                              <select id="instancevent1[0]" name="instancevent1[0]" style="width:100px;"><option value="Event 1"  selected>Event 1</option><option value="Event 2">Event 2</option></select>
                           		<br/>
 
                               <select id="postloc[0]" name="postloc[0]"  style="width:150px;">
                               <option value="LESS">Occurs Before</option>
                               <option value="LESSEQUAL">Occurs On or Before</option>
                               <option value="EQUAL">Occurs Simultaneously With</option>
-                              <option value="GREATEREQUAL">Occurs On or After</option>
                               <option value="GREATER">Occurs After</option>
+                              <option value="GREATEREQUAL">Occurs On or After</option>
                               </select>
 
                           		<br/>
                                 
                               <select id="preloc2[0]" name="preloc2[0]" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select>
                               <select id="instanceopf2[0]" name="instanceopf2[0]"  style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select>
-                              <select id="instancevent2[0]" name="instancevent2[0]" style="width:100px;"><option value="Event 1">Event 1</option><option value="Event 2" selected="selected">Event 2</option></select>
+                              <select id="instancevent2[0]" name="instancevent2[0]" style="width:100px;"><option value="Event 1">Event 1</option><option value="Event 2" selected>Event 2</option></select>
                                 
                                 <br/>
                                 
-                                <input  id="bytime1[0]" name="bytime1[0]" type="checkbox">By <select id="byspan1[0]" name="byspan1[0]"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL" selected="selected">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select>
+                                <input  id="bytime1[0]" name="bytime1[0]" type="checkbox">By <select id="byspan1[0]" name="byspan1[0]"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL" selected>&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select>
                                 <input   id="bytimevalue1[0]" name="bytimevalue1[0]" style="width:50px;" type="text" value="1">
                                  <select   id="bytimeunit1[0]" name="bytimeunit1[0]" style="width:100px;">
                                  <option  value="HOUR">hour(s)</option>
-                                 <option   value="DAY" selected="selected">day(s)</option>
+                                 <option   value="DAY" selected>day(s)</option>
                                  <option  value="MONTH">month(s)</option>
                                  <option  value="YEAR">year(s)</option></select>
                                  
                                  <br/>
                                  
-                                <input id="bytime2[0]" name="bytime2[0]" type="checkbox">And <select  id="byspan2[0]" name="byspan2[0]"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL" selected="selected">&le;</option><option value="LESS">&lt;</option></select>
+                                <input id="bytime2[0]" name="bytime2[0]" type="checkbox">And <select  id="byspan2[0]" name="byspan2[0]"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL" selected>&le;</option><option value="LESS">&lt;</option></select>
                                 <input id="bytimevalue2[0]" name="bytimevalue2[0]"  style="width:50px;" type="text" value="1">
                                  <select  id="bytimeunit2[0]" name="bytimeunit2[0]" style="width:100px;">
                                  <option  value="HOUR">hour(s)</option>
-                                 <option   value="DAY" selected="selected">day(s)</option>
+                                 <option   value="DAY" selected>day(s)</option>
                                  <option  value="MONTH">month(s)</option>
                                  <option  value="YEAR">year(s)</option></select>
                                  

@@ -40,7 +40,7 @@
 			{thinClientName:'sortOrder', defaultValue:'DESC'},
 			{thinClientName:'maxQueriesDisp', defaultValue:20},
 			{thinClientName:'maxChildren', defaultValue:200},
-			{thinClientName:'queryTimeout', defaultValue:180}
+			{thinClientName:'queryTimeout', defaultValue:3600}
 		]
 	}
 }

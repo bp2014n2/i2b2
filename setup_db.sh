@@ -127,6 +127,7 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/kh-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/ops-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/visit-meta.sql
+    sudo -u postgres psql -d i2b2 -f i2b2/insert_basecodes.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

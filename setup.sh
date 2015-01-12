@@ -83,9 +83,8 @@ echo "" ; kill -13 "$progPid";
 echo "Cleaning up"
 sudo rm -rf ~/jboss.zip
 
-echo "starting jboss"
-sudo screen -dmS "I2B2" sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0
-
 clear;
 echo "Setup completed"
+echo "start jboss with the following command"
+echo "sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0"
 

@@ -89,6 +89,7 @@ echo "Dropping Indexes... "
 progress &
 progPid=$!
 {
+    sudo chmod 755 ./i2b2/drop_indexes_and_constraints.sql
     sudo -u postgres psql -d i2b2 -f i2b2/drop_indexes_and_constraints.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
@@ -104,7 +105,7 @@ progPid=$!
     TRUNCATE i2b2demodata.provider_dimension;
     COPY i2b2demodata.provider_dimension(PROVIDER_ID, PROVIDER_PATH, NAME_CHAR, PROVIDER_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/csv/provider_dimension.csv' DELIMITER '|' CSV;
     TRUNCATE i2b2demodata.patient_dimension;
-    COPY i2b2demodata.patient_dimension(PATIENT_NUM, VITAL_STATUS_CD, BIRTH_DATE, DEATH_DATE, SEX_CD, AGE_IN_YEARS_NUM, LANGUAGE_CD, RACE_CD, MARITAL_STATUS_CD, RELIGION_CD, ZIP_CD, STATECITYZIP_PATH, INCOME_CD, PATIENT_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/stammdaten/patient_dimension.csv' DELIMITER '|' CSV;
+    COPY i2b2demodata.patient_dimension(PATIENT_NUM, VITAL_STATUS_CD, BIRTH_DATE, DEATH_DATE, SEX_CD, AGE_IN_YEARS_NUM, LANGUAGE_CD, RACE_CD, MARITAL_STATUS_CD, RELIGION_CD, ZIP_CD, STATECITYZIP_PATH, INCOME_CD, PATIENT_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID) FROM '`pwd`/Datensatz/csv/patient_dimension.csv' DELIMITER '|' CSV;
     TRUNCATE i2b2demodata.visit_dimension;
     ALTER TABLE i2b2demodata.visit_dimension ADD COLUMN AGE_IN_YEARS INT NULL;
     ALTER TABLE i2b2demodata.visit_dimension ADD COLUMN TREATMENT INT NULL;
@@ -147,6 +148,7 @@ echo "Adding Indexes... "
 progress &
 progPid=$!
 {
+    sudo chmod 755 ./i2b2/create_indexes_and_constraints.sql
     sudo -u postgres psql -d i2b2 -f i2b2/create_indexes_and_constraints.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";

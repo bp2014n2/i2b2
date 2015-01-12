@@ -110,9 +110,9 @@ progPid=$!
     ALTER TABLE i2b2demodata.visit_dimension ADD COLUMN AGE_IN_YEARS INT NULL;
     ALTER TABLE i2b2demodata.visit_dimension ADD COLUMN TREATMENT INT NULL;
     COPY i2b2demodata.visit_dimension(ENCOUNTER_NUM, PATIENT_NUM, ACTIVE_STATUS_CD, START_DATE, END_DATE, INOUT_CD, LOCATION_CD, LOCATION_PATH, LENGTH_OF_STAY, VISIT_BLOB, UPDATE_DATE, DOWNLOAD_DATE, IMPORT_DATE, SOURCESYSTEM_CD, UPLOAD_ID, AGE_IN_YEARS, TREATMENT) FROM '`pwd`/Datensatz/csv/visit_dimension.csv' DELIMITER '|' CSV;"
-    sudo -u postgres psql -d i2b2 -f Datensatz/sql/atc-concept_dimension.sql
-    sudo -u postgres psql -d i2b2 -f Datensatz/sql/icd-concept_dimension.sql
-    sudo -u postgres psql -d i2b2 -f Datensatz/sql/ops-concept_dimension.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/sql/atc-concept-dimension.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/sql/icd-concept-dimension.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/sql/ops-concept-dimension.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

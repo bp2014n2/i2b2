@@ -1,0 +1,1 @@
+INSERT INTO i2b2metadata.schemes (c_key, c_name, c_description) VALUES ('ICD:', 'ICD', 'ICD Code');

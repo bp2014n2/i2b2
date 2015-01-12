@@ -89,7 +89,6 @@ echo "Dropping Indexes... "
 progress &
 progPid=$!
 {
-    sudo chmod 755 ./i2b2/drop_indexes_and_constraints.sql
     sudo -u postgres psql -d i2b2 -f i2b2/drop_indexes_and_constraints.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
@@ -148,7 +147,6 @@ echo "Adding Indexes... "
 progress &
 progPid=$!
 {
-    sudo chmod 755 ./i2b2/create_indexes_and_constraints.sql
     sudo -u postgres psql -d i2b2 -f i2b2/create_indexes_and_constraints.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";

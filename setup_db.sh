@@ -113,7 +113,6 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/atc-concept_dimension.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/icd-concept_dimension.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/ops-concept_dimension.sql
-    sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier_dimension.sql
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 
@@ -124,6 +123,7 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/ontology.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/atc-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/icd-meta.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier_dimension.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/fg-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/kh-meta.sql

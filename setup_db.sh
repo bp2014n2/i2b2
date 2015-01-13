@@ -129,6 +129,7 @@ progPid=$!
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/icd-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier_dimension.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier-meta.sql
+    sudo -u postgres psql -d i2b2 -f Datensatz/sql/modifier-meta_2.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/fg-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/kh-meta.sql
     sudo -u postgres psql -d i2b2 -f Datensatz/sql/ops-meta.sql

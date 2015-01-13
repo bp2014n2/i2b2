@@ -26,7 +26,12 @@ echo "Installing software"
 progress &
 progPid=$!
 {
-    sudo apt-get install -y ant unzip postgresql python-pip bc;
+    sudo apt-get install -y ant unzip python-pip bc;
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+      sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get install -y postgresql-9.4
 } >$LOG_FILE
 echo "" ; kill -13 "$progPid";
 

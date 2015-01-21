@@ -27,57 +27,58 @@ mkdir log
 export LOG_FILE=`pwd`/log/log.txt
 touch $LOG_FILE
 
+db_loc="localhost:5432"
+
+if [ $# -ge 1 ]
+then
+    db_loc=$1
+fi
+
 echo "Installing software"
 progress &
 progPid=$!
 {
-    sudo apt-get -y install apache2 >> $LOG_FILE
-    sudo apt-get -y install libapache2-mod-php5 >> $LOG_FILE
-    sudo apt-get -y install php5-curl >> $LOG_FILE
-    sudo /etc/init.d/apache2 restart >> $LOG_FILE
-    sudo apt-get -y install openjdk-7-jdk >> $LOG_FILE
-    sudo apt-get -y install ant >> $LOG_FILE
-    sudo apt-get -y install curl >> $LOG_FILE
-    sudo apt-get -y install screen >> $LOG_FILE
-    sudo apt-get -y install unzip >> $LOG_FILE
-}  >$LOG_FILE 2>&1
+    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip
+    sudo /etc/init.d/apache2 restart
+}  >> $LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
 
 echo "Setting up webserver"
 progress &
 progPid=$!
 {
-    sudo cp -r $I2B2_HOME/admin /var/www/html/ >> $LOG_FILE
-    sudo cp -r $I2B2_HOME/webclient /var/www/html/ >> $LOG_FILE
-} >$LOG_FILE
+    sudo cp -r $I2B2_HOME/admin /var/www/html/
+    sudo cp -r $I2B2_HOME/webclient /var/www/html/
+} >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Downloading jboss"
 progress &
 progPid=$!
 {
-    curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip >> $LOG_FILE
-    unzip -d $JBOSS_HOME jboss.zip >> $LOG_FILE
-} >$LOG_FILE
+    curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip
+    unzip -d $JBOSS_HOME jboss.zip
+} >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Configuring cells"
 progress &
 progPid=$!
 {
-    cd $I2B2_HOME >> $LOG_FILE
-    sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i >> $LOG_FILE
-    sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i >> $LOG_FILE
-} >$LOG_FILE
+    cd $I2B2_HOME
+    sudo sh config_db.sh $db_loc
+    sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i
+    sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i
+} >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Building cells"
 progress &
 progPid=$!
 {
-    sudo sh $I2B2_HOME/build.sh >> $LOG_FILE
-    sudo sh $I2B2_HOME/deploy.sh >> $LOG_FILE
-} >$LOG_FILE
+    sudo sh $I2B2_HOME/build.sh
+    sudo sh $I2B2_HOME/deploy.sh
+} >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Cleaning up"

@@ -41,6 +41,14 @@ i2b2.hive.tempCellsList = [
 		   forceLoading: true,
 		   forceConfigMsg: { params: [] }
 		},
+		{ code: "GIRI"},
+
+		{ code:	"GIRIPlugin",
+		   forceLoading: true,
+		   forceConfigMsg: { params: [] },
+		   roles: [ "DATA_LDS", "DATA_DEID", "DATA_PROT" ],
+		   forceDir: "cells/plugins"
+		},
 //		{ code:	"ExampHello",
 //		   forceLoading: true,
 //		   forceConfigMsg: { params: [] },

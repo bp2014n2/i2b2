@@ -1,0 +1,149 @@
+<project basedir="." default="all" name="GIRI Cell">
+
+	<property file="build.properties"/>
+	<property name="Project" value="de.erlangen.i2b2.giri" />
+
+	<!-- ========== Executable Targets ======================================== -->
+	<property name="Name" value="GIRI" />
+	<import file="../edu.harvard.i2b2.common/common_build.xml" />
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init" depends="common_init,common-classpath" description="Prepare for build">
+		<path id="classpath">
+			<path refid="common-classpath" />
+			<pathelement location="${classes}" />
+			<pathelement location="${lib}/JRI.jar" />
+			<pathelement location="${lib}/jna-4.0.0.jar" />
+			<pathelement location="../${i2b2CommonProject}/dist/i2b2Common-core.jar" />
+			<pathelement location="." />
+		</path>
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="classpath" />
+		</taskdef>
+
+	</target>
+
+
+
+	<!-- =================================================================== -->
+	<!-- 								CLEAN 								 -->
+	<!-- =================================================================== -->
+	<target name="clean" depends="common_clean" description="Clean all build products" />
+
+
+	<!-- =================================================================== -->
+	<!-- 								COMMON JAXB GENERATION 				 -->
+	<!-- =================================================================== -->
+	<target name="jaxb_gen" depends="init" description="Generate JAXB classes for i2b2 and Patient Data messages">
+		<xjc destdir="${gensrc}" removeOldOutput="yes">
+			<schema dir="../${i2b2xmlproject}/xsd/hive/pdo_1.1" includes="i2b2_PDO.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/crc/pdo_1.1" includes="CRC_PDO_QRY.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/giri/" includes="GIRIConfig.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/giri/" includes="GIRIMessages.xsd" />
+			<binding dir="." includes="etc/xsd_1.1/i2b2_pdo_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/crc_pdo_qry.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/giri_config_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/giri_message_bindings.xjb" />
+		</xjc>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 								COMPILE 							 -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="init,jaxb_gen" description="Compile files without cleaning">
+		<mkdir dir="${classes}" />
+		<javac destdir="${classes}" optimize="${javac.opt}" debug="${javac.debug}">
+			<src path="${src}/core" />
+			<src path="${gensrc}" />
+			<src path="${src}/test" /> 
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- 								DIST 								 -->
+	<!-- =================================================================== -->
+	<target name="dist"  description="package application for distribution/deployment">
+		<echo message="${Name}: Creating the archive package!" />
+		<antcall target="axis2aar" />
+		<antcall target="jar_core" />
+	</target>
+	
+	<!-- Axis2 archive file -->
+	<target name="axis2aar" depends="compile" description="Create Axis2 archive file">
+		<jar compress="true" jarfile="${dist}/${Name}.aar">
+			<fileset dir="${classes}">
+				<include name="**/**" />
+				<exclude name="**/datavo/**" />
+				<exclude name="**/test/**" />
+			</fileset>
+			<zipfileset dir="${etc}/axis2/" prefix="META-INF" includes="services.xml" />
+			<zipfileset dir="${dist}/" prefix="lib" includes="*core.jar"/>
+			<zipfileset dir="${lib}/" prefix="lib" includes="*.jar"/>
+			<zipfileset dir="../${i2b2CommonProject}/dist/" prefix="lib" includes="*.jar"/>
+			<zipfileset dir="../${i2b2xmlproject}/xsd/cell/giri/" prefix="etc" includes="GIRIConfig.xsd"/>
+			<zipfileset dir="." prefix="etc" includes="build.properties"/>
+		</jar>
+	</target>
+	<!-- Jar core file -->
+	<target name="jar_core" depends="compile" description="Create PFT core jar">
+		<jar compress="true" jarfile="${dist}/${Name}-core.jar">
+			<fileset dir="${classes}">
+				<include name="**/datavo/**" />
+			</fileset>
+			<zipfileset dir="${etc}/axis2/" prefix="META-INF" includes="services.xml" />
+		</jar>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- 								ALL 								 -->
+	<!-- =================================================================== -->
+	<target name="all" depends="dist">
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- 						JBOSS	DEPLOYMENT 							 -->
+	<!-- =================================================================== -->
+	<target name="jboss_deploy"  description="Deployment step:copy distribution jar files to app server">
+		<echo message="${Name}: Copying archive package to app server" />
+		
+		<copy todir="//${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/lib">
+			<fileset dir="${dist}">
+				<exclude name="**/**.aar" />
+			</fileset>
+		</copy>
+		
+		<copy todir="//${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/services">
+			<fileset dir="${dist}">
+				<include name="**/**.aar" />
+			</fileset>
+		</copy>
+		
+		<copy todir="//${jboss.home}/standalone/lib/ext">
+			<fileset dir="${lib}">
+				<include name="libjri.so" />
+			</fileset>
+		</copy>
+	</target>
+	
+
+	<!-- ==================================================================== -->
+	<!-- 								Test Client							  -->
+	<!-- ==================================================================== -->
+	<target name="run_client" depends="compile" description="To test service, run REST client">
+		<!-- run rest client -->
+		<echo message="Running RESTClient .. " />
+		<java classname="de.erlangen.i2b2.giri.test.GIRIServiceRESTTest">
+			<classpath refid="classpath" />
+		</java>
+	</target>
+
+</project>

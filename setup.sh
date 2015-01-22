@@ -22,7 +22,9 @@ cd ~
 export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
+export GIRI_HOME=`pwd`/GIRIScripts
 mkdir $JBOSS_HOME
+mkdir $GIRI_HOME
 mkdir log
 export LOG_FILE=`pwd`/log/log.txt
 touch $LOG_FILE
@@ -38,7 +40,7 @@ echo "Installing software"
 progress &
 progPid=$!
 {
-    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip
+    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base
     sudo /etc/init.d/apache2 restart
 }  >> $LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
@@ -49,6 +51,12 @@ progPid=$!
 {
     sudo cp -r $I2B2_HOME/admin /var/www/html/
     sudo cp -r $I2B2_HOME/webclient /var/www/html/
+    sudo mkdir /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/csv
+    sudo mkdir /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/plots
+    sudo mkdir /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/RImage 
+    sudo chmod -R a+w /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/csv
+    sudo chmod -R a+w /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/plots
+    sudo chmod -R a+w /var/www/html/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/RImage
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
@@ -78,6 +86,9 @@ progPid=$!
 {
     sudo sh $I2B2_HOME/build.sh
     sudo sh $I2B2_HOME/deploy.sh
+    cd $I2B2_HOME/de.erlangen.i2b2.giri
+    sudo ant -f master_build.xml build-all
+    sudo ant jboss_deploy
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 

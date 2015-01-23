@@ -88,9 +88,6 @@ progPid=$!
 {
     sh $I2B2_HOME/build.sh
     sh $I2B2_HOME/deploy.sh
-    cd $I2B2_HOME/de.erlangen.i2b2.giri
-    ant -f master_build.xml build-all
-    sudo ant jboss_deploy
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 

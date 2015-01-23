@@ -103,12 +103,11 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 				insertSql = " insert into "
 						+ factTempTable;
 				
-				String char_param1 = "obs_concept_cd";
-				
-				if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
-					char_param1 = "CAST(coalesce(obs_concept_cd, '0') as integer)";
+				//if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
+				//	insertSql = " CAST(coalesce(char_param1, '0') as integer) ";
 				//else 
-				insertSql += "(char_param1) select distinct " + char_param1 + " from ( "
+				//	insertSql += " (char_param1) ";
+				insertSql += "(char_param1) select distinct obs_concept_cd from ( "
 						+ panelSql + ") b";
 
 				log.debug("Executing SQL [ " + insertSql + "]");

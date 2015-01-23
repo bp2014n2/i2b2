@@ -22,9 +22,8 @@ cd ~
 export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
-export GIRI_HOME=`pwd`/GIRIScripts
+export WWW_HOME=/var/www/html/
 mkdir $JBOSS_HOME
-mkdir $GIRI_HOME
 mkdir log
 export LOG_FILE=`pwd`/log/log.txt
 
@@ -57,8 +56,8 @@ progPid=$!
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/csv
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/plots
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/RImage
-    sudo cp -r $I2B2_HOME/admin /var/www/html/
-    sudo cp -r $I2B2_HOME/webclient /var/www/html/
+    sudo cp -r $I2B2_HOME/admin $WWW_HOME
+    sudo cp -r $I2B2_HOME/webclient $WWW_HOME
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
@@ -78,6 +77,8 @@ progPid=$!
 {
     cd $I2B2_HOME
     sh config_db.sh $db_loc
+    sed "s|\${env\.I2B2_HOME}|`echo $I2B2_HOME`|g" */build.properties -i
+    sed "s|\${env\.WWW_HOME}|`echo $WWW_HOME`|g" */build.properties -i
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i
 } >> $LOG_FILE

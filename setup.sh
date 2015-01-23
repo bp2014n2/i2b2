@@ -66,6 +66,7 @@ echo "Downloading jboss"
 progress &
 progPid=$!
 {
+    cd ~
     curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip
     unzip -d $JBOSS_HOME jboss.zip
 } >> $LOG_FILE
@@ -86,8 +87,9 @@ echo "Building cells"
 progress &
 progPid=$!
 {
-    sh $I2B2_HOME/build.sh
-    sh $I2B2_HOME/deploy.sh
+    cd $I2B2_HOME
+    sh build.sh
+    sh deploy.sh
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 

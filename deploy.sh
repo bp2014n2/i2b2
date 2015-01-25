@@ -4,7 +4,7 @@ result=0
 cd edu.harvard.i2b2.server-common/
 ant deploy jboss_pre_deployment_setup
 result=$((result + $?))
-cd edu.harvard.i2b2.common/
+cd ../edu.harvard.i2b2.common/
 ant deploy jboss_pre_deployment_setup
 result=$((result + $?))
 cd ../edu.harvard.i2b2.pm/

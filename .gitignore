@@ -1,31 +1,13 @@
-gensrc/**/*
-
-*.class
 *.db
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
-*.jar
-*.war
-*.ear
-
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-de.erlangen.i2b2.giri/dist
-de.erlangen.i2b2.giri/gensrc
-edu.harvard.i2b2.common/dist
-edu.harvard.i2b2.common/gensrc
-edu.harvard.i2b2.crc/dist
-edu.harvard.i2b2.crc/gensrc
-edu.harvard.i2b2.ontology/dist
-edu.harvard.i2b2.ontology/gensrc
-edu.harvard.i2b2.pm/gensrc
-edu.harvard.i2b2.pm/dist
-edu.harvard.i2b2.workplace/gensrc
-edu.harvard.i2b2.workplace/dist
-edu.harvard.i2b2.fr/gensrc
-edu.harvard.i2b2.fr/dist
-edu.harvard.i2b2.im/gensrc
-edu.harvard.i2b2.im/dist
+
+*/dist
+*/gensrc
+*/genlib
+*/classes
+*/$*

@@ -12,6 +12,10 @@ gensrc/**/*
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+de.erlangen.i2b2.giri/dist
+de.erlangen.i2b2.giri/gensrc
+edu.harvard.i2b2.common/dist
+edu.harvard.i2b2.common/gensrc
 edu.harvard.i2b2.crc/dist
 edu.harvard.i2b2.crc/gensrc
 edu.harvard.i2b2.ontology/dist

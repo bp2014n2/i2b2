@@ -25,5 +25,8 @@ result=$((result + $?))
 cd ../de.erlangen.i2b2.giri
 ant jboss_deploy
 result=$((result + $?))
+cd ../de.hpi.i2b2.report
+ant jboss_deploy
+result=$((result + $?))
 cd ..
 exit $result

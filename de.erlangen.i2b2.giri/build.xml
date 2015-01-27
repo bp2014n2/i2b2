@@ -1,5 +1,6 @@
 <project basedir="." default="all" name="GIRI Cell">
 
+	<property environment="env"/>
 	<property file="build.properties"/>
 	<property name="Project" value="de.erlangen.i2b2.giri" />
 

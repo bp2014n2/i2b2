@@ -1,5 +1,6 @@
 <project name="GIRI server build">
 	
+	<property environment="env"/>
 	<import file="../edu.harvard.i2b2.common/common_build.xml"/>
 	
     <property name="Project" value="de.erlangen.i2b2.giri"/>

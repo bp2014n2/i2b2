@@ -73,23 +73,22 @@ DIV#report-TABS HR {
 }
 
 #report-clearField {
-	font-weight:bold;
-	color:#666;
+	color:#FFF;
 	padding: 0px;
-	background: red;
+	background: rgba(0, 0, 0, 0.38);
 	text-align:center;
 	border: 1px solid #63758C;
-	border-radius: 10px;
-	width:170px;
+	border-radius: 2px;
+	width:150px;
 	height: 18px;
-	margin-top: 15px;
-	margin-right: auto;
+	margin-top: 5px;
 	margin-left: auto;
+	margin-right: auto;
 }
 
 #report-clearField:hover {
 	cursor: pointer;
-	background: rgb(204, 255, 187);
+	background: red;
 }
 
 #report-droptrgt-prs-fields {
@@ -111,7 +110,7 @@ DIV#report-TABS HR {
 	margin-top: 10px;
 	text-align:left;
 	border: 1px solid #63758C;
-	width:150px;
+	width:350px;
 	overflow:hidden;
 	white-space:nowrap;
 	margin-right: 10px;

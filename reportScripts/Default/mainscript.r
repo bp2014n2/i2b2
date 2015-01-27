@@ -11,13 +11,5 @@ report.output.3 <- report.events[[1]] # Data from visit_dimension
 report.output.4 <- report.observers[[1]] # Data from provider_dimension
 report.output.5 <- report.modifiers[[1]] # Data from modifier_dimension
 
-# All data of patient set two
-report.output.6 <- report.patients[[2]] # Data from patient_dimension
-report.output.7 <- report.observations[[2]] # Data from observation_fact and concept_dimension
-report.output.8 <- report.events[[2]] # Data from visit_dimension
-report.output.9 <- report.observers[[2]] # Data from provider_dimension
-report.output.10 <- report.modifiers[[2]] # Data from modifier_dimension
-
-
 # Holds the concept_paths of the specified concepts (right drag&drop fields)
 report.output.11 <- report.concept.names

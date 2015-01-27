@@ -1,6 +1,6 @@
 /* 
- * Created on : 07-11-2013 
- * Author     : Bastian Weinlich
+ * Created on : 27.01.2015
+ * Author     : Carl Ambroselli
  */
 
 // This function is called after the HTML is loaded into the viewer DIV
@@ -40,11 +40,11 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 			alert(tmpNode[0].nodeValue);
 			return;
 		}
-		// Show dropdownlist and add an empty entry ("no scriptlet selected")
+		// Show dropdownlist [and add an empty entry ("no scriptlet selected") (commented out)]
 		$("report-loading-scriptlets").hide();
 		$("report-statfunc-selector").show();
 		var selTrgt = $("report-pilist");
-		selTrgt.options[0] = new Option('','');
+		//selTrgt.options[0] = new Option('','');
 		// Call parsing function in i2b2_msgs.js -> Populate cbResults.model
 		cbResults.parse();
 		// Populate drop down list and internal map
@@ -53,9 +53,13 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 			var n = new Option(i2b2.h.Escape(t), t);
 			selTrgt.options[selTrgt.length] = n;
 			i2b2.reportPlugin.scriptlets[t] = cbResults.model[i];
+			if(i == 0) {
+				selTrgt.selectedIndex = 0;
+				i2b2.reportPlugin.loadPlugin(i2b2.h.Escape(t));
+			}
 		}
 		if (cbResults.faultyScriptlets != "" && cbResults.faultyScriptlets != undefined) {	
-			alert("Warning: The following scriptlets could not be loaded due to an invalid config.xml file:\n\n" + cbResults.faultyScriptlets);
+			alert("Warning: The following templates could not be loaded due to an invalid config.xml file:\n\n" + cbResults.faultyScriptlets);
 		}
 	}
 	// Send message to get all available scriptlets. After response arrived, the callback function above is called
@@ -180,7 +184,8 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(15,18));
 	if (i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
-		i2b2.reportPlugin.createNewPSDDField();
+		//UNCOMMENT THE NEXT LINE TO ALLOW MULTIPLE PATIENT SETS TO BE CREATED!
+		//i2b2.reportPlugin.createNewPSDDField();
 	}
 	// Save the info to our local data model
 	sdxData = sdxData[0];
@@ -189,7 +194,6 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	$("report-PRSDROP-" + fieldIndex).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
 	$("report-PRSDROP-" + fieldIndex).style.background = "#CFB"; 
 	i2b2.reportPlugin.model.prsDirty = true;
-	console.log("Dropped Patientset: "+i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName));
 };
 
 // This function is called when a concept is dropped
@@ -238,7 +242,12 @@ i2b2.reportPlugin.createNewPSDDField = function() {
 	var newNode = psFieldProt.cloneNode(true);
 	newNode.className = "report-droptrgt SDX-PRS";
 	newNode.id = "report-PRSDROP-" + ind;
-	newNode.innerHTML = "Patient Set " + (ind + 1);
+	// newNode.innerHTML = "Patient Set " + (ind + 1);
+	if(ind == 0){
+		newNode.innerHTML = "Drag'n'Drop Patient Set to this box!";
+	} else {
+		newNode.innerHTML = "Additional Patient Set";
+	}
 	psFieldContainer.appendChild(newNode);
 	Element.show(newNode);
 	// Register as drag&drop target
@@ -287,7 +296,7 @@ i2b2.reportPlugin.clearDDFields = function() {
 	// Create one patient set field
 	i2b2.reportPlugin.createNewPSDDField();
 	// Create one concept field
-	i2b2.reportPlugin.createNewCONCDDField();
+	//i2b2.reportPlugin.createNewCONCDDField();
 };
 
 // This function is called when a user clicks on the tab "View Results"

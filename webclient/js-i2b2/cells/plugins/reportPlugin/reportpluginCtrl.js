@@ -184,8 +184,7 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(15,18));
 	if (i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
-		//UNCOMMENT THE NEXT LINE TO ALLOW MULTIPLE PATIENT SETS TO BE CREATED!
-		//i2b2.reportPlugin.createNewPSDDField();
+		i2b2.reportPlugin.createNewPSDDField();
 	}
 	// Save the info to our local data model
 	sdxData = sdxData[0];

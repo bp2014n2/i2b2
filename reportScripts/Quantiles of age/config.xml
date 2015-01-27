@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Quantiles of age</title>
+		<description>Please select a patient set and fill in two values for p.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>true</passRErrors>
+		<plotDescription>Here you can see a boxplot of the patient's ages:</plotDescription>
+
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>p for lower quantile</name>
+			<description>Fill in a numeric value between 0.0 and 1.0, e.g. 0.05</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+		<input>
+			<name>p for upper quantile</name>
+			<description>Fill in a numeric value between 0.0 and 1.0, e.g. 0.95</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Lower quantile</name>
+			<description>This is the lower quantile. It descripes the value where (p * number of patients) lies below this value.</description>
+		</output>
+		<output>
+			<name>Upper quantile</name>
+			<description>This is the upper quantile. It descripes the value where (p * number of patients) lies above this value.</description>
+		</output>
+	</customOutputs>
+</reportconf:Rscriptlet>
+

@@ -1,8 +1,8 @@
-<project name="GIRI server build">
+<project name="report server build">
 	
 	<import file="../edu.harvard.i2b2.common/common_build.xml"/>
 	
-    <property name="Project" value="de.erlangen.i2b2.giri"/>
+    <property name="Project" value="de.hpi.i2b2.report"/>
 	<target name="build-all" depends="common_clean" description="Build this and all its dependent projects">
 		<!-- build i2b2common -->
 		<subant target="dist">

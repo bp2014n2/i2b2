@@ -1,0 +1,235 @@
+/** General Definitions **/
+
+reportplugin-mainDiv {
+	padding: 0px;
+}
+
+DIV#report-TABS DIV.report-MainContent {
+	background:#FFF;
+	border:solid #63758C;
+	border-width:1px 0;
+	overflow:auto;
+	width:99.7%;
+	height:94.7%;
+	position:absolute;
+}
+
+DIV#report-TABS DIV.report-MainContentPad {
+	padding:10px 10px;
+	width: 400px;
+}
+
+DIV#report-TABS H1 {
+	margin:0 0 10px 0;
+	font-size:20px;
+	color:#42558C;
+	font-weight:bold;
+}
+
+DIV#report-TABS H2 {
+	margin:0 0 2px 0;
+	font-size:16px;
+	color:#42558C;
+	font-weight:bold;
+}
+
+DIV#report-TABS H3 {
+	margin:10px 0 2px 0;
+	font-size:13px;
+	color:#42558C;
+	font-weight:bold;
+}
+
+DIV#report-TABS HR {
+	margin:0;
+}
+
+
+/** Definitions for 'Choose scriptlet' tab **/
+#report-loading-scriptlets img {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#report-statfunc-selector {
+    margin-bottom: 15px;
+    width: 400px;
+}
+
+#report-statfunc-selector select {
+    margin-top: 3px;
+}
+
+#report-scriptlet-description {
+    text-align: justify;
+}
+
+#report-droptrgt-cont {
+	width: 400px;
+	font-weight:bold;
+	color:#666;
+	margin: 15px 10px 0px 0px;
+	overflow: auto;
+}
+
+#report-clearField {
+	font-weight:bold;
+	color:#666;
+	padding: 0px;
+	background: red;
+	text-align:center;
+	border: 1px solid #63758C;
+	border-radius: 10px;
+	width:170px;
+	height: 18px;
+	margin-top: 15px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#report-clearField:hover {
+	cursor: pointer;
+	background: rgb(204, 255, 187);
+}
+
+#report-droptrgt-prs-fields {
+    float: left;
+}
+
+#report-droptrgt-conc-fields {
+    float: right;
+
+}
+
+#report-scriptlets-inputs {
+    margin-top: 30px;
+}
+
+.report-droptrgt {
+	padding: 5px 10px;
+	background: #DEEBEF;
+	margin-top: 10px;
+	text-align:left;
+	border: 1px solid #63758C;
+	width:150px;
+	overflow:hidden;
+	white-space:nowrap;
+	margin-right: 10px;
+}
+
+.report-input {
+    margin-bottom: 30px;
+    width: 400px;
+}
+
+.report-input p {
+    margin: 0px 0 5px 0;
+}
+
+DIV.report-addConc {
+	font-weight:bold;
+	color:#666;
+	padding: 5px 10px;
+	background: #DEEBEF;
+	text-align:left;
+	border: 1px solid #63758C;
+	width:150px;
+	overflow:hidden;
+	white-space:nowrap;
+	margin-right: 10px;
+}
+
+/** Definitions for 'View Results' Tab **/
+#report-waiting img {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#report-result p {
+    text-align: justify;
+}
+
+.report-download-button {
+	color:black;
+	padding: 0px; 0px 0px 0px;
+	background: #DEEBEF;
+	text-align:center;
+	border: 1px solid #63758C;
+	border-radius: 5px;
+	width:220px;
+	height: 17px;
+	margin-top: 10px;
+
+}
+
+.report-download-button:hover {
+    background: rgb(204, 255, 187);
+}
+
+.report-buttonLink {
+	text-decoration: none;
+	display: block;
+	color: black;
+}
+
+.report-result-element {
+    margin-bottom: 20px;
+}
+
+.report-result-element .report-result-descr {
+    margin: 0px;
+}
+
+.report-result-element .report-result-value {
+    margin: 0px;
+    font-weight:bold;
+    color: green;
+}
+
+.report-result-element .report-result-value TABLE {
+	margin:5px 0px 0px 0px;
+	border-collapse:collapse;
+	border:solid 1px #63758C;
+	color: black;
+	font-weight: normal;
+}
+.report-result-element .report-result-value TABLE TH {
+	border:solid 1px #63758C;
+	background-color:#CEDBEF;
+	padding:1px;
+	text-align:center;
+	white-space:nowrap;
+	overflow:hidden;
+	vertical-align:center;
+}
+.report-result-element .report-result-value TABLE TD {
+	border:solid 1px #63758C;
+	background-color:#DEEBEF;
+	padding:1px;
+	text-align:left;
+	white-space:nowrap;
+	overflow:hidden;
+	vertical-align:center;
+	font-size:10px;
+	line-height:13px;
+}
+
+#report-plots p {
+    margin: 0 0 3px 0;
+}
+
+#report-plots .report-plot img {
+    width: 400px;
+    height: auto;
+    border: 1px solid #63758C;
+}
+
+#report-plots .report-plot {
+    margin-bottom: 20px;
+}
+
+.report-stream p {
+    font-weight:bold;
+    margin: 0 0 20px 0;
+}
+

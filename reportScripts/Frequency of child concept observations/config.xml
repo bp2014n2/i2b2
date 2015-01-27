@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Frequency of child concept observations</title>
+		<description>This scriptlet computes the fraction of child concept observations on top level concept observations of the specified patient set. So please drag and drop one patient set on "Patient Set 1", one top level concept on "Concept 1" and one child concept of "Concept 1" on the additional input field below.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>true</passRErrors>
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>Child concept</name>
+			<description>Drag and drop a child concept here</description>
+			<type>concept</type>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Top level concept</name>
+		</output>
+		<output>
+			<name>Child concept</name>
+		</output>
+		<output>
+			<name>Relative frequency of observations of child concept</name>
+			<description>Computed by #(Child concept observations) / #(Top level concept observations)</description>
+		</output>
+	</customOutputs>
+</reportconf:Rscriptlet>
+

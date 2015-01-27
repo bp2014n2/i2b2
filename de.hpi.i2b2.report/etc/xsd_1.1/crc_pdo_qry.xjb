@@ -3,7 +3,7 @@
                xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <jxb:bindings schemaLocation="../../../edu.harvard.i2b2.xml/xsd/cell/crc/pdo_1.1/CRC_PDO_QRY.xsd" node="/xs:schema">
     <jxb:schemaBindings>   
-	<jxb:package name="de.erlangen.i2b2.giri.datavo.pdo.query"></jxb:package>
+	<jxb:package name="de.hpi.i2b2.report.datavo.pdo.query"></jxb:package>
     </jxb:schemaBindings>
   </jxb:bindings> 
 </jxb:bindings> 

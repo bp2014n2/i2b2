@@ -1,10 +1,10 @@
-<project basedir="." default="all" name="Report Cell">
+<project basedir="." default="all" name="report Cell">
 
 	<property file="build.properties"/>
-	<property name="Project" value="de.erlangen.i2b2.giri" />
+	<property name="Project" value="de.hpi.i2b2.report" />
 
 	<!-- ========== Executable Targets ======================================== -->
-	<property name="Name" value="Report" />
+	<property name="Name" value="report" />
 	<import file="../edu.harvard.i2b2.common/common_build.xml" />
 
 	<!-- =================================================================== -->
@@ -42,13 +42,13 @@
 			<schema dir="../${i2b2xmlproject}/xsd/hive/pdo_1.1" includes="i2b2_PDO.xsd" />
 			<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
 			<schema dir="../${i2b2xmlproject}/xsd/cell/crc/pdo_1.1" includes="CRC_PDO_QRY.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/cell/giri/" includes="ReportConfig.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/cell/giri/" includes="ReportMessages.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/report/" includes="reportConfig.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/report/" includes="reportMessages.xsd" />
 			<binding dir="." includes="etc/xsd_1.1/i2b2_pdo_bindings.xjb" />
 			<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
 			<binding dir="." includes="etc/xsd_1.1/crc_pdo_qry.xjb" />
-			<binding dir="." includes="etc/xsd_1.1/giri_config_bindings.xjb" />
-			<binding dir="." includes="etc/xsd_1.1/giri_message_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/report_config_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/report_message_bindings.xjb" />
 		</xjc>
 	</target>
 
@@ -87,7 +87,7 @@
 			<zipfileset dir="${dist}/" prefix="lib" includes="*core.jar"/>
 			<zipfileset dir="${lib}/" prefix="lib" includes="*.jar"/>
 			<zipfileset dir="../${i2b2CommonProject}/dist/" prefix="lib" includes="*.jar"/>
-			<zipfileset dir="../${i2b2xmlproject}/xsd/cell/giri/" prefix="etc" includes="ReportConfig.xsd"/>
+			<zipfileset dir="../${i2b2xmlproject}/xsd/cell/report/" prefix="etc" includes="reportConfig.xsd"/>
 			<zipfileset dir="." prefix="etc" includes="build.properties"/>
 		</jar>
 	</target>
@@ -141,7 +141,7 @@
 	<target name="run_client" depends="compile" description="To test service, run REST client">
 		<!-- run rest client -->
 		<echo message="Running RESTClient .. " />
-		<java classname="de.erlangen.i2b2.giri.test.ReportServiceRESTTest">
+		<java classname="de.hpi.i2b2.report.test.reportServiceRESTTest">
 			<classpath refid="classpath" />
 		</java>
 	</target>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Example 4: Additional input and custom output</title>
+		<description>This scriptlet shows how to define and use additional input parameters and custom output variables. Drag and drop one patient set (which won't be processed) and assign additional input parameters below.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
+		<resultDescription>Custom outputs are much more meaningful:</resultDescription>
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>A textfield</name>
+			<description>Type in anything you want</description>
+			<type>text</type>
+			<lines>3</lines>
+		</input>
+		<input>
+			<name>A dropdown list</name>
+			<description>Choose something</description>
+			<type>dropdown</type>
+			<items>
+				<item>Red</item>
+				<item>Yellow</item>
+				<item>Green</item>
+				<item>Blue</item>
+			</items>
+		</input>
+		<input>
+			<name>A concept drag and drop field</name>
+			<description>Drag and drop a concept on the field</description>
+			<type>concept</type>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Your entered text</name>
+			<description>This is the text you entered:</description>
+		</output>
+		<output>
+			<name>Your chosen color</name>
+			<description>This is the color you have chosen from the dropdown field:</description>
+		</output>
+		<output>
+			<name>Your concept</name>
+			<description>This is the concept path of the dragged and dropped concept:</description>
+		</output>
+	</customOutputs>
+</reportconf:Rscriptlet>
+

@@ -49,6 +49,13 @@ i2b2.hive.tempCellsList = [
 		   roles: [ "DATA_LDS", "DATA_DEID", "DATA_PROT" ],
 		   forceDir: "cells/plugins"
 		},
+                { code: "report"},
+                { code: "reportPlugin",
+                   forceLoading: true,
+                   forceConfigMsg: { params: [] },
+                   roles: [ "DATA_LDS", "DATA_DEID", "DATA_PROT" ],
+                   forceDir: "cells/plugins"
+                },
 //		{ code:	"ExampHello",
 //		   forceLoading: true,
 //		   forceConfigMsg: { params: [] },

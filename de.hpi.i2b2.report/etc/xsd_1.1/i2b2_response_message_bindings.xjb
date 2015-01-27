@@ -3,7 +3,7 @@
                xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <jxb:bindings schemaLocation="../../../edu.harvard.i2b2.xml/xsd/hive/msg_1.1/i2b2_response.xsd" node="/xs:schema">
         <jxb:schemaBindings>
-	           <jxb:package name="de.erlangen.i2b2.giri.datavo.i2b2message">
+	           <jxb:package name="de.hpi.i2b2.report.datavo.i2b2message">
 	  	     </jxb:package>
 	  	     <!-- 
 	  	     <jxb:nameXmlTransform>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:report="http://www.i2b2.org/xsd/cell/report/1.0/"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/"
+    targetNamespace="http://www.i2b2.org/xsd/cell/report/1.0/">
+ 
+    <xs:import namespace="http://www.i2b2.org/xsd/cell/reportconf/1.0/"/>
+
+    <xs:element name="RScriptlets" type="report:RScriptletsType" />
+    
+    <xs:complexType name="RScriptletsType">
+        <xs:sequence>
+		<xs:element name="faultyScriptlets" type="xs:string"/>
+		<xs:element name="rscriptlet" type="reportconf:RscriptletType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType> 
+
+</xs:schema>

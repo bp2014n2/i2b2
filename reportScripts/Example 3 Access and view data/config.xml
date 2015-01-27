@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Example 3: Access and view data</title>
+		<description>Viewing all available data of the first two patient sets. Drag and drop two patient sets and at least one concept. Note that this could be slow if data is big.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>true</passRErrors>
+		<resultDescription>Look at the R script to see which table belongs to which data</resultDescription>
+	</settings>
+</reportconf:Rscriptlet>
+

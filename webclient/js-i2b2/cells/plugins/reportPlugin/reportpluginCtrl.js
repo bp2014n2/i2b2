@@ -199,7 +199,7 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 // This function is called when a concept is dropped
 i2b2.reportPlugin.conceptDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
-	var fieldIndex = parseInt(droppedOnID.slice(16,17));
+	var fieldIndex = parseInt(droppedOnID.slice(18,20));
 	//[DISABLED] Creation of new field
 	if (false && i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
 		// Timeout to prevent a browser error that would occur when a new dd field is created too fast here

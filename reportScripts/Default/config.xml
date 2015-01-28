@@ -4,7 +4,7 @@
 	<settings>
 		<title>Elsevier Report</title>
 		<description>This is a comprehensive report generated from the given patient set.</description>
-		<passROutput>true</passROutput>
+		<passROutput>false</passROutput>
 		<passRErrors>true</passRErrors>
 		<resultDescription>Your generated report:</resultDescription>
 		<numberOfPatientSets>2</numberOfPatientSets>
@@ -20,6 +20,10 @@
                 <output>
                         <name>Mean Age</name>
                         <description>Mean age of the patient set:</description>
+                </output>
+                <output>
+                        <name>Age Contribution</name>
+                        <description>Playing with diagrams</description>
                 </output>
         </customOutputs>
 </reportconf:Rscriptlet>

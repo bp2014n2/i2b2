@@ -55,12 +55,12 @@ progPid=$!
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/csv
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/plots
     sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIPlugin/assets/RImage
-    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/csv
-    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/plots
-    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/RImage
-    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/csv
-    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/plots
-    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/RImage
+    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/csv
+    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/plots
+    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/RImage
+    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/csv
+    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/plots
+    sudo chmod -R +w $I2B2_HOME/webclient/js-i2b2/cells/plugins/reportPlugin/assets/RImage
     sudo cp -r $I2B2_HOME/admin $WWW_HOME
     sudo cp -r $I2B2_HOME/webclient $WWW_HOME
 } >> $LOG_FILE

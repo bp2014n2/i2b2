@@ -32,6 +32,8 @@
 			<xs:element name="passRErrors" type="xs:boolean" minOccurs="0"/>
 			<xs:element name="resultDescription" type="xs:string" minOccurs="0"/>
 			<xs:element name="plotDescription" type="xs:string" minOccurs="0"/>
+			<xs:element name="numberOfPatientSets" type="xs:string" minOccurs="0"/>
+			<xs:element name="numberOfConcepts" type="xs:string" minOccurs="0"/>
         	</xs:sequence>
 	</xs:complexType>
 

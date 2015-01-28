@@ -96,7 +96,7 @@ DIV#report-TABS HR {
 }
 
 #report-droptrgt-conc-fields {
-    float: right;
+    float: left;
 
 }
 
@@ -110,7 +110,7 @@ DIV#report-TABS HR {
 	margin-top: 10px;
 	text-align:left;
 	border: 1px solid #63758C;
-	width:350px;
+	width:375px;
 	overflow:hidden;
 	white-space:nowrap;
 	margin-right: 10px;

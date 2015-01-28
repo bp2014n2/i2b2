@@ -7,6 +7,8 @@
 		<passROutput>true</passROutput>
 		<passRErrors>true</passRErrors>
 		<resultDescription>Your generated report:</resultDescription>
+		<numberOfPatientSets>2</numberOfPatientSets>
+		<numberOfConcepts>2</numberOfConcepts>
 	</settings>
         <customOutputs>
                 <output>

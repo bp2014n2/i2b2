@@ -430,6 +430,7 @@ i2b2.GIRIPlugin.buildAndSendMsg = function() {
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
 	messParams['additional_input'] = aiMessPart;
+	messParams['result_wait_time'] = i2b2.GIRI.cfg.params.queryTimeout;
 	// Display waiting message
 	var resultsDiv = $("giri-result");
 	resultsDiv.hide();

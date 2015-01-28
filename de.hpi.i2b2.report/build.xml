@@ -1,5 +1,6 @@
 <project basedir="." default="all" name="report Cell">
 
+	<property environment="env"/>
 	<property file="build.properties"/>
 	<property name="Project" value="de.hpi.i2b2.report" />
 

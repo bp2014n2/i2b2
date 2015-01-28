@@ -440,6 +440,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
 	messParams['additional_input'] = aiMessPart;
+	messParams['result_wait_time'] = i2b2.report.cfg.params.queryTimeout;
 	// Display waiting message
 	var resultsDiv = $("report-result");
 	resultsDiv.hide();

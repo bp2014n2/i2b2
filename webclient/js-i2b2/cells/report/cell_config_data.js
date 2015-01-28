@@ -7,6 +7,9 @@
 	config: {
 		// additional configuration variables that are set by the system
 		name: "report Messaging",
-		category: ["core","cell"]
+		category: ["core","cell"],
+		paramTranslation: [
+			{thinClientName:'queryTimeout', defaultValue:3600}
+		]
 	}
 }

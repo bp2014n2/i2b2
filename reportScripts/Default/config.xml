@@ -8,5 +8,17 @@
 		<passRErrors>true</passRErrors>
 		<resultDescription>Your generated report:</resultDescription>
 	</settings>
+        <customOutputs>
+                <output>
+                        <name>Raw</name>
+                        <description>
+                       		Raw data set:
+			</description>
+                </output>
+                <output>
+                        <name>Mean Age</name>
+                        <description>Mean age of the patient set:</description>
+                </output>
+        </customOutputs>
 </reportconf:Rscriptlet>
 

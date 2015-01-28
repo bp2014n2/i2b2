@@ -183,7 +183,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(15,18));
-	if (i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
+	// [DISABLED] Creation of new field
+	if (false && i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
 		i2b2.reportPlugin.createNewPSDDField();
 	}
 	// Save the info to our local data model
@@ -199,7 +200,8 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 i2b2.reportPlugin.conceptDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(16,17));
-	if (i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
+	//[DISABLED] Creation of new field
+	if (false && i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
 		// Timeout to prevent a browser error that would occur when a new dd field is created too fast here
 		// The error is harmless -> so this pseudo-fix is sufficient
 		window.setTimeout(i2b2.reportPlugin.createNewCONCDDField,200);

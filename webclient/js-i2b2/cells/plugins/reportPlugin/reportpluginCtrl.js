@@ -369,8 +369,8 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	// Get subdirectory name
 	var piDirName = i2b2.reportPlugin.scriptlets[piTitle].subdir;
 
-	// Error case: No patient set selected
-	if ( ! i2b2.reportPlugin.model.prsDirty ) {
+	// Error case: No patient set selected [DEACTIVATED]
+	if ( false && ! i2b2.reportPlugin.model.prsDirty ) {
 		errorDivNoPSCC.show();
 		return;
 	}

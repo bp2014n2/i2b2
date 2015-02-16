@@ -293,10 +293,10 @@ public class GetRResultsRequestHandler implements RequestHandler {
 		}
 		
 		// Error case: No patient data set was specified
-		if (i == 1) {
+		/*if (i == 1) {
 			log.error("No patient set specified in request message");
 			throw new I2B2Exception("Error delivered from server: No Patient set specified");
-		}
+		}*/
 		
 		// ============== R processing ==============
 		

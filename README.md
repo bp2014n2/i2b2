@@ -5,7 +5,7 @@
 ### local installation
 `sudo apt-get -y install git; cd ~; git clone https://github.com/bp2014n2/i2b2.git; cd i2b2; sudo ./setup.sh`
 ### server installation
-`sudo apt-get -y install git; cd ~; git clone https://github.com/bp2014n2/i2b2.git; cd i2b2; sudo ./setup.sh` 54.93.194.65:5432
+`sudo apt-get -y install git; cd ~; git clone https://github.com/bp2014n2/i2b2.git; cd i2b2; sudo ./setup.sh 54.93.194.65:5432`
 ### Report Cell installation
 `sudo apt-get -y install git; cd ~; git clone https://github.com/bp2014n2/i2b2.git; cd i2b2; git checkout report; sudo ./setup.sh`
 

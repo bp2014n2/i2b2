@@ -123,7 +123,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	description.innerHTML = i2b2.h.Escape(i2b2.reportPlugin.scriptlets[value].descr);
 	
 	// Clear old and register new drag/drop fields
-	i2b2.reportPlugin.clearDDFields();
+	i2b2.reportPlugin.initDDFields(i2b2.reportPlugin.scriptlets[value]);
 	clearFieldsButton.show();
 	ddCont.show();
 
@@ -183,7 +183,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(15,18));
-	if (i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
+	// [DISABLED] Creation of new field
+	if (false && i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
 		i2b2.reportPlugin.createNewPSDDField();
 	}
 	// Save the info to our local data model
@@ -198,8 +199,9 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 // This function is called when a concept is dropped
 i2b2.reportPlugin.conceptDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
-	var fieldIndex = parseInt(droppedOnID.slice(16,17));
-	if (i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
+	var fieldIndex = parseInt(droppedOnID.slice(18,20));
+	//[DISABLED] Creation of new field
+	if (false && i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
 		// Timeout to prevent a browser error that would occur when a new dd field is created too fast here
 		// The error is harmless -> so this pseudo-fix is sufficient
 		window.setTimeout(i2b2.reportPlugin.createNewCONCDDField,200);
@@ -242,11 +244,7 @@ i2b2.reportPlugin.createNewPSDDField = function() {
 	newNode.className = "report-droptrgt SDX-PRS";
 	newNode.id = "report-PRSDROP-" + ind;
 	// newNode.innerHTML = "Patient Set " + (ind + 1);
-	if(ind == 0){
-		newNode.innerHTML = "Drag'n'Drop Patient Set to this box!";
-	} else {
-		newNode.innerHTML = "Additional Patient Set";
-	}
+	newNode.innerHTML = "Drop Patient Set " + (ind + 1) + " here";
 	psFieldContainer.appendChild(newNode);
 	Element.show(newNode);
 	// Register as drag&drop target
@@ -267,7 +265,7 @@ i2b2.reportPlugin.createNewCONCDDField = function() {
 	var newNode = concFieldProt.cloneNode(true);
 	newNode.className = "report-droptrgt SDX-CONCPT";
 	newNode.id = "report-CONCPTDROP-" + ind;
-	newNode.innerHTML = "Concept " + (ind + 1);
+	newNode.innerHTML = "Drop Concept " + (ind + 1) + " here";
 	concFieldContainer.appendChild(newNode);
 	Element.show(newNode);
 	// Register as drag&drop target
@@ -295,7 +293,36 @@ i2b2.reportPlugin.clearDDFields = function() {
 	// Create one patient set field
 	i2b2.reportPlugin.createNewPSDDField();
 	// Create one concept field
-	//i2b2.reportPlugin.createNewCONCDDField();
+	i2b2.reportPlugin.createNewCONCDDField();
+};
+
+
+// Helper function: Initializes drag&drop fields
+i2b2.reportPlugin.initDDFields = function(scriptlet) {
+	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".SDX-CONCPT").length;
+	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".SDX-PRS").length;
+
+	// Remove all drag&drop fields
+	var allOldDDFields = $$(".report-droptrgt");
+	for (var i = 0; i < allOldDDFields.length; i++) {
+		allOldDDFields[i].parentElement.removeChild(allOldDDFields[i]);
+	}
+	// Reset counters, tokens and data
+	i2b2.reportPlugin.model.highestConcDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.reportPlugin.model.highestPSDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.reportPlugin.model.prsDirty = false;
+	i2b2.reportPlugin.model.conceptDirty = false;
+	i2b2.reportPlugin.model.conceptRecords = [];
+	i2b2.reportPlugin.model.prsRecords = [];
+
+	// Create patient set fields
+	for(var i = 0; i < numberOfPatientSets; i++) {
+		i2b2.reportPlugin.createNewPSDDField();
+	}
+	// Create concept fields
+	for(var i = 0; i < numberOfConcepts; i++) {
+		i2b2.reportPlugin.createNewCONCDDField();
+	}
 };
 
 // This function is called when a user clicks on the tab "View Results"
@@ -344,8 +371,8 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	// Get subdirectory name
 	var piDirName = i2b2.reportPlugin.scriptlets[piTitle].subdir;
 
-	// Error case: No patient set selected
-	if ( ! i2b2.reportPlugin.model.prsDirty ) {
+	// Error case: No patient set selected [DEACTIVATED]
+	if ( false && ! i2b2.reportPlugin.model.prsDirty ) {
 		errorDivNoPSCC.show();
 		return;
 	}

@@ -84,6 +84,10 @@ i2b2.report.cfg.parsers.getRScriptlets = function(){
 			if (nodeData.resDescr == undefined) { nodeData.resDescr = ""; }
 			nodeData.plotDescr = i2b2.h.getXNodeVal(s, "settings/plotDescription");
 			if (nodeData.plotDescr == undefined) { nodeData.plotDescr = ""; }
+			nodeData.numberOfPatientSets = i2b2.h.getXNodeVal(s, "settings/numberOfPatientSets");
+			if (nodeData.numberOfPatientSets == undefined) { nodeData.numberOfPatientSets = 1; }
+			nodeData.numberOfConcepts = i2b2.h.getXNodeVal(s, "settings/numberOfConcepts");
+			if (nodeData.numberOfConcepts == undefined) { nodeData.numberOfConcepts = 0; }
 			// Process additional inputs if available
 			var addInputNodes = i2b2.h.XPath(s, ".//input");
 			nodeData.addInputs = [];

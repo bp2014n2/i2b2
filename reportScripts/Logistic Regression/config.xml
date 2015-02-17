@@ -7,17 +7,24 @@
 		<passROutput>false</passROutput>
 		<passRErrors>false</passRErrors>
 		<resultDescription>This Scriplet computes the probabilities that a target concept occurs for a given patient set</resultDescription>
-		<numberOfPatientSets>2</numberOfPatientSets>
-		<numberOfConcepts>2</numberOfConcepts>
+		<numberOfPatientSets>0</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
 	</settings>
 	<additionalInputs>
 		<input>
 			<name>Target concept</name>
 			<description>Drag and drop a concept on the field</description>
-			<type>concept</type>
+			<type>text</type>
+			<lines>1</lines>
 		</input>
 		<input>
-			<name>Model data year</name>
+			<name>Model year</name>
+			<description>Year from which our model data should be taken</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+		<input>
+			<name>Model target interval</name>
 			<description>Year from which our model data should be taken</description>
 			<type>text</type>
 			<lines>1</lines>
@@ -33,6 +40,10 @@
 		<output>
 			<name>Prediction</name>
 			<description>This is your prediction</description>
+		</output>
+		<output>
+			<name>Information</name>
+			<description>Information about the prediction</description>
 		</output>
 	</customOutputs>
 </reportconf:Rscriptlet>

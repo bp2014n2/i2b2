@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Logistic Regression</title>
+		<description>Risk Prediction with Logistic Regression. The first patient set is supposed to be our set which we want to predict our target for. The second is our model patient set</description>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
+		<resultDescription>This Scriplet computes the probabilities that a target concept occurs for a given patient set</resultDescription>
+		<numberOfPatientSets>2</numberOfPatientSets>
+		<numberOfConcepts>2</numberOfConcepts>
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>Target concept</name>
+			<description>Drag and drop a concept on the field</description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Model data year</name>
+			<description>Year from which our model data should be taken</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+		<input>
+			<name>Prediction year</name>
+			<description>Year for which our target should be predicted</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Prediction</name>
+			<description>This is your prediction</description>
+		</output>
+	</customOutputs>
+</reportconf:Rscriptlet>
+

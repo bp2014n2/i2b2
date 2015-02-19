@@ -39,7 +39,11 @@ progress &
 progPid=$!
 {
     cd $I2B2_HOME
-    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+      sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base postgresql-server-dev-9.4
     sudo /etc/init.d/apache2 restart
     sudo R CMD ./install_giri_packages.r
 }  >> $LOG_FILE 2>&1

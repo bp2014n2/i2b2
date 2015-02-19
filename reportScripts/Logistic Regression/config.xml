@@ -14,8 +14,7 @@
 		<input>
 			<name>Target concept</name>
 			<description>Drag and drop a concept on the field</description>
-			<type>text</type>
-			<lines>1</lines>
+			<type>concept</type>
 		</input>
 		<input>
 			<name>Model year</name>
@@ -38,12 +37,12 @@
 	</additionalInputs>
 	<customOutputs>
 		<output>
-			<name>Prediction</name>
-			<description>This is your prediction</description>
-		</output>
-		<output>
 			<name>Information</name>
 			<description>Information about the prediction</description>
+		</output>
+		<output>
+			<name>Prediction</name>
+			<description>This is your prediction</description>
 		</output>
 	</customOutputs>
 </reportconf:Rscriptlet>

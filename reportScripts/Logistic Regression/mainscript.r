@@ -35,23 +35,25 @@ generateFeatureMatrix <- function(observations, features, patients) {
 model_year.start <- i2b2DateToPOSIXlt(report.input['Model year'])
 model_year.end <- model_year.start
 model_year.end$year <- model_year.end$year + 1
+model_year.start <- posixltToPSQLDate(model_year.start)
+model_year.end <- posixltToPSQLDate(model_year.end)
+
 prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction year'])
 prediction_year.end <- prediction_year.start
 prediction_year.end$year <- prediction_year.end$year + 1
-model_target_interval <- strtoi(report.input['Model target interval'])
-target_concept <- report.input['Target concept']
-feature_filter_vector <- c("ATC", "ICD")
-feature_filter <- paste("(", paste(feature_filter_vector, collapse="|"), "):", sep="")
-target_year.start <- model_year.start
-target_year.start$year <- target_year.start$year + model_target_interval
-target_year.end <- target_year.start
-target_year.end$year <- target_year.end$year + 1
-model_year.start <- posixltToPSQLDate(model_year.start)
-model_year.end <- posixltToPSQLDate(model_year.end)
 prediction_year.start <- posixltToPSQLDate(prediction_year.start)
 prediction_year.end <- posixltToPSQLDate(prediction_year.end)
+
+target_year.start <- i2b2DateToPOSIXlt(report.input['Target year'])
+target_year.end <- target_year.start
+target_year.end$year <- target_year.end$year + 1
 target_year.start <- posixltToPSQLDate(target_year.start)
 target_year.end <- posixltToPSQLDate(target_year.end)
+
+target_concept <- report.input['Target concept']
+
+feature_filter_vector <- c("ATC", "ICD")
+feature_filter <- paste("(", paste(feature_filter_vector, collapse="|"), "):", sep="")
 max_elem <- 100
 
 con <- initializeCRCConnection()
@@ -77,5 +79,6 @@ prediction <- predictRisk(model, target, new_model)
 sorted_prediction <- prediction[order(-prediction$probability),]
 rownames(sorted_prediction) <- NULL
 
-report.output[['Information']] <- sprintf('Model: %i, Target: %i, New: %i, Target: %s', model_year, target_year, prediction_year, target_icd)
+report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_icd)
 report.output[['Prediction']] <- head(sorted_prediction, max_elem)
+gc()

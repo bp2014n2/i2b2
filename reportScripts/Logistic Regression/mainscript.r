@@ -7,92 +7,60 @@ require(Matrix)
 predictRisk <- function(model, target, newdata) {
   
   # required packages needed, must be installed first
-  require(glmnet)
-  require(doMC)
-  
-  # we want up to four cores to be used for parallel computation
-  registerDoMC(cores=4)
+  require(speedglm)
   
   # compute the fit model using multiple cores
   # this is the actual logistic regression process
   
-  fit <- cv.glmnet(model, target, parallel=TRUE, family="binomial", type.measure="class")
-  
-  # predict probabilities for target vector
-  return(predict(fit, newx=newdata, type="response"))
+  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
+  b  <- coef(fit)
+  pb <- exp(newdata%*%b)
+  pb <- as.vector(pb/(1+pb))
+  pb[is.na(pb)] <- 0
+  pb <- data.frame(rownames(newdata), pb)
+  colnames(pb) <- c('patient_num', 'probability')
+  return(pb)
   
 }
 
 generateFeatureMatrix <- function(observations, features, patients) {
-  model <- Matrix(rep(0,times=length(features)*length(patients)), ncol=length(features), nrow=length(patients), sparse=TRUE)
+  model <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(levels(patient_num), levels(concept_cd))))
   
   rownames(model) <- patients
   colnames(model) <- features
   
-  transformToModel <- function(row, patients, features, model) {
-    model[row['patient_num'], row['concept_cd']] <<- strtoi(row['count'])
-  }
-  
-  apply(observations, 1, transformToModel, patients=patients, features=features, model=model)
-  
   return(model)
 }
 
-queries.observations <- "WITH ICD AS (
-  SELECT *
-  FROM i2b2demodata.observation_fact
-  WHERE concept_cd LIKE '%s%%'
-  AND (start_date >= '%i-01-01T00:00:00' AND start_date <= '%i-01-01T00:00:00') 
-)
-SELECT patient_num, concept_cd, COUNT(*) AS count
-FROM (
-    (SELECT patient_num, substring(concept_cd from 0 for position('.' in concept_cd)) AS concept_cd
-    FROM ICD
-    WHERE POSITION('.' in concept_cd) <> 0)
-  UNION ALL
-    (SELECT patient_num, concept_cd AS concept_cd
-    FROM ICD
-    WHERE POSITION('.' in concept_cd) = 0)
-) a
-GROUP BY patient_num, concept_cd"
-
-queries.patients <- "SELECT DISTINCT patient_num
-FROM i2b2demodata.patient_dimension"
-
-queries.features <- "WITH ICD AS (
-  SELECT *
-  FROM i2b2demodata.concept_dimension
-  WHERE concept_cd LIKE '%s%%'
-)
-SELECT DISTINCT concept_cd
-FROM (
-    (SELECT substring(concept_cd from 0 for position('.' in concept_cd)) AS concept_cd
-    FROM ICD
-    WHERE POSITION('.' in concept_cd) <> 0)
-  UNION ALL
-    (SELECT concept_cd AS concept_cd
-    FROM ICD
-    WHERE POSITION('.' in concept_cd) = 0)
-) a"
-
-queries.concept_cd <- "SELECT concept_cd
-FROM i2b2demodata.concept_dimension
-WHERE concept_path LIKE '%s'"
-
-model_year <- strtoi(report.input['Model year'])
-prediction_year <- strtoi(report.input['Prediction year'])
+model_year.start <- i2b2DateToPOSIXlt(report.input['Model year'])
+model_year.end <- model_year.start
+model_year.end$year <- model_year.end$year + 1
+prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction year'])
+prediction_year.end <- prediction_year.start
+prediction_year.end$year <- prediction_year.end$year + 1
 model_target_interval <- strtoi(report.input['Model target interval'])
 target_concept <- report.input['Target concept']
-feature_filter <- 'ICD9:'
-target_year <- model_year + model_target_interval
+feature_filter_vector <- c("ATC", "ICD")
+feature_filter <- paste("(", paste(feature_filter_vector, collapse="|"), "):", sep="")
+target_year.start <- model_year.start
+target_year.start$year <- target_year.start$year + model_target_interval
+target_year.end <- target_year.start
+target_year.end$year <- target_year.end$year + 1
+model_year.start <- posixltToPSQLDate(model_year.start)
+model_year.end <- posixltToPSQLDate(model_year.end)
+prediction_year.start <- posixltToPSQLDate(prediction_year.start)
+prediction_year.end <- posixltToPSQLDate(prediction_year.end)
+target_year.start <- posixltToPSQLDate(target_year.start)
+target_year.end <- posixltToPSQLDate(target_year.end)
+max_elem <- 100
 
 con <- initializeCRCConnection()
 
-observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, model_year, model_year + 1)
-new_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, prediction_year, prediction_year + 1)
+observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, model_year.start, model_year.end)
+new_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, prediction_year.start, prediction_year.end)
 target_icd <- executeQuery(con, strunwrap(queries.concept_cd), gsub("[\\]", "\\\\\\\\", target_concept))$concept_cd
-target_observations <- executeQuery(con, strunwrap(queries.observations), target_icd, target_year, target_year + 1)
-features <- executeQuery(con, strunwrap(queries.features), feature_filter)$concept_cd
+target_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, target_icd, target_year.start, target_year.start)
+features <- executeQuery(con, strunwrap(queries.features), feature_filter, feature_filter)$concept_cd
 patients <- executeQuery(con, strunwrap(queries.patients))$patient_num
 
 destroyCRCConnection(con)
@@ -106,10 +74,8 @@ target <- sign(target_model[,1])
 # print result
 
 prediction <- predictRisk(model, target, new_model)
-sorted_prediction <- data.frame(rownames(prediction), prediction)
-colnames(sorted_prediction) <- c('patient_num', 'probability')
-sorted_prediction <- sorted_prediction[order(-sorted_prediction$probability),]
+sorted_prediction <- prediction[order(-prediction$probability),]
 rownames(sorted_prediction) <- NULL
 
-report.output[['Information']] <- sprintf('Model: %i, Target: %i, New: %i', model_year, target_year, prediction_year)
-report.output[['Prediction']] <- sorted_prediction
+report.output[['Information']] <- sprintf('Model: %i, Target: %i, New: %i, Target: %s', model_year, target_year, prediction_year, target_icd)
+report.output[['Prediction']] <- head(sorted_prediction, max_elem)

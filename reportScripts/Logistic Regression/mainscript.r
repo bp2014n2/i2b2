@@ -59,7 +59,7 @@ con <- initializeCRCConnection()
 observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, model_year.start, model_year.end)
 new_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, prediction_year.start, prediction_year.end)
 target_icd <- executeQuery(con, strunwrap(queries.concept_cd), gsub("[\\]", "\\\\\\\\", target_concept))$concept_cd
-target_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, target_icd, target_year.start, target_year.start)
+target_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, target_icd, target_year.start, target_year.end)
 features <- executeQuery(con, strunwrap(queries.features), feature_filter, feature_filter)$concept_cd
 patients <- executeQuery(con, strunwrap(queries.patients))$patient_num
 

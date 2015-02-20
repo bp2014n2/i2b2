@@ -1,6 +1,7 @@
 setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
 source("utils.r")
 source("i2b2.r")
+#source("report.r")
 
 require(Matrix)
 
@@ -32,46 +33,50 @@ generateFeatureMatrix <- function(observations, features, patients) {
   return(model)
 }
 
+generateModel <- function(dates, patient_set=-1) {
+  feature_filter_vector <- c("ATC", "ICD")
+  
+  observations <- getObservations(types=feature_filter_vector, dates=dates, patient_set=patient_set)
+  features <- getConcepts(types=feature_filter_vector)
+  patients <- getPatients(patient_set=patient_set)
+  
+  return(generateFeatureMatrix(observations, features, patients))
+}
+
+generateTargetModel <- function(concept, dates, patient_set=-1) {
+  feature_filter_vector <- c("ATC", "ICD")
+  
+  concept_cd <- getConceptCd(concept)
+  observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=dates, patient_set=patient_set)
+  patients <- getPatients(patient_set=patient_set)
+  
+  model <- generateFeatureMatrix(observations, c(concept_cd), patients)
+  return(sign(model[,1]))
+}
+
 model_year.start <- i2b2DateToPOSIXlt(report.input['Model year'])
 model_year.end <- model_year.start
 model_year.end$year <- model_year.end$year + 1
-model_year.start <- posixltToPSQLDate(model_year.start)
-model_year.end <- posixltToPSQLDate(model_year.end)
 
 prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction year'])
 prediction_year.end <- prediction_year.start
 prediction_year.end$year <- prediction_year.end$year + 1
-prediction_year.start <- posixltToPSQLDate(prediction_year.start)
-prediction_year.end <- posixltToPSQLDate(prediction_year.end)
 
 target_year.start <- i2b2DateToPOSIXlt(report.input['Target year'])
 target_year.end <- target_year.start
 target_year.end$year <- target_year.end$year + 1
-target_year.start <- posixltToPSQLDate(target_year.start)
-target_year.end <- posixltToPSQLDate(target_year.end)
 
 target_concept <- report.input['Target concept']
+patient_set <- -1
+if(nchar(report.input['Patient set']) != 0) {
+  patient_set <- strtoi(report.input['Patient set'])
+}
 
-feature_filter_vector <- c("ATC", "ICD")
-feature_filter <- paste("(", paste(feature_filter_vector, collapse="|"), "):", sep="")
 max_elem <- 100
 
-con <- initializeCRCConnection()
-
-observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, model_year.start, model_year.end)
-new_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, feature_filter, prediction_year.start, prediction_year.end)
-target_icd <- executeQuery(con, strunwrap(queries.concept_cd), gsub("[\\]", "\\\\\\\\", target_concept))$concept_cd
-target_observations <- executeQuery(con, strunwrap(queries.observations), feature_filter, target_icd, target_year.start, target_year.end)
-features <- executeQuery(con, strunwrap(queries.features), feature_filter, feature_filter)$concept_cd
-patients <- executeQuery(con, strunwrap(queries.patients))$patient_num
-
-destroyCRCConnection(con)
-
-model <- generateFeatureMatrix(observations, features, patients)
-new_model <- generateFeatureMatrix(new_observations, features, patients)
-target_model <- generateFeatureMatrix(target_observations, c(target_icd), patients)
-
-target <- sign(target_model[,1])
+model <- generateModel(dates=list(model_year.start, model_year.end))
+new_model <- generateModel(dates=list(prediction_year.start, prediction_year.end), patient_set=patient_set)
+target <- generateTargetModel(concept=target_concept, dates=list(target_year.start, target_year.end))
 
 # print result
 
@@ -79,6 +84,5 @@ prediction <- predictRisk(model, target, new_model)
 sorted_prediction <- prediction[order(-prediction$probability),]
 rownames(sorted_prediction) <- NULL
 
-report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_icd)
+report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s, Patient Set: %d', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_concept, patient_set)
 report.output[['Prediction']] <- head(sorted_prediction, max_elem)
-gc()

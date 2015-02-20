@@ -1,10 +1,15 @@
 require(RPostgreSQL)
 
-executeQuery <- function(con, query, ...) {
+source("utils.r")
+
+executeQuery <- function(query, ...) {
   
   final_query <- sprintf(query, ...)
   print(final_query)
-  return(dbGetQuery(con, final_query))
+  con <- initializeCRCConnection()
+  result <- dbGetQuery(con, final_query)
+  destroyCRCConnection(con)
+  return(result)
   
 }
 
@@ -19,24 +24,58 @@ destroyCRCConnection <- function(con) {
   
 }
 
-queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
-FROM (
-  SELECT patient_num, substring(concept_cd from '(%s.{3})') AS concept_cd
-  FROM i2b2demodata.observation_fact
-  WHERE concept_cd IN (
-    SELECT concept_cd
+getConcepts <- function(types=c(), level=3) {
+  queries.features <- "SELECT DISTINCT substring(concept_cd from '(%s.{%d})') AS concept_cd
     FROM i2b2demodata.concept_dimension
-    WHERE concept_cd SIMILAR TO '%s%%')
-  AND (start_date >= '%sT00:00:00' AND start_date <= '%sT00:00:00')) observations
-GROUP BY patient_num, concept_cd"
+    WHERE concept_cd SIMILAR TO '%s%%'"
+  
+  feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
+  return(executeQuery(strunwrap(queries.features), feature_filter, level, feature_filter)$concept_cd)
+}
 
-queries.patients <- "SELECT DISTINCT patient_num
-FROM i2b2demodata.patient_dimension"
+getObservations <- function(dates, types=c(), level=3, patient_set=-1) {
+  feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
+  return(getObservationsForConcept(dates=dates, types=types, concept=feature_filter, level=level, patient_set=patient_set))
+}
 
-queries.features <- "SELECT DISTINCT substring(concept_cd from '(%s.{3})') AS concept_cd
-FROM i2b2demodata.concept_dimension
-WHERE concept_cd SIMILAR TO '%s%%'"
+getObservationsForConcept <- function(dates, types=c(), concept, level=3, patient_set=-1) {
+  queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
+    FROM (
+      SELECT patient_num, substring(concept_cd from '(%s.{%d})') AS concept_cd
+      FROM i2b2demodata.observation_fact
+      WHERE concept_cd IN (
+        SELECT concept_cd
+        FROM i2b2demodata.concept_dimension
+        WHERE concept_cd SIMILAR TO '%s%%')
+      AND (start_date >= '%sT00:00:00' AND start_date <= '%sT00:00:00')
+      AND (%s
+      OR patient_num IN (
+        SELECT patient_num
+        FROM i2b2demodata.qt_patient_set_collection
+        WHERE result_instance_id = %d))) observations
+    GROUP BY patient_num, concept_cd"
+  
+  dates <- sapply(dates, posixltToPSQLDate)
+  feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
+  return(executeQuery(strunwrap(queries.observations), feature_filter, level, concept, dates[1], dates[2], patient_set == -1, patient_set))
+}
 
-queries.concept_cd <- "SELECT concept_cd
-FROM i2b2demodata.concept_dimension
-WHERE concept_path LIKE '%s'"
+getPatients <- function(patient_set=-1) {
+  queries.patients <- "SELECT patient_num
+    FROM i2b2demodata.patient_dimension
+    WHERE %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d)"
+  
+  return(executeQuery(strunwrap(queries.patients), patient_set == -1, patient_set)$patient_num)
+}
+
+getConceptCd <- function(concept_path) {
+  queries.concept_cd <- "SELECT concept_cd
+    FROM i2b2demodata.concept_dimension
+    WHERE concept_path LIKE '%s'"
+  
+  return(executeQuery(strunwrap(queries.concept_cd), gsub("[\\]", "\\\\\\\\", concept_path))$concept_cd)
+}

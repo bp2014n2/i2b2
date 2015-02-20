@@ -17,6 +17,12 @@
 			<type>concept</type>
 		</input>
 		<input>
+			<name>Patient set</name>
+			<description>Put the id of a patient_set here</description>
+			<type>text</type>
+			<lines>1</lines>
+		</input>
+		<input>
 			<name>Model year</name>
 			<description>Year from which our model data should be taken</description>
 			<type>text</type>

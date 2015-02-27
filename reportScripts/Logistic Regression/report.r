@@ -1,5 +1,11 @@
+report.patients <- c()
+report.observations <- c()
 report.input <- c()
 report.output <- list()
+report.concept.names <- c()
+report.modifiers <- c()
+report.events <- c()
+report.observers <- c()
 
 report.input['Model year'] <- '01/01/2007'
 report.input['Target year'] <- '01/01/2007'

@@ -19,8 +19,7 @@
 		<input>
 			<name>Patient set</name>
 			<description>Put the id of a patient_set here</description>
-			<type>text</type>
-			<lines>1</lines>
+			<type>patient_set</type>
 		</input>
 		<input>
 			<name>Model year</name>

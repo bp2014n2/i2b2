@@ -125,7 +125,8 @@ DIV#report-TABS HR {
     margin: 0px 0 5px 0;
 }
 
-DIV.report-addConc {
+DIV.report-addConc,
+DIV.report-addPatientSet {
 	font-weight:bold;
 	color:#666;
 	padding: 5px 10px;

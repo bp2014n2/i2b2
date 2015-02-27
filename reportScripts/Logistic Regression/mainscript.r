@@ -1,7 +1,7 @@
 setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
 source("utils.r")
 source("i2b2.r")
-#source("report.r")
+source("report.r")
 
 require(Matrix)
 

@@ -17,27 +17,29 @@
 			<type>concept</type>
 		</input>
 		<input>
-			<name>Patient set</name>
-			<description>Put the id of a patient_set here</description>
+			<name>Model Patient set</name>
+			<description>Leave empty for all patients</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>New Patient set</name>
+			<description>Leave empty for all patients</description>
 			<type>patient_set</type>
 		</input>
 		<input>
 			<name>Model year</name>
-			<description>Year from which our model data should be taken</description>
-			<type>text</type>
-			<lines>1</lines>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
 		</input>
 		<input>
 			<name>Target year</name>
-			<description>Year from which our model target should be taken</description>
-			<type>text</type>
-			<lines>1</lines>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
 		</input>
 		<input>
 			<name>Prediction year</name>
 			<description>Year for which our target should be predicted</description>
-			<type>text</type>
-			<lines>1</lines>
+			<type>date</type>
 		</input>
 	</additionalInputs>
 	<customOutputs>

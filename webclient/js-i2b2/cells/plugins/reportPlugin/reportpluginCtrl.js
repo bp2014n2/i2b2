@@ -95,6 +95,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	var aiConcProt = $$("DIV#reportplugin-mainDiv .report-concept-prototype")[0];
 	// Additional input concept prototype
 	var aiPatientSetProt = $$("DIV#reportplugin-mainDiv .report-patient-set-prototype")[0];
+	// Additional input date prototype
+	var aiDateProt = $$("DIV#reportplugin-mainDiv .report-date-select-prototype")[0];
 	// All non-prototype input fields
 	var allNPInput = $$("DIV#reportplugin-mainDiv .report-input");
 	// Container div for additional inputs
@@ -139,6 +141,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	if (addIns.length > 0) piInputsDiv.show();
 	var numberAIConceptFields = 0;
 	var numberAIPatientSetFields = 0;
+	var numberAIDateFields = 0;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
@@ -164,6 +167,19 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 				parSelect.options[parSelect.length] = n;
 			}
 			newNode.className = "report-input report-input-dropdown";
+		} else if (addIns[i].type == "date") {
+			newNode = aiDateProt.cloneNode(true);
+			var newID = "report-AIDATE-" + numberAIDateFields;
+			var parTitle = Element.select(newNode, 'h3')[0];
+			var parDescr = Element.select(newNode, 'p')[0];
+			var parTextfield = Element.select(newNode, 'input')[0];		
+			var parLink = Element.select(newNode, 'a')[0];
+			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
+			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
+			parTextfield.id = newID;
+			parLink.href = "Javascript:i2b2.reportPlugin.doShowCalendar('" + parTextfield.id + "')"
+			numberAIDateFields++;
+			newNode.className = "report-input report-input-date-select";
 		} else if (addIns[i].type == "concept") {
 			newNode = aiConcProt.cloneNode(true);
 			var newID = "report-AICONCPTDROP-" + numberAIConceptFields;
@@ -371,6 +387,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	var errorDivNoPI = $("report-error-emptyPI");
 	var errorDivNoPSCC = $("report-error-emptyPSorCC");
 	var allAIText = $$("DIV#reportplugin-mainDiv .report-input-textfield");
+	var allAIDate = $$("DIV#reportplugin-mainDiv .report-input-date-select");
 	var allAIDD = $$("DIV#reportplugin-mainDiv .report-input-dropdown");
 	var allAICO = $$("DIV#reportplugin-mainDiv .report-input-concept");
 	var allAIPS = $$("DIV#reportplugin-mainDiv .report-input-patient-set");
@@ -459,6 +476,13 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 		if (list.options.length != 0) {
 			value = list.options[list.selectedIndex].value;
 		}
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	for (var i = 0; i < allAIDate.length; i++) {
+		var name = Element.select(allAIDate[i], 'h3')[0].innerHTML;
+		var value = Element.select(allAIDate[i], 'input')[0].value;
 		addIns[j] = [name, value];
 		j++;
 	}
@@ -750,4 +774,53 @@ i2b2.reportPlugin.Unload = function() {
 	i2b2.reportPlugin.model.conceptRecords = [];
 	i2b2.reportPlugin.model.prsRecords = [];
 	return true;
+};
+
+i2b2.reportPlugin.doShowCalendar = function(dateInputId) {
+	
+	// create calendar if not already initialized
+	if (!this.DateConstrainCal) {
+		this.DateConstrainCal = new YAHOO.widget.Calendar("DateContstrainCal","calendarDiv");
+	}
+	this.DateConstrainCal.selectEvent.subscribe(function(eventName, selectedDate) {
+
+		// function is event callback fired by YUI Calendar control 
+		// (this function looses it's class scope)
+		var cScope = i2b2.CRC.ctrlr.dateConstraint;
+		var tn = $(dateInputId);
+		var selectDate = selectedDate[0][0];
+		tn.value = selectDate[1]+'/'+selectDate[2]+'/'+selectDate[0];
+		$("calendarDiv").hide();
+		$("calendarDivMask").hide();
+
+	}, this.DateConstrainCal,true);
+	this.DateConstrainCal.clear();
+	// process click
+	var apos = Position.positionedOffset($(dateInputId));
+	var cx = apos[0] - $("calendarDiv").getWidth() + $(dateInputId).width + 3;
+	var cy = apos[1] + $(dateInputId).height + 3 - 300;
+	cx = 500;
+	cy = 500;
+	$("calendarDiv").style.top = cy+'px';
+	$("calendarDiv").style.left = cx+'px';
+	$(dateInputId).select();
+	var sDateValue = $(dateInputId).value;
+	var rxDate = /^\d{1,2}(\-|\/|\.)\d{1,2}\1\d{4}$/
+	if (rxDate.test(sDateValue)) {
+		var aDate = sDateValue.split(/\//);
+		this.DateConstrainCal.setMonth(aDate[0]-1);
+		this.DateConstrainCal.setYear(aDate[2]);
+	} else {
+		alert("Invalid Date Format, please use mm/dd/yyyy or select a date using the calendar.");
+	}
+	// display everything
+	$("calendarDiv").show();
+	var viewdim = document.viewport.getDimensions();
+	$("calendarDivMask").style.top = "0px";
+	$("calendarDivMask").style.left = "0px";
+	$("calendarDivMask").style.width = (viewdim.width - 10) + "px";
+	$("calendarDivMask").style.height = (viewdim.height - 10) + "px";
+	$("calendarDivMask").show();
+	this.DateConstrainCal.render(document.body);
+
 };

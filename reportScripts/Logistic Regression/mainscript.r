@@ -15,7 +15,7 @@ predictRisk <- function(model, target, newdata) {
   
   fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
   b  <- coef(fit)
-  pb <- exp(newdata%*%b)
+  pb <- exp(-newdata%*%b)
   pb <- as.vector(pb/(1+pb))
   pb[is.na(pb)] <- 0
   pb <- data.frame(rownames(newdata), pb)
@@ -50,7 +50,7 @@ generateTargetModel <- function(concept, dates, patient_set=-1) {
   observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=dates, patient_set=patient_set)
   patients <- getPatients(patient_set=patient_set)
   
-  model <- generateFeatureMatrix(observations, c(concept_cd), patients)
+  model <- (generateFeatureMatrix(observations, c(concept_cd), patients))
   return(sign(model[,1]))
 }
 
@@ -67,16 +67,21 @@ target_year.end <- target_year.start
 target_year.end$year <- target_year.end$year + 1
 
 target_concept <- report.input['Target concept']
-patient_set <- -1
-if(nchar(report.input['Patient set']) != 0) {
-  patient_set <- strtoi(report.input['Patient set'])
+model_patient_set <- -1
+if(nchar(report.input['Model Patient set']) != 0) {
+  model_patient_set <- strtoi(report.input['Model Patient set'])
+}
+
+new_patient_set <- -1
+if(nchar(report.input['New Patient set']) != 0) {
+  new_patient_set <- strtoi(report.input['New Patient set'])
 }
 
 max_elem <- 100
 
-model <- generateModel(dates=list(model_year.start, model_year.end))
-new_model <- generateModel(dates=list(prediction_year.start, prediction_year.end), patient_set=patient_set)
-target <- generateTargetModel(concept=target_concept, dates=list(target_year.start, target_year.end))
+model <- generateModel(dates=list(model_year.start, model_year.end), patient_set=model_patient_set)
+new_model <- generateModel(dates=list(prediction_year.start, prediction_year.end), patient_set=new_patient_set)
+target <- generateTargetModel(concept=target_concept, dates=list(target_year.start, target_year.end), patient_set=model_patient_set)
 
 # print result
 
@@ -84,5 +89,5 @@ prediction <- predictRisk(model, target, new_model)
 sorted_prediction <- prediction[order(-prediction$probability),]
 rownames(sorted_prediction) <- NULL
 
-report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s, Patient Set: %d', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_concept, patient_set)
+report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s, Patient Set: %d', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_concept, new_patient_set)
 report.output[['Prediction']] <- head(sorted_prediction, max_elem)

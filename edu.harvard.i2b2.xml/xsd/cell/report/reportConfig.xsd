@@ -59,6 +59,7 @@
 			<xs:enumeration value="dropdown"/>
 			<xs:enumeration value="concept"/>
 			<xs:enumeration value="patient_set"/>
+			<xs:enumeration value="date"/>
 		</xs:restriction>
 	</xs:simpleType>
 	

@@ -30,7 +30,7 @@ predictRisk <- function(model, target, newdata) {
     newdata <- newdata[,-excl.ALL]
   }
   
-  fit <<- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
+  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
   
   b <- coef(fit)
   
@@ -65,17 +65,14 @@ generateTargetModel <- function(interval, patients, patient_set=-1, concept, fea
   return(sign(model[,1]))
 }
 
-model_year.start <- i2b2DateToPOSIXlt(report.input['Model year'])
-model_year.end <- model_year.start
-model_year.end$year <- model_year.end$year + 1
+model_year.start <- i2b2DateToPOSIXlt(report.input['Model data start'])
+model_year.end <- i2b2DateToPOSIXlt(report.input['Model data end'])
 
-prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction year'])
-prediction_year.end <- prediction_year.start
-prediction_year.end$year <- prediction_year.end$year + 1
+prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction data start'])
+prediction_year.end <- i2b2DateToPOSIXlt(report.input['Prediction data end'])
 
-target_year.start <- i2b2DateToPOSIXlt(report.input['Target year'])
-target_year.end <- target_year.start
-target_year.end$year <- target_year.end$year + 1
+target_year.start <- i2b2DateToPOSIXlt(report.input['Target data start'])
+target_year.end <- i2b2DateToPOSIXlt(report.input['Target data end'])
 
 target_concept <- report.input['Target concept']
 model_patient_set <- -1
@@ -91,6 +88,7 @@ if(nchar(report.input['New Patient set']) != 0) {
 max_elem <- 100
 
 feature_filter_vector <- c("ATC", "ICD")
+time.query.0 <- proc.time()
 features <- getConcepts(types=feature_filter_vector)
 patients <- getPatients(patient_set=model_patient_set)
 new_patients <- getPatients(patient_set=new_patient_set)
@@ -98,14 +96,38 @@ new_patients <- getPatients(patient_set=new_patient_set)
 model <- generateModel(interval=list(model_year.start, model_year.end), patients=patients, patient_set=model_patient_set, features=features, feature_filter_vector=feature_filter_vector)
 new_model <- generateModel(interval=list(prediction_year.start, prediction_year.end), patients=new_patients, patient_set=new_patient_set, features=features, feature_filter_vector=feature_filter_vector)
 target <- generateTargetModel(interval=list(target_year.start, target_year.end), patients=patients, patient_set=model_patient_set, concept=target_concept, feature_filter_vector=feature_filter_vector)
+time.query.1 <- proc.time()
+time.query <- sum(c(time.query.1-time.query.0)[3])
 
 # print result
 
-prediction <- predictRisk(model, target, new_model)
-sorted_prediction <- prediction[order(-prediction$probability),]
-sorted_prediction$probability <- sorted_prediction$probability * 100
-rownames(sorted_prediction) <- NULL
+time.prediction.0 <- proc.time()
+prediction <- predictRisk(model, target, new_model);
+time.prediction.1 <- proc.time()
+time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
+prediction.sorted <- prediction[order(-prediction$probability),]
+prediction.sorted$probability <- prediction.sorted$probability * 100
+rownames(prediction.sorted) <- NULL
+probabilities <- prediction.sorted$probability
 
-report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s, Patient Set: %d', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_concept, new_patient_set)
-report.output[['Summary']] <- summary(sorted_prediction$probability)
-report.output[['Prediction']] <- head(sorted_prediction, max_elem)
+printPatientSet <- function(id) {
+  if(id < 0) {
+    return('all Patients')
+  } else {
+    return(sprintf('Patient set %d', id))
+  }
+}
+
+target_prediction.start <- POSIXltToi2b2Date(prediction_year.start + as.numeric(difftime(target_year.start, model_year.start)))
+target_prediction.end <- POSIXltToi2b2Date(prediction_year.end + as.numeric(difftime(target_year.end, model_year.end)))
+info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model_patient_set), length(patients), report.input['Model data start'], report.input['Model data end'])
+info.target <- sprintf('Target Data for %s from %s to %s', target_concept, report.input['Target data start'], report.input['Target data end'])
+info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), length(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])
+info.prediction_target <- sprintf('Prediction from %s to %s', target_prediction.start, target_prediction.end)
+
+report.output[['Information']] <- data.frame(info=c(info.model, info.target, info.prediction, info.prediction_target))
+report.output[['Summary']] <- data.frame(property=c('Max', 'Min', 'Mean', 'Median'), value=c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
+report.output[['Statistics']] <- data.frame(key=c('Data Query time', 'Prediction time'), time=c(time.query, time.prediction))
+report.output[['Prediction']] <- head(prediction.sorted, max_elem)
+
+#rm(prediction, model, new_model, target, features, patients, new_patients); gc()

@@ -17,9 +17,29 @@
 			<type>concept</type>
 		</input>
 		<input>
+			<name>Target data start</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+		</input>
+		<input>
+			<name>Target data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+		</input>
+		<input>
 			<name>Model Patient set</name>
 			<description>Leave empty for all patients</description>
 			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Model data start</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+		</input>
+		<input>
+			<name>Model data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
 		</input>
 		<input>
 			<name>New Patient set</name>
@@ -27,17 +47,12 @@
 			<type>patient_set</type>
 		</input>
 		<input>
-			<name>Model year</name>
+			<name>Prediction data start</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
 		</input>
 		<input>
-			<name>Target year</name>
-			<description>Year for which our target should be predicted</description>
-			<type>date</type>
-		</input>
-		<input>
-			<name>Prediction year</name>
+			<name>Prediction data end</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
 		</input>
@@ -49,6 +64,10 @@
 		</output>
 		<output>
 			<name>Summary</name>
+			<description>Information about the prediction</description>
+		</output>
+		<output>
+			<name>Statistics</name>
 			<description>Information about the prediction</description>
 		</output>
 		<output>

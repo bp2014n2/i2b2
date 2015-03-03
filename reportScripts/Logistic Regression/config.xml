@@ -48,6 +48,10 @@
 			<description>Information about the prediction</description>
 		</output>
 		<output>
+			<name>Summary</name>
+			<description>Information about the prediction</description>
+		</output>
+		<output>
 			<name>Prediction</name>
 			<description>This is your prediction</description>
 		</output>

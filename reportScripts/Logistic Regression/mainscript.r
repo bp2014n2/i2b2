@@ -1,7 +1,9 @@
 setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
 source("utils.r")
 source("i2b2.r")
-source("report.r")
+if(!exists('report.input')) {
+  source("report.r")
+}
 
 require(Matrix)
 
@@ -13,11 +15,27 @@ predictRisk <- function(model, target, newdata) {
   # compute the fit model using multiple cores
   # this is the actual logistic regression process
   
-  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
-  b  <- coef(fit)
-  pb <- exp(-newdata%*%b)
+  model <- cBind(1, model)
+  colnames(model)[1] <- 'int'
+  newdata <- cBind(1, newdata)
+  colnames(newdata)[1] <- 'int'
+  
+  n.IG     <- colSums(model[target==1,])
+  n.VG     <- colSums(model[target==0,])
+  excl.IG  <- which(n.IG<5)
+  excl.VG  <- which(n.VG<5)
+  excl.ALL <- intersect(excl.IG, excl.VG)
+  if(length(excl.ALL)>0){ 
+    model <- model[,-excl.ALL]
+    newdata <- newdata[,-excl.ALL]
+  }
+  
+  fit <<- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
+  
+  b <- coef(fit)
+  
+  pb <- exp(newdata%*%b)
   pb <- as.vector(pb/(1+pb))
-  pb[is.na(pb)] <- 0
   pb <- data.frame(rownames(newdata), pb)
   colnames(pb) <- c('patient_num', 'probability')
   return(pb)
@@ -25,30 +43,23 @@ predictRisk <- function(model, target, newdata) {
 }
 
 generateFeatureMatrix <- function(observations, features, patients) {
-  model <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(levels(patient_num), levels(concept_cd))))
-  
-  rownames(model) <- patients
-  colnames(model) <- features
+  model <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
   
   return(model)
 }
 
-generateModel <- function(dates, patient_set=-1) {
-  feature_filter_vector <- c("ATC", "ICD")
+generateModel <- function(interval, patients, patient_set=-1, features, feature_filter_vector) {
   
-  observations <- getObservations(types=feature_filter_vector, dates=dates, patient_set=patient_set)
-  features <- getConcepts(types=feature_filter_vector)
-  patients <- getPatients(patient_set=patient_set)
+  observations <- getObservations(types=feature_filter_vector, dates=interval, patient_set=patient_set)
   
-  return(generateFeatureMatrix(observations, features, patients))
+  model <- generateFeatureMatrix(observations, features, patients)
+  return(model)
 }
 
-generateTargetModel <- function(concept, dates, patient_set=-1) {
-  feature_filter_vector <- c("ATC", "ICD")
+generateTargetModel <- function(interval, patients, patient_set=-1, concept, feature_filter_vector) {
   
   concept_cd <- getConceptCd(concept)
-  observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=dates, patient_set=patient_set)
-  patients <- getPatients(patient_set=patient_set)
+  observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=interval, patient_set=patient_set)
   
   model <- (generateFeatureMatrix(observations, c(concept_cd), patients))
   return(sign(model[,1]))
@@ -79,15 +90,22 @@ if(nchar(report.input['New Patient set']) != 0) {
 
 max_elem <- 100
 
-model <- generateModel(dates=list(model_year.start, model_year.end), patient_set=model_patient_set)
-new_model <- generateModel(dates=list(prediction_year.start, prediction_year.end), patient_set=new_patient_set)
-target <- generateTargetModel(concept=target_concept, dates=list(target_year.start, target_year.end), patient_set=model_patient_set)
+feature_filter_vector <- c("ATC", "ICD")
+features <- getConcepts(types=feature_filter_vector)
+patients <- getPatients(patient_set=model_patient_set)
+new_patients <- getPatients(patient_set=new_patient_set)
+
+model <- generateModel(interval=list(model_year.start, model_year.end), patients=patients, patient_set=model_patient_set, features=features, feature_filter_vector=feature_filter_vector)
+new_model <- generateModel(interval=list(prediction_year.start, prediction_year.end), patients=new_patients, patient_set=new_patient_set, features=features, feature_filter_vector=feature_filter_vector)
+target <- generateTargetModel(interval=list(target_year.start, target_year.end), patients=patients, patient_set=model_patient_set, concept=target_concept, feature_filter_vector=feature_filter_vector)
 
 # print result
 
 prediction <- predictRisk(model, target, new_model)
 sorted_prediction <- prediction[order(-prediction$probability),]
+sorted_prediction$probability <- sorted_prediction$probability * 100
 rownames(sorted_prediction) <- NULL
 
 report.output[['Information']] <- sprintf('Model: %s, Target: %s, New: %s, Target Concept: %s, Patient Set: %d', report.input['Model year'], report.input['Target year'], report.input['Prediction year'], target_concept, new_patient_set)
+report.output[['Summary']] <- summary(sorted_prediction$probability)
 report.output[['Prediction']] <- head(sorted_prediction, max_elem)

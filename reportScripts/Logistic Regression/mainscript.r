@@ -1,13 +1,15 @@
 setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
 source("utils.r")
 source("i2b2.r")
+clear_env <- TRUE
 if(!exists('report.input')) {
   source("report.r")
+  clear_env <- FALSE
 }
 
 require(Matrix)
 
-predictRisk <- function(model, target, newdata) {
+fitModel <- function(model, target, newdata) {
   
   # required packages needed, must be installed first
   require(speedglm)
@@ -18,21 +20,30 @@ predictRisk <- function(model, target, newdata) {
   # bind a intercept column to our data
   model <- cBind(1, model)
   colnames(model)[1] <- 'int'
-  newdata <- cBind(1, newdata)
-  colnames(newdata)[1] <- 'int'
   
   # We need to filter out features where not enough observations were captured
   n.IG     <- colSums(sign(model[target==1,]))
   n.VG     <- colSums(sign(model[target==0,]))
   excl.IG  <- which(n.IG<5)
   excl.VG  <- which(n.VG<5)
-  excl.ALL <- intersect(excl.IG, excl.VG)
+  excl.ALL <<- intersect(excl.IG, excl.VG)
   if(length(excl.ALL)>0){ 
     model <- model[,-excl.ALL]
-    newdata <- newdata[,-excl.ALL]
   }
   
   fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
+  
+  return(fit)
+  
+}
+  
+predictRisk <- function(fit, newdata) {  
+
+  newdata <- cBind(1, newdata)
+  colnames(newdata)[1] <- 'int'
+  if(length(excl.ALL)>0){ 
+    newdata <- newdata[,-excl.ALL]
+  }
   
   b <- coef(fit)
   
@@ -129,7 +140,8 @@ time.query <- sum(c(time.query.1-time.query.0)[3])
 # print result
 
 time.prediction.0 <- proc.time()
-prediction <- predictRisk(model, target, new_model);
+fit <- fitModel(model, target)
+prediction <- predictRisk(fit, new_model);
 time.prediction.1 <- proc.time()
 time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
 prediction.sorted <- prediction[order(-prediction$probability),]
@@ -148,10 +160,19 @@ info.target <- sprintf('Target Data for %s from %s to %s', target_concept, repor
 info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), length(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])
 info.prediction_target <- sprintf('Prediction from %s to %s', target_prediction.start, target_prediction.end)
 
+# Plot ROC curve
+require(ROCR)
+validation.prediction <- predictRisk(fit, model);
+pred <- prediction(validation.prediction$probability, target)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, main='ROC curve')
+
 report.output[['Information']] <- data.frame(info=c(info.model, info.target, info.prediction, info.prediction_target))
 report.output[['Summary']] <- data.frame(property=c('Max', 'Min', 'Mean', 'Median'), value=c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
 report.output[['Statistics']] <- data.frame(key=c('Data Query time', 'Prediction time'), time=c(time.query, time.prediction))
 report.output[['Prediction']] <- head(prediction.sorted, max_elem)
 
-rm(report.input)
-#rm(prediction, model, new_model, target, features, patients, new_patients); gc()
+rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
+if(clear_env) {
+  rm(clear_env, prediction, model, new_model, target, features, patients, new_patients, fit, excl.ALL, feature_filter_vector, probabilities, info.model, info.prediction, info.prediction_target, info.target, max_elem, model_patient_set, model_year.end, model_year.start, perf, pred, prediction_year.end, prediction_year.start, target_concept, prediction.sorted, validation.prediction, new_patient_set, target_prediction.end, target_prediction.start, target_year.end, target_year.start, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
+}

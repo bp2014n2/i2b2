@@ -34,8 +34,8 @@ predictRisk <- function(model, target, newdata) {
   
   b <- coef(fit)
   
-  pb <- exp(newdata%*%b)
-  pb <- as.vector(pb/(1+pb))
+  pb <- exp(-newdata%*%b)
+  pb <- as.vector(1/(1+pb))
   pb <- data.frame(rownames(newdata), pb)
   colnames(pb) <- c('patient_num', 'probability')
   return(pb)
@@ -118,8 +118,8 @@ printPatientSet <- function(id) {
   }
 }
 
-target_prediction.start <- POSIXltToi2b2Date(prediction_year.start + as.numeric(difftime(target_year.start, model_year.start)))
-target_prediction.end <- POSIXltToi2b2Date(prediction_year.end + as.numeric(difftime(target_year.end, model_year.end)))
+target_prediction.start <- POSIXltToi2b2Date(as.Date(prediction_year.start) + as.numeric(difftime(target_year.start, model_year.start)))
+target_prediction.end <- POSIXltToi2b2Date(as.Date(prediction_year.end) + as.numeric(difftime(target_year.end, model_year.end)))
 info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model_patient_set), length(patients), report.input['Model data start'], report.input['Model data end'])
 info.target <- sprintf('Target Data for %s from %s to %s', target_concept, report.input['Target data start'], report.input['Target data end'])
 info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), length(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])

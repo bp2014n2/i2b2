@@ -74,6 +74,10 @@
 			<name>Prediction</name>
 			<description>This is your prediction</description>
 		</output>
+		<output>
+			<name>Quality</name>
+			<description></description>
+		</output>
 	</customOutputs>
 </reportconf:Rscriptlet>
 

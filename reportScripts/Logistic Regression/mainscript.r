@@ -15,13 +15,15 @@ predictRisk <- function(model, target, newdata) {
   # compute the fit model using multiple cores
   # this is the actual logistic regression process
   
+  # bind a intercept column to our data
   model <- cBind(1, model)
   colnames(model)[1] <- 'int'
   newdata <- cBind(1, newdata)
   colnames(newdata)[1] <- 'int'
   
-  n.IG     <- colSums(model[target==1,])
-  n.VG     <- colSums(model[target==0,])
+  # We need to filter out features where not enough observations were captured
+  n.IG     <- colSums(sign(model[target==1,]))
+  n.VG     <- colSums(sign(model[target==0,]))
   excl.IG  <- which(n.IG<5)
   excl.VG  <- which(n.VG<5)
   excl.ALL <- intersect(excl.IG, excl.VG)
@@ -36,6 +38,31 @@ predictRisk <- function(model, target, newdata) {
   
   pb <- exp(-newdata%*%b)
   pb <- as.vector(1/(1+pb))
+  pb <- data.frame(rownames(newdata), pb)
+  colnames(pb) <- c('patient_num', 'probability')
+  return(pb)
+  
+}
+
+predictRiskParallel <- function(model, target, newdata) {
+  
+  require(glmnet)
+  require(doMC)
+  
+  registerDoMC(cores=2)
+  
+  n.IG     <- colSums(sign(model[target==1,]))
+  n.VG     <- colSums(sign(model[target==0,]))
+  excl.IG  <- which(n.IG<5)
+  excl.VG  <- which(n.VG<5)
+  excl.ALL <- intersect(excl.IG, excl.VG)
+  if(length(excl.ALL)>0){ 
+    model <- model[,-excl.ALL]
+    newdata <- newdata[,-excl.ALL]
+  }
+  
+  fit <- cv.glmnet(model, target, parallel=TRUE, family = "binomial", type.measure = "deviance")
+  pb <- predict(fit, newx=newdata, s=fit$lambda[which.max(fit$nzero)], type = "response")
   pb <- data.frame(rownames(newdata), pb)
   colnames(pb) <- c('patient_num', 'probability')
   return(pb)
@@ -111,11 +138,7 @@ rownames(prediction.sorted) <- NULL
 probabilities <- prediction.sorted$probability
 
 printPatientSet <- function(id) {
-  if(id < 0) {
-    return('all Patients')
-  } else {
-    return(sprintf('Patient set %d', id))
-  }
+  return(ifelse(id < 0, 'all Patients', getPatientSetDescription(id)))
 }
 
 target_prediction.start <- POSIXltToi2b2Date(as.Date(prediction_year.start) + as.numeric(difftime(target_year.start, model_year.start)))
@@ -130,4 +153,5 @@ report.output[['Summary']] <- data.frame(property=c('Max', 'Min', 'Mean', 'Media
 report.output[['Statistics']] <- data.frame(key=c('Data Query time', 'Prediction time'), time=c(time.query, time.prediction))
 report.output[['Prediction']] <- head(prediction.sorted, max_elem)
 
+rm(report.input)
 #rm(prediction, model, new_model, target, features, patients, new_patients); gc()

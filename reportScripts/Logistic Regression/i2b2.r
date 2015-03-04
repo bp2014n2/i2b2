@@ -72,6 +72,14 @@ getPatients <- function(patient_set=-1) {
   return(executeQuery(strunwrap(queries.patients), patient_set == -1, patient_set)$patient_num)
 }
 
+getPatientSetDescription <- function(patient_set) {
+  queries.patient_set <- "SELECT description
+    FROM i2b2demodata.qt_query_result_instance
+    WHERE result_instance_id = %d"
+  
+  return(executeQuery(strunwrap(queries.patient_set), patient_set)$description)
+}
+
 getConceptCd <- function(concept_path) {
   queries.concept_cd <- "SELECT concept_cd
     FROM i2b2demodata.concept_dimension

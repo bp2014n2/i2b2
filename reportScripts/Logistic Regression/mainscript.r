@@ -4,7 +4,7 @@ source("i2b2.r")
 clear_env <- TRUE
 if(!exists('report.input')) {
   source("report.r")
-  clear_env <- FALSE
+  #clear_env <- FALSE
 }
 
 require(Matrix)
@@ -90,7 +90,8 @@ generateModel <- function(interval, patients, patient_set=-1, features, feature_
   
   observations <- getObservations(types=feature_filter_vector, dates=interval, patient_set=patient_set)
   
-  model <- generateFeatureMatrix(observations, features, patients)
+  model <- generateFeatureMatrix(observations, features, patients$patient_num)
+  model <- cBind(model, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(model)
 }
 
@@ -99,7 +100,7 @@ generateTargetModel <- function(interval, patients, patient_set=-1, concept, fea
   concept_cd <- getConceptCd(concept)
   observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=interval, patient_set=patient_set)
   
-  model <- (generateFeatureMatrix(observations, c(concept_cd), patients))
+  model <- generateFeatureMatrix(observations, c(concept_cd), patients$patient_num)
   return(sign(model[,1]))
 }
 
@@ -160,9 +161,9 @@ printPatientSet <- function(id) {
 
 target_prediction.start <- POSIXltToi2b2Date(as.Date(prediction_year.start) + as.numeric(difftime(target_year.start, model_year.start)))
 target_prediction.end <- POSIXltToi2b2Date(as.Date(prediction_year.end) + as.numeric(difftime(target_year.end, model_year.end)))
-info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model_patient_set), length(patients), report.input['Model data start'], report.input['Model data end'])
+info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model_patient_set), nrow(patients), report.input['Model data start'], report.input['Model data end'])
 info.target <- sprintf('Target Data for %s from %s to %s', target_concept, report.input['Target data start'], report.input['Target data end'])
-info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), length(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])
+info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), nrow(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])
 info.prediction_target <- sprintf('Prediction from %s to %s', target_prediction.start, target_prediction.end)
 
 # Plot ROC curve

@@ -61,7 +61,7 @@ getObservationsForConcept <- function(dates, types=c(), concept, level=3, patien
 }
 
 getPatients <- function(patient_set=-1) {
-  queries.patients <- "SELECT patient_num
+  queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
     WHERE %s
     OR patient_num IN (
@@ -69,7 +69,7 @@ getPatients <- function(patient_set=-1) {
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d)"
   
-  return(executeQuery(strunwrap(queries.patients), patient_set == -1, patient_set)$patient_num)
+  return(executeQuery(strunwrap(queries.patients), patient_set == -1, patient_set))
 }
 
 getPatientSetDescription <- function(patient_set) {

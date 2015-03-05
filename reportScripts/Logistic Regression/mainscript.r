@@ -139,14 +139,19 @@ time.query <- sum(c(time.query.1-time.query.0)[3])
 
 # print result
 
+sort.prediction <- function(prediction) {
+  prediction.sorted <- prediction[order(-prediction$probability),]
+  rownames(prediction.sorted) <- NULL
+  return(prediction.sorted)
+}
+
 time.prediction.0 <- proc.time()
 fit <- fitModel(model, target)
 prediction <- predictRisk(fit, new_model);
 time.prediction.1 <- proc.time()
 time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
-prediction.sorted <- prediction[order(-prediction$probability),]
+prediction.sorted <- sort.prediction(prediction)
 prediction.sorted$probability <- prediction.sorted$probability * 100
-rownames(prediction.sorted) <- NULL
 probabilities <- prediction.sorted$probability
 
 printPatientSet <- function(id) {
@@ -167,10 +172,12 @@ pred <- prediction(validation.prediction$probability, target)
 roc <- performance(pred, "tpr", "fpr")
 precrec <- performance(pred, 'prec', 'rec')
 auc <- as.numeric(performance(pred, 'auc')@y.values)
+validation.prediction.sorted <- sort.prediction(validation.prediction)
+ppv.cutoff <- validation.prediction.sorted[round(nrow(validation.prediction.sorted)*0.1),'probability']
 ppv.perf <- performance(pred, 'ppv')
 ppv.x <- ppv.perf@x.values[[1]]
 ppv.y <- ppv.perf@y.values[[1]]
-ppv <- ppv.y[which.min(abs(ppv.x-0.1))]
+ppv <- ppv.y[which.min(abs(ppv.x-ppv.cutoff))]
 plot(roc, main='ROC curve')
 plot(precrec, main='Precision/Recall curve')
 
@@ -182,5 +189,5 @@ report.output[['Quality']] <- data.frame(key=c('AUC', 'PPV'), value=c(auc, ppv))
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
 if(clear_env) {
-  rm(clear_env, prediction, model, new_model, target, features, patients, new_patients, fit, excl.ALL, feature_filter_vector, probabilities, info.model, info.prediction, info.prediction_target, info.target, max_elem, model_patient_set, model_year.end, model_year.start, roc, auc, pred, ppv, ppv.perf, ppv.x, ppv.y, precrec, prediction_year.end, prediction_year.start, target_concept, prediction.sorted, validation.prediction, new_patient_set, target_prediction.end, target_prediction.start, target_year.end, target_year.start, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
+  rm(clear_env, prediction, model, new_model, target, features, patients, new_patients, fit, excl.ALL, feature_filter_vector, probabilities, info.model, info.prediction, info.prediction_target, info.target, max_elem, model_patient_set, model_year.end, model_year.start, roc, auc, pred, ppv, ppv.perf, ppv.x, ppv.y, precrec, prediction_year.end, prediction_year.start, target_concept, prediction.sorted, validation.prediction, new_patient_set, target_prediction.end, target_prediction.start, target_year.end, target_year.start, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1, ppv.cutoff, validation.prediction.sorted); gc()
 }

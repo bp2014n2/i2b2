@@ -33,12 +33,12 @@ getConcepts <- function(types=c(), level=3) {
   return(executeQuery(strunwrap(queries.features), level, feature_filter)$concept_cd)
 }
 
-getObservations <- function(dates, types=c(), level=3, patient_set=-1) {
+getObservations <- function(interval, types=c(), level=3, patient_set=-1) {
   feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
-  return(getObservationsForConcept(dates=dates, concept=feature_filter, level=level, patient_set=patient_set))
+  return(getObservationsForConcept(interval=interval, concept=feature_filter, level=level, patient_set=patient_set))
 }
 
-getObservationsForConcept <- function(dates, concept, level=3, patient_set=-1) {
+getObservationsForConcept <- function(interval, concept, level=3, patient_set=-1) {
   queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
     FROM (
       SELECT patient_num, substring(concept_cd from '.*:.{%d}') AS concept_cd
@@ -47,7 +47,7 @@ getObservationsForConcept <- function(dates, concept, level=3, patient_set=-1) {
         SELECT concept_cd
         FROM i2b2demodata.concept_dimension
         WHERE concept_cd SIMILAR TO '%s%%')
-      AND (start_date >= '%sT00:00:00' AND start_date <= '%sT00:00:00')
+      AND (start_date >= '%s' AND start_date <= '%s')
       AND (%s
       OR patient_num IN (
         SELECT patient_num
@@ -55,8 +55,8 @@ getObservationsForConcept <- function(dates, concept, level=3, patient_set=-1) {
         WHERE result_instance_id = %d))) observations
     GROUP BY patient_num, concept_cd"
   
-  dates <- sapply(dates, posixltToPSQLDate)
-  return(executeQuery(strunwrap(queries.observations), level, concept, dates[1], dates[2], patient_set == -1, patient_set))
+  interval <- lapply(interval, posixltToPSQLDate)
+  return(executeQuery(strunwrap(queries.observations), level, concept, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
 getPatients <- function(patient_set=-1) {
@@ -68,7 +68,7 @@ getPatients <- function(patient_set=-1) {
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d)"
   
-  return(executeQuery(strunwrap(queries.patients), patient_set == -1, patient_set))
+  return(executeQuery(strunwrap(queries.patients), patient_set < 0, patient_set))
 }
 
 getPatientSetDescription <- function(patient_set) {

@@ -9,7 +9,7 @@ if(!exists('report.input')) {
 
 require(Matrix)
 
-fitModel <- function(model, target, newdata) {
+fitModel.speedglm <- function(model, target) {
   
   # required packages needed, must be installed first
   require(speedglm)
@@ -19,7 +19,7 @@ fitModel <- function(model, target, newdata) {
   
   # bind a intercept column to our data
   model <- cBind(1, model)
-  colnames(model)[1] <- 'int'
+  colnames(model)[1] <- 'intercept'
   
   # We need to filter out features where not enough observations were captured
   n.IG     <- colSums(sign(model[target==1,]))
@@ -37,10 +37,10 @@ fitModel <- function(model, target, newdata) {
   
 }
   
-predictRisk <- function(fit, newdata) {  
+predict.speedglm <- function(fit, newdata) {  
 
   newdata <- cBind(1, newdata)
-  colnames(newdata)[1] <- 'int'
+  colnames(newdata)[1] <- 'intercept'
   if(length(excl.ALL)>0){ 
     newdata <- newdata[,-excl.ALL]
   }
@@ -55,151 +55,153 @@ predictRisk <- function(fit, newdata) {
   
 }
 
-predictRiskParallel <- function(model, target, newdata) {
+fitModel.my.glmnet <- function(model, target, newdata) {
   
   require(glmnet)
   require(doMC)
   
   registerDoMC(cores=2)
   
-  n.IG     <- colSums(sign(model[target==1,]))
-  n.VG     <- colSums(sign(model[target==0,]))
-  excl.IG  <- which(n.IG<5)
-  excl.VG  <- which(n.VG<5)
-  excl.ALL <- intersect(excl.IG, excl.VG)
-  if(length(excl.ALL)>0){ 
-    model <- model[,-excl.ALL]
-    newdata <- newdata[,-excl.ALL]
-  }
-  
   fit <- cv.glmnet(model, target, parallel=TRUE, family = "binomial", type.measure = "deviance")
-  pb <- predict(fit, newx=newdata, s=fit$lambda[which.max(fit$nzero)], type = "response")
+
+  return(fit)
+  
+}
+
+predict.my.glmnet <- function(fit, newdata) {
+  
+  #pb <- predict(fit, newx=newdata, s=fit$lambda[which.max(fit$nzero)], type = "response")
+  pb <- predict(fit, newx=newdata, type="response")
   pb <- data.frame(rownames(newdata), pb)
   colnames(pb) <- c('patient_num', 'probability')
   return(pb)
   
 }
 
-generateFeatureMatrix <- function(observations, features, patients) {
-  model <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
+generateObservationMatrix <- function(observations, features, patients) {
+  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
   
-  return(model)
+  return(m)
 }
 
-generateModel <- function(interval, patients, patient_set=-1, features, feature_filter_vector, level=3) {
+generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3) {
   
-  observations <- getObservations(types=feature_filter_vector, dates=interval, patient_set=patient_set, level=level)
+  observations <- getObservations(types=filter, interval=interval, patient_set=patient_set, level=level)
   
-  model <- generateFeatureMatrix(observations, features, patients$patient_num)
-  model <- cBind(model, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
-  return(model)
+  feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
+  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
+  return(feature_matrix)
 }
 
-generateTargetModel <- function(interval, patients, patient_set=-1, concept) {
+generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
   
-  concept_cd <- getConceptCd(concept)
-  level <- nchar(gsub('.*:', '', concept_cd))
-  observations <- getObservationsForConcept(concept=concept_cd, dates=interval, patient_set=patient_set, level=level)
+  concept.cd <- getConceptCd(concept.path)
+  concept.level <- nchar(gsub('.*:', '', concept.cd))
+  observations <- getObservationsForConcept(concept=concept.cd, interval=interval, patient_set=patient_set, level=concept.level)
   
-  model <- generateFeatureMatrix(observations, c(concept_cd), patients$patient_num)
-  return(sign(model[,1]))
+  target_matrix <- generateObservationMatrix(observations, c(concept.cd), patients$patient_num)
+  return(sign(target_matrix[,1]))
 }
 
-model_year.start <- i2b2DateToPOSIXlt(report.input['Model data start'])
-model_year.end <- i2b2DateToPOSIXlt(report.input['Model data end'])
+validateModel <- function(fit, model, target) {
 
-prediction_year.start <- i2b2DateToPOSIXlt(report.input['Prediction data start'])
-prediction_year.end <- i2b2DateToPOSIXlt(report.input['Prediction data end'])
+  require(ROCR)
 
-target_year.start <- i2b2DateToPOSIXlt(report.input['Target data start'])
-target_year.end <- i2b2DateToPOSIXlt(report.input['Target data end'])
+  prediction <- predict.speedglm(fit, model);
+  pred <- prediction(prediction$probability, target)
 
-target_concept <- report.input['Target concept']
-model_patient_set <- -1
-if(nchar(report.input['Model Patient set']) != 0) {
-  model_patient_set <- strtoi(report.input['Model Patient set'])
+  roc <- performance(pred, "tpr", "fpr")
+
+  precrec <- performance(pred, 'prec', 'rec')
+
+  auc <- as.numeric(performance(pred, 'auc')@y.values)
+
+  prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == 'probability'))
+  ppv.cutoff <- prediction.sorted[round(nrow(prediction.sorted)*0.1),'probability']
+  ppv.perf <- performance(pred, 'ppv')
+  ppv.x <- ppv.perf@x.values[[1]]
+  ppv.y <- ppv.perf@y.values[[1]]
+  ppv <- ppv.y[which.min(abs(ppv.x-ppv.cutoff))]
+
+  return(list(auc=auc, ppv=ppv, roc=roc, precrec=precrec))
+
 }
 
-new_patient_set <- -1
-if(nchar(report.input['New Patient set']) != 0) {
-  new_patient_set <- strtoi(report.input['New Patient set'])
-}
+model.interval <- list(start=i2b2DateToPOSIXlt(report.input['Model data start']), end=i2b2DateToPOSIXlt(report.input['Model data end']))
+model.patient_set <- ifelse(nchar(report.input['Model Patient set']) != 0, strtoi(report.input['Model Patient set']), -1)
 
-max_elem <- 100
+model.target.interval <- list(start=i2b2DateToPOSIXlt(report.input['Target data start']), end=i2b2DateToPOSIXlt(report.input['Target data end']))
+target.concept.path <- report.input['Target concept']
 
-feature_filter_vector <- c("ATC", "ICD")
-feature_level <- strtoi(report.input['Feature level'])
+newdata.interval <- list(start=i2b2DateToPOSIXlt(report.input['Prediction data start']), end=i2b2DateToPOSIXlt(report.input['Prediction data end']))
+newdata.patient_set <- ifelse(nchar(report.input['New Patient set']) != 0, strtoi(report.input['New Patient set']), -1)
+
+features.filter <- c("ATC", "ICD")
+features.level <- strtoi(report.input['Feature level'])
+
 time.query.0 <- proc.time()
-features <- getConcepts(types=feature_filter_vector, level=feature_level)
-patients <- getPatients(patient_set=model_patient_set)
-new_patients <- getPatients(patient_set=new_patient_set)
 
-model <- generateModel(level=feature_level, interval=list(model_year.start, model_year.end), patients=patients, patient_set=model_patient_set, features=features, feature_filter_vector=feature_filter_vector)
-new_model <- generateModel(level=feature_level, interval=list(prediction_year.start, prediction_year.end), patients=new_patients, patient_set=new_patient_set, features=features, feature_filter_vector=feature_filter_vector)
-target <- generateTargetModel(interval=list(target_year.start, target_year.end), patients=patients, patient_set=model_patient_set, concept=target_concept)
+features <- getConcepts(types=features.filter, level=features.level)
+model.patients <- getPatients(patient_set=model.patient_set)
+newdata.patients <- getPatients(patient_set=newdata.patient_set)
+
+model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
+newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
+model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
+
 time.query.1 <- proc.time()
 time.query <- sum(c(time.query.1-time.query.0)[3])
 
 # print result
 
-sort.prediction <- function(prediction) {
-  prediction.sorted <- prediction[order(-prediction$probability),]
-  rownames(prediction.sorted) <- NULL
-  return(prediction.sorted)
-}
-
 time.prediction.0 <- proc.time()
-fit <- fitModel(model, target)
-prediction <- predictRisk(fit, new_model);
+
+fit <- fitModel.speedglm(model, model.target)
+prediction <- predict.speedglm(fit, newdata);
+
 time.prediction.1 <- proc.time()
 time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
-prediction.sorted <- sort.prediction(prediction)
+
+prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == 'probability'))
 prediction.sorted$probability <- prediction.sorted$probability * 100
+
+newdata.target.interval <- list(start=POSIXltToi2b2Date(as.Date(newdata.interval$start) + as.numeric(difftime(model.target.interval$start, model.interval$start))), end=POSIXltToi2b2Date(as.Date(newdata.interval$end) + as.numeric(difftime(model.target.interval$end, model.interval$end))))
+info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), report.input['Model data start'], report.input['Model data end'])
+info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.path, report.input['Target data start'], report.input['Target data end'])
+info.newdata <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(newdata.patient_set), nrow(newdata.patients), report.input['Prediction data start'], report.input['Prediction data end'])
+info.newdata.target <- sprintf('Prediction from %s to %s', newdata.target.interval$start, newdata.target.interval$end)
+
+info <- data.frame(c(info.model, info.model.target, info.newdata, info.newdata.target))
+colnames(info) <- c('Info')
+
 probabilities <- prediction.sorted$probability
-
-printPatientSet <- function(id) {
-  return(ifelse(id < 0, 'all Patients', getPatientSetDescription(id)))
-}
-
-target_prediction.start <- POSIXltToi2b2Date(as.Date(prediction_year.start) + as.numeric(difftime(target_year.start, model_year.start)))
-target_prediction.end <- POSIXltToi2b2Date(as.Date(prediction_year.end) + as.numeric(difftime(target_year.end, model_year.end)))
-info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model_patient_set), nrow(patients), report.input['Model data start'], report.input['Model data end'])
-info.target <- sprintf('Target Data for %s from %s to %s', target_concept, report.input['Target data start'], report.input['Target data end'])
-info.prediction <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(new_patient_set), nrow(new_patients), report.input['Prediction data start'], report.input['Prediction data end'])
-info.prediction_target <- sprintf('Prediction from %s to %s', target_prediction.start, target_prediction.end)
-
-# Plot ROC curve
-require(ROCR)
-validation.prediction <- predictRisk(fit, model);
-pred <- prediction(validation.prediction$probability, target)
-roc <- performance(pred, "tpr", "fpr")
-precrec <- performance(pred, 'prec', 'rec')
-auc <- as.numeric(performance(pred, 'auc')@y.values)
-validation.prediction.sorted <- sort.prediction(validation.prediction)
-ppv.cutoff <- validation.prediction.sorted[round(nrow(validation.prediction.sorted)*0.1),'probability']
-ppv.perf <- performance(pred, 'ppv')
-ppv.x <- ppv.perf@x.values[[1]]
-ppv.y <- ppv.perf@y.values[[1]]
-ppv <- ppv.y[which.min(abs(ppv.x-ppv.cutoff))]
-plot(roc, main='ROC curve')
-plot(precrec, main='Precision/Recall curve')
-
-report.output[['Information']] <- data.frame(Info=c(info.model, info.target, info.prediction, info.prediction_target))
-summary <- data.frame(value=c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
+summary <- data.frame(c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
 dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value')
-report.output[['Summary']] <- summary
-report.output[['Top coefficients']] <- data.frame(Factor=head(sort(coef(fit), TRUE), 5))
-statistics <- data.frame(time=c(time.query, time.prediction))
-dimnames(statistics) <- list(c('Data Query time', 'Prediction time'), 'Time (in s)') 
-report.output[['Statistics']] <- statistics
-prediction.top <- head(prediction.sorted, max_elem)
+
+coefficients.top <- data.frame(head(sort(coef(fit), TRUE), 5))
+colnames(coefficients.top) <- c('Factor')
+
+statistics <- data.frame(c(time.query, time.prediction))
+dimnames(statistics) <- list(c('Data Query time', 'Prediction time'), 'Time (in s)')
+
+prediction.top <- head(prediction.sorted, 100)
 colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
-report.output[['Prediction']] <- prediction.top
-quality <- data.frame(value=c(auc, ppv))
+
+performance <- validateModel(fit, model, model.target)
+quality <- data.frame(c(performance$auc, performance$ppv))
 dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
+
+report.output[['Information']] <- info
+report.output[['Summary']] <- summary
+report.output[['Top coefficients']] <- coefficients.top
+report.output[['Statistics']] <- statistics
+report.output[['Prediction']] <- prediction.top
 report.output[['Quality']] <- quality
+
+plot(performance$roc, main='ROC curve')
+plot(performance$precrec, main='Precision/Recall curve')
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
 if(clear_env) {
-  rm(clear_env, prediction, model, new_model, target, features, patients, new_patients, fit, excl.ALL, feature_filter_vector, probabilities, info.model, info.prediction, info.prediction_target, info.target, max_elem, model_patient_set, model_year.end, model_year.start, roc, auc, pred, ppv, ppv.perf, ppv.x, ppv.y, precrec, prediction_year.end, prediction_year.start, target_concept, prediction.sorted, validation.prediction, new_patient_set, target_prediction.end, target_prediction.start, target_year.end, target_year.start, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1, ppv.cutoff, validation.prediction.sorted); gc()
+  rm(clear_env, coefficients.top, excl.ALL, features, features.filter, features.level, fit, info, info.model, info.model.target, info.newdata, info.newdata.target, model, model.interval, model.patients, model.patient_set, model.target, model.target.interval, newdata, newdata.interval, newdata.patients, newdata.patient_set, newdata.target.interval, performance, prediction, prediction.sorted, prediction.top, probabilities, quality, statistics, summary, target.concept.path, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
 }

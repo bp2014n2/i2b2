@@ -11,7 +11,7 @@ POSIXltToi2b2Date <- function(date) {
 }
 
 posixltToPSQLDate <- function(date) {
-  return(strftime(date, format="%Y-%m-%d"))
+  return(strftime(date, format="%Y-%m-%dT%H:%M:%S"))
 }
 
 age <- function(from, to) {
@@ -28,4 +28,14 @@ age <- function(from, to) {
 countCharOccurrences <- function(char, s) {
   s2 <- gsub(char,"",s)
   return (nchar(s) - nchar(s2))
+}
+
+sort.data.frame <- function(data_frame, column) {
+  data_frame.sorted <- data_frame[order(-data_frame[,column]),]
+  rownames(data_frame.sorted) <- NULL
+  return(data_frame.sorted)
+}
+
+printPatientSet <- function(id) {
+  return(ifelse(id < 0, 'all Patients', getPatientSetDescription(id)))
 }

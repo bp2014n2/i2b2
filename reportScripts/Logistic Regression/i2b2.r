@@ -25,23 +25,23 @@ destroyCRCConnection <- function(con) {
 }
 
 getConcepts <- function(types=c(), level=3) {
-  queries.features <- "SELECT DISTINCT substring(concept_cd from '(%s.{%d})') AS concept_cd
+  queries.features <- "SELECT DISTINCT substring(concept_cd from '.*:.{%d}') AS concept_cd
     FROM i2b2demodata.concept_dimension
     WHERE concept_cd SIMILAR TO '%s%%'"
   
   feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
-  return(executeQuery(strunwrap(queries.features), feature_filter, level, feature_filter)$concept_cd)
+  return(executeQuery(strunwrap(queries.features), level, feature_filter)$concept_cd)
 }
 
 getObservations <- function(dates, types=c(), level=3, patient_set=-1) {
   feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
-  return(getObservationsForConcept(dates=dates, types=types, concept=feature_filter, level=level, patient_set=patient_set))
+  return(getObservationsForConcept(dates=dates, concept=feature_filter, level=level, patient_set=patient_set))
 }
 
-getObservationsForConcept <- function(dates, types=c(), concept, level=3, patient_set=-1) {
+getObservationsForConcept <- function(dates, concept, level=3, patient_set=-1) {
   queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
     FROM (
-      SELECT patient_num, substring(concept_cd from '(%s.{%d})') AS concept_cd
+      SELECT patient_num, substring(concept_cd from '.*:.{%d}') AS concept_cd
       FROM i2b2demodata.observation_fact
       WHERE concept_cd IN (
         SELECT concept_cd
@@ -56,8 +56,7 @@ getObservationsForConcept <- function(dates, types=c(), concept, level=3, patien
     GROUP BY patient_num, concept_cd"
   
   dates <- sapply(dates, posixltToPSQLDate)
-  feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
-  return(executeQuery(strunwrap(queries.observations), feature_filter, level, concept, dates[1], dates[2], patient_set == -1, patient_set))
+  return(executeQuery(strunwrap(queries.observations), level, concept, dates[1], dates[2], patient_set == -1, patient_set))
 }
 
 getPatients <- function(patient_set=-1) {
@@ -81,9 +80,10 @@ getPatientSetDescription <- function(patient_set) {
 }
 
 getConceptCd <- function(concept_path) {
-  queries.concept_cd <- "SELECT concept_cd
+  level <- countCharOccurrences('\\\\', concept_path) - 2
+  queries.concept_cd <- "SELECT DISTINCT substring(concept_cd from '(.*:.{%d})') AS concept_cd
     FROM i2b2demodata.concept_dimension
-    WHERE concept_path LIKE '%s'"
+    WHERE concept_path SIMILAR TO '%s%%'"
   
-  return(executeQuery(strunwrap(queries.concept_cd), gsub("[\\]", "\\\\\\\\", concept_path))$concept_cd)
+  return(executeQuery(strunwrap(queries.concept_cd), level, gsub("[\\]", "\\\\\\\\", concept_path))$concept_cd)
 }

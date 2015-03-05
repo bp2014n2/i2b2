@@ -12,19 +12,16 @@
 	</settings>
 	<additionalInputs>
 		<input>
-			<name>Target concept</name>
-			<description>Drag and drop a concept on the field</description>
-			<type>concept</type>
-		</input>
-		<input>
-			<name>Target data start</name>
-			<description>Year for which our target should be predicted</description>
-			<type>date</type>
-		</input>
-		<input>
-			<name>Target data end</name>
-			<description>Year for which our target should be predicted</description>
-			<type>date</type>
+			<name>Feature level</name>
+			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
+			<type>dropdown</type>
+			<items>
+				<item>0</item>
+				<item>1</item>
+				<item>2</item>
+				<item>3</item>
+				<item>4</item>
+			</items>
 		</input>
 		<input>
 			<name>Model Patient set</name>
@@ -38,6 +35,21 @@
 		</input>
 		<input>
 			<name>Model data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+		</input>
+		<input>
+			<name>Target concept</name>
+			<description>Drag and drop a concept on the field</description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Target data start</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+		</input>
+		<input>
+			<name>Target data end</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
 		</input>

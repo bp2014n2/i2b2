@@ -86,19 +86,20 @@ generateFeatureMatrix <- function(observations, features, patients) {
   return(model)
 }
 
-generateModel <- function(interval, patients, patient_set=-1, features, feature_filter_vector) {
+generateModel <- function(interval, patients, patient_set=-1, features, feature_filter_vector, level=3) {
   
-  observations <- getObservations(types=feature_filter_vector, dates=interval, patient_set=patient_set)
+  observations <- getObservations(types=feature_filter_vector, dates=interval, patient_set=patient_set, level=level)
   
   model <- generateFeatureMatrix(observations, features, patients$patient_num)
   model <- cBind(model, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(model)
 }
 
-generateTargetModel <- function(interval, patients, patient_set=-1, concept, feature_filter_vector) {
+generateTargetModel <- function(interval, patients, patient_set=-1, concept) {
   
   concept_cd <- getConceptCd(concept)
-  observations <- getObservationsForConcept(concept=concept_cd, types=feature_filter_vector, dates=interval, patient_set=patient_set)
+  level <- nchar(gsub('.*:', '', concept_cd))
+  observations <- getObservationsForConcept(concept=concept_cd, dates=interval, patient_set=patient_set, level=level)
   
   model <- generateFeatureMatrix(observations, c(concept_cd), patients$patient_num)
   return(sign(model[,1]))
@@ -127,14 +128,15 @@ if(nchar(report.input['New Patient set']) != 0) {
 max_elem <- 100
 
 feature_filter_vector <- c("ATC", "ICD")
+feature_level <- strtoi(report.input['Feature level'])
 time.query.0 <- proc.time()
-features <- getConcepts(types=feature_filter_vector)
+features <- getConcepts(types=feature_filter_vector, level=feature_level)
 patients <- getPatients(patient_set=model_patient_set)
 new_patients <- getPatients(patient_set=new_patient_set)
 
-model <- generateModel(interval=list(model_year.start, model_year.end), patients=patients, patient_set=model_patient_set, features=features, feature_filter_vector=feature_filter_vector)
-new_model <- generateModel(interval=list(prediction_year.start, prediction_year.end), patients=new_patients, patient_set=new_patient_set, features=features, feature_filter_vector=feature_filter_vector)
-target <- generateTargetModel(interval=list(target_year.start, target_year.end), patients=patients, patient_set=model_patient_set, concept=target_concept, feature_filter_vector=feature_filter_vector)
+model <- generateModel(level=feature_level, interval=list(model_year.start, model_year.end), patients=patients, patient_set=model_patient_set, features=features, feature_filter_vector=feature_filter_vector)
+new_model <- generateModel(level=feature_level, interval=list(prediction_year.start, prediction_year.end), patients=new_patients, patient_set=new_patient_set, features=features, feature_filter_vector=feature_filter_vector)
+target <- generateTargetModel(interval=list(target_year.start, target_year.end), patients=patients, patient_set=model_patient_set, concept=target_concept)
 time.query.1 <- proc.time()
 time.query <- sum(c(time.query.1-time.query.0)[3])
 

@@ -4,7 +4,7 @@ source("i2b2.r")
 clear_env <- TRUE
 if(!exists('report.input')) {
   source("report.r")
-  #clear_env <- FALSE
+  clear_env <- FALSE
 }
 
 require(Matrix)
@@ -182,11 +182,20 @@ ppv <- ppv.y[which.min(abs(ppv.x-ppv.cutoff))]
 plot(roc, main='ROC curve')
 plot(precrec, main='Precision/Recall curve')
 
-report.output[['Information']] <- data.frame(info=c(info.model, info.target, info.prediction, info.prediction_target))
-report.output[['Summary']] <- data.frame(property=c('Max', 'Min', 'Mean', 'Median'), value=c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
-report.output[['Statistics']] <- data.frame(key=c('Data Query time', 'Prediction time'), time=c(time.query, time.prediction))
-report.output[['Prediction']] <- head(prediction.sorted, max_elem)
-report.output[['Quality']] <- data.frame(key=c('AUC', 'PPV'), value=c(auc, ppv))
+report.output[['Information']] <- data.frame(Info=c(info.model, info.target, info.prediction, info.prediction_target))
+summary <- data.frame(value=c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
+dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value')
+report.output[['Summary']] <- summary
+report.output[['Top coefficients']] <- data.frame(Factor=head(sort(coef(fit), TRUE), 5))
+statistics <- data.frame(time=c(time.query, time.prediction))
+dimnames(statistics) <- list(c('Data Query time', 'Prediction time'), 'Time (in s)') 
+report.output[['Statistics']] <- statistics
+prediction.top <- head(prediction.sorted, max_elem)
+colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
+report.output[['Prediction']] <- prediction.top
+quality <- data.frame(value=c(auc, ppv))
+dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
+report.output[['Quality']] <- quality
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
 if(clear_env) {

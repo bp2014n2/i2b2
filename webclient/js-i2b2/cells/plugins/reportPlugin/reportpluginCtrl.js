@@ -164,6 +164,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			for (var j = 0; j < addIns[i].options.length; j++) {
 				var t = addIns[i].options[j];
 				var n = new Option(i2b2.h.Escape(t), i2b2.h.Escape(t));
+				n.selected = (t == i2b2.h.Escape(addIns[i].default));
 				parSelect.options[parSelect.length] = n;
 			}
 			newNode.className = "report-input report-input-dropdown";
@@ -177,6 +178,9 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
 			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
 			parTextfield.id = newID;
+			if (i2b2.h.Escape(addIns[i].default) != "") {
+				parTextfield.value = i2b2.h.Escape(addIns[i].default);
+			}
 			parLink.href = "Javascript:i2b2.reportPlugin.doShowCalendar('" + parTextfield.id + "')"
 			numberAIDateFields++;
 			newNode.className = "report-input report-input-date-select";

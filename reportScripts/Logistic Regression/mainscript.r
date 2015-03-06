@@ -31,7 +31,7 @@ fitModel.speedglm <- function(model, target) {
     model <- model[,-excl.ALL]
   }
   
-  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE);
+  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE)
   
   return(fit)
   
@@ -70,6 +70,7 @@ fitModel.my.glmnet <- function(model, target, newdata) {
 
 predict.my.glmnet <- function(fit, newdata) {
   
+  require(glmnet)
   #pb <- predict(fit, newx=newdata, s=fit$lambda[which.max(fit$nzero)], type = "response")
   pb <- predict(fit, newx=newdata, type="response")
   pb <- data.frame(rownames(newdata), pb)
@@ -107,7 +108,7 @@ validateModel <- function(fit, model, target) {
 
   require(ROCR)
 
-  prediction <- predict.speedglm(fit, model);
+  prediction <- predict.speedglm(fit, model)
   pred <- prediction(prediction$probability, target)
 
   roc <- performance(pred, "tpr", "fpr")
@@ -116,8 +117,10 @@ validateModel <- function(fit, model, target) {
 
   auc <- as.numeric(performance(pred, 'auc')@y.values)
 
-  prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == 'probability'))
-  ppv.cutoff <- prediction.sorted[round(nrow(prediction.sorted)*0.1),'probability']
+  #target.positive <- sort.data.frame(prediction[target == 1,],'probability')
+  #ppv.cutoff <- target.positive[round(nrow(target.positive)*0.1),'probability']
+  prediction.sorted <- sort.data.frame(prediction, 'probability')
+  ppv.cutoff <- prediction.sorted[round(nrow(prediction.sorted)*0.1), 'probability']
   ppv.perf <- performance(pred, 'ppv')
   ppv.x <- ppv.perf@x.values[[1]]
   ppv.y <- ppv.perf@y.values[[1]]
@@ -157,7 +160,7 @@ time.query <- sum(c(time.query.1-time.query.0)[3])
 time.prediction.0 <- proc.time()
 
 fit <- fitModel.speedglm(model, model.target)
-prediction <- predict.speedglm(fit, newdata);
+prediction <- predict.speedglm(fit, newdata)
 
 time.prediction.1 <- proc.time()
 time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])

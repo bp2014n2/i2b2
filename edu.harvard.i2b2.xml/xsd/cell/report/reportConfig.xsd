@@ -48,6 +48,7 @@
 			<xs:element name="name" type="reportconf:nonEmptyString"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
 			<xs:element name="type" type="reportconf:typeType" />
+			<xs:element name="default" type="xs:string" minOccurs="0"/>
 			<xs:element name="items" type="reportconf:itemsType" minOccurs="0"/>
 			<xs:element name="lines" type="xs:unsignedByte" minOccurs="0"/>
         	</xs:sequence>

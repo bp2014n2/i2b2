@@ -15,6 +15,7 @@
 			<name>Feature level</name>
 			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
 			<type>dropdown</type>
+			<default>3</default>
 			<items>
 				<item>0</item>
 				<item>1</item>
@@ -32,11 +33,13 @@
 			<name>Model data start</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2007</default>
 		</input>
 		<input>
 			<name>Model data end</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2008</default>
 		</input>
 		<input>
 			<name>Target concept</name>
@@ -47,11 +50,13 @@
 			<name>Target data start</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2008</default>
 		</input>
 		<input>
 			<name>Target data end</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2009</default>
 		</input>
 		<input>
 			<name>New Patient set</name>
@@ -62,11 +67,13 @@
 			<name>Prediction data start</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2010</default>
 		</input>
 		<input>
 			<name>Prediction data end</name>
 			<description>Year for which our target should be predicted</description>
 			<type>date</type>
+			<default>01/01/2011</default>
 		</input>
 	</additionalInputs>
 	<customOutputs>

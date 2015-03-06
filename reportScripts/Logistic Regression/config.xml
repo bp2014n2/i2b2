@@ -94,6 +94,10 @@
 			<description>This is your prediction</description>
 		</output>
 		<output>
+			<name>Top coefficients</name>
+			<description>These coefficients have the largest impact on our prediction</description>
+		</output>
+		<output>
 			<name>Quality</name>
 			<description></description>
 		</output>

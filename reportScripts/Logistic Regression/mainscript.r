@@ -190,9 +190,6 @@ dimnames(statistics) <- list(c('Data Query time', 'Prediction time'), 'Time (in 
 prediction.top <- head(prediction.sorted, 100)
 colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
 
-options(scipen=10)
-hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(model.patients)), xlab='Probabilities (in %)')
-
 performance <- validateModel(fit, model, model.target)
 quality <- data.frame(c(performance$auc, performance$ppv))
 dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
@@ -204,6 +201,10 @@ report.output[['Statistics']] <- statistics
 report.output[['Prediction']] <- prediction.top
 report.output[['Quality']] <- quality
 
+options(scipen=10)
+histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)')
+abline(v=mean(probabilities))
+text(x=mean(probabilities), y=max(histogram$counts)/2, labels='Mean', pos=4)
 plot(performance$roc, main='ROC curve')
 plot(performance$precrec, main='Precision/Recall curve')
 

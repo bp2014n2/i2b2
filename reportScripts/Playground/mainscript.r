@@ -1,6 +1,7 @@
 # All data of patient set one
 report.output[["Raw"]] <- report.patients[[1]] # Data from patient_dimension
 report.output[["Mean Age"]] <- mean(report.patients[[1]]$age_in_years_num)
+report.output.1 <- paste("System commands (pwd): ", system("pwd", intern=TRUE))
 
 
 ageReligionMatrix <- setNames(aggregate(report.patients[[1]]$age_in_years_num, by=list(report.patients[[1]]$religion_cd), FUN=mean), c("Religion", "Age"))

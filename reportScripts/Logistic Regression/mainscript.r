@@ -201,12 +201,16 @@ report.output[['Statistics']] <- statistics
 report.output[['Prediction']] <- prediction.top
 report.output[['Quality']] <- quality
 
+smooth_lines <- TRUE
 options(scipen=10)
 histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)')
 abline(v=mean(probabilities))
-text(x=mean(probabilities), y=max(histogram$counts)/2, labels='Mean', pos=4)
+text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4)
 plot(performance$roc, main='ROC curve')
-plot(performance$precrec, main='Precision/Recall curve')
+plot(performance$precrec, main='Precision/Recall curve', lty="dotted")
+if(smooth_lines) {
+  smoothedLine(precrec@x.values[[1]], precrec@y.values[[1]])
+}
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
 if(clear_env) {

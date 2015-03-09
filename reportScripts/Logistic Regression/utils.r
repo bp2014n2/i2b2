@@ -39,3 +39,9 @@ sort.data.frame <- function(data_frame, column) {
 printPatientSet <- function(id) {
   return(ifelse(id < 0, 'all Patients', getPatientSetDescription(id)))
 }
+
+smoothedLine <- function(x, y) {
+  xnna <- x[!is.na(y)]
+  ynna <- y[!is.na(y)]
+  lines(smooth.spline(xnna, ynna), col="red", lwd=2)
+}

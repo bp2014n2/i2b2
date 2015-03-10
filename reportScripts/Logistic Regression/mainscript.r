@@ -206,10 +206,13 @@ options(scipen=10)
 histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)')
 abline(v=mean(probabilities))
 text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4)
-plot(performance$roc, main='ROC curve')
+plot(performance$roc, main='ROC curve', lty="dotted")
+if(smooth_lines) {
+  smoothedLine(performance$roc@x.values[[1]], performance$roc@y.values[[1]])
+}
 plot(performance$precrec, main='Precision/Recall curve', lty="dotted")
 if(smooth_lines) {
-  smoothedLine(precrec@x.values[[1]], precrec@y.values[[1]])
+  smoothedLine(performance$precrec@x.values[[1]], performance$precrec@y.values[[1]])
 }
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()

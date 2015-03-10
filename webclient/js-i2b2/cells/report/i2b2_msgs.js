@@ -96,6 +96,8 @@ i2b2.report.cfg.parsers.getRScriptlets = function(){
 				nodeData.addInputs[j].name = i2b2.h.getXNodeVal(addInputNodes[j], "name"); // Can't be undefined if config.xml is valid
 				nodeData.addInputs[j].descr = i2b2.h.getXNodeVal(addInputNodes[j], "description");
 				if (nodeData.addInputs[j].descr == undefined) { nodeData.addInputs[j].descr = ""; }
+				nodeData.addInputs[j].default = i2b2.h.getXNodeVal(addInputNodes[j], "default");
+				if (nodeData.addInputs[j].default == undefined) { nodeData.addInputs[j].default = ""; }
 				nodeData.addInputs[j].type = i2b2.h.getXNodeVal(addInputNodes[j], "type"); // Can't be undefined if config.xml is valid
 				if (nodeData.addInputs[j].type == "dropdown") {
 					var options = i2b2.h.XPath(addInputNodes[j], ".//item/text()");

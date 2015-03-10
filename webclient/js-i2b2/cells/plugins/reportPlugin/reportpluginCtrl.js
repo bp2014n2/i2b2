@@ -14,6 +14,8 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 	i2b2.reportPlugin.model.currentScriptlet = "";
 	// Holds the concept names that are dropped on additional input values of type 'concept'
 	i2b2.reportPlugin.model.aiConcpts = {};
+	// Holds the patient_set_ids that are dropped on additional input values of type 'patient_set'
+	i2b2.reportPlugin.model.aiPatientSets = {};
 	// Holds the highest index of a shown concept dd field (shown at lowest)
 	i2b2.reportPlugin.model.highestConcDDIndex = 0;
 	// Holds the highest index of a shown patient set dd field (shown at lowest)
@@ -91,6 +93,10 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	var aiDropProt = $$("DIV#reportplugin-mainDiv .report-dropdown-prototype")[0];
 	// Additional input concept prototype
 	var aiConcProt = $$("DIV#reportplugin-mainDiv .report-concept-prototype")[0];
+	// Additional input concept prototype
+	var aiPatientSetProt = $$("DIV#reportplugin-mainDiv .report-patient-set-prototype")[0];
+	// Additional input date prototype
+	var aiDateProt = $$("DIV#reportplugin-mainDiv .report-date-select-prototype")[0];
 	// All non-prototype input fields
 	var allNPInput = $$("DIV#reportplugin-mainDiv .report-input");
 	// Container div for additional inputs
@@ -114,6 +120,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	
 	// Clear old additional concepts
 	i2b2.reportPlugin.model.aiConcpts = {};
+	// Clear old additional patient sets
+	i2b2.reportPlugin.model.aiPatientSets = {};
 
 	// If empty scriptlet is chosen -> return now
 	if (value == '') { return; }
@@ -132,6 +140,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	var addIns = i2b2.reportPlugin.scriptlets[value].addInputs;
 	if (addIns.length > 0) piInputsDiv.show();
 	var numberAIConceptFields = 0;
+	var numberAIPatientSetFields = 0;
+	var numberAIDateFields = 0;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
@@ -154,9 +164,26 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			for (var j = 0; j < addIns[i].options.length; j++) {
 				var t = addIns[i].options[j];
 				var n = new Option(i2b2.h.Escape(t), i2b2.h.Escape(t));
+				n.selected = (t == i2b2.h.Escape(addIns[i].default));
 				parSelect.options[parSelect.length] = n;
 			}
 			newNode.className = "report-input report-input-dropdown";
+		} else if (addIns[i].type == "date") {
+			newNode = aiDateProt.cloneNode(true);
+			var newID = "report-AIDATE-" + numberAIDateFields;
+			var parTitle = Element.select(newNode, 'h3')[0];
+			var parDescr = Element.select(newNode, 'p')[0];
+			var parTextfield = Element.select(newNode, 'input')[0];		
+			var parLink = Element.select(newNode, 'a')[0];
+			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
+			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
+			parTextfield.id = newID;
+			if (i2b2.h.Escape(addIns[i].default) != "") {
+				parTextfield.value = i2b2.h.Escape(addIns[i].default);
+			}
+			parLink.href = "Javascript:i2b2.reportPlugin.doShowCalendar('" + parTextfield.id + "')"
+			numberAIDateFields++;
+			newNode.className = "report-input report-input-date-select";
 		} else if (addIns[i].type == "concept") {
 			newNode = aiConcProt.cloneNode(true);
 			var newID = "report-AICONCPTDROP-" + numberAIConceptFields;
@@ -173,6 +200,22 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			i2b2.sdx.Master.setHandlerCustom(newID, "CONCPT", "DropHandler", i2b2.reportPlugin.aiconceptDropped);
 			numberAIConceptFields++;
 			newNode.className = "report-input report-input-concept";
+		} else if (addIns[i].type == "patient_set") {
+			newNode = aiPatientSetProt.cloneNode(true);
+			var newID = "report-AIPATIENTSETDROP-" + numberAIPatientSetFields;
+			var parTitle = Element.select(newNode, 'h3')[0];
+			var parDescr = Element.select(newNode, 'p')[0];
+			var parDragField = Element.select(newNode, 'div')[0];
+			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
+			parTitle.id = newID + "-title";
+			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
+			parDragField.id = newID;
+			var op_trgt = {dropTarget:true};
+			i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
+			i2b2.sdx.Master.AttachType(newID, "PRS", op_trgt);
+			i2b2.sdx.Master.setHandlerCustom(newID, "PRS", "DropHandler", i2b2.reportPlugin.aipatientsetDropped);
+			numberAIPatientSetFields++;
+			newNode.className = "report-input report-input-patient-set";
 		}
 		addInCont.appendChild(newNode);
 		Element.show(newNode);
@@ -194,6 +237,22 @@ i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	$("report-PRSDROP-" + fieldIndex).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
 	$("report-PRSDROP-" + fieldIndex).style.background = "#CFB"; 
 	i2b2.reportPlugin.model.prsDirty = true;
+};
+
+// This function is called when a concept is dropped on an additional input drag&drop field
+i2b2.reportPlugin.aipatientsetDropped = function(sdxData, droppedOnID) {
+	// Determine name of the additional input variable 
+	var divNode = $(droppedOnID);
+	var h3Node = $(droppedOnID + "-title");
+	var aiName = h3Node.innerHTML;
+	// Determine dimcode as value
+	sdxData = sdxData[0];
+	var psInfo = sdxData.sdxInfo.sdxKeyValue
+	// Save in local data modal
+	i2b2.reportPlugin.model.aiPatientSets[i2b2.h.Escape(aiName)] = psInfo;
+	// Change appearance of the drop field
+	$(droppedOnID).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
+	$(droppedOnID).style.background = "#CFB"; 
 };
 
 // This function is called when a concept is dropped
@@ -332,8 +391,10 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	var errorDivNoPI = $("report-error-emptyPI");
 	var errorDivNoPSCC = $("report-error-emptyPSorCC");
 	var allAIText = $$("DIV#reportplugin-mainDiv .report-input-textfield");
+	var allAIDate = $$("DIV#reportplugin-mainDiv .report-input-date-select");
 	var allAIDD = $$("DIV#reportplugin-mainDiv .report-input-dropdown");
 	var allAICO = $$("DIV#reportplugin-mainDiv .report-input-concept");
+	var allAIPS = $$("DIV#reportplugin-mainDiv .report-input-patient-set");
 
 	// Hide possibly visible error messages from the past
 	errorDivNoPI.hide();
@@ -423,10 +484,26 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 		j++;
 	}
 
+	for (var i = 0; i < allAIDate.length; i++) {
+		var name = Element.select(allAIDate[i], 'h3')[0].innerHTML;
+		var value = Element.select(allAIDate[i], 'input')[0].value;
+		addIns[j] = [name, value];
+		j++;
+	}
+
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAICO.length; i++) {
 		var name = Element.select(allAICO[i], 'h3')[0].innerHTML;
 		var value = i2b2.reportPlugin.model.aiConcpts[name];
+		if (value == undefined) value = "";
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional inputs: Concept drag and drop fields
+	for (var i = 0; i < allAIPS.length; i++) {
+		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
+		var value = i2b2.reportPlugin.model.aiPatientSets[name];
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;
@@ -691,6 +768,7 @@ i2b2.reportPlugin.buildConstrainString = function(index) {
 // Reset model
 i2b2.reportPlugin.Unload = function() {
 	i2b2.reportPlugin.model.aiConcpts = {};
+	i2b2.reportPlugin.model.aiPatientSets = {};
 	i2b2.reportPlugin.scriptlets = {};
 	i2b2.reportPlugin.model.currentScriptlet = "";
 	i2b2.reportPlugin.model.highestConcDDIndex = 0;
@@ -700,4 +778,53 @@ i2b2.reportPlugin.Unload = function() {
 	i2b2.reportPlugin.model.conceptRecords = [];
 	i2b2.reportPlugin.model.prsRecords = [];
 	return true;
+};
+
+i2b2.reportPlugin.doShowCalendar = function(dateInputId) {
+	
+	// create calendar if not already initialized
+	if (!this.DateConstrainCal) {
+		this.DateConstrainCal = new YAHOO.widget.Calendar("DateContstrainCal","calendarDiv");
+	}
+	this.DateConstrainCal.selectEvent.subscribe(function(eventName, selectedDate) {
+
+		// function is event callback fired by YUI Calendar control 
+		// (this function looses it's class scope)
+		var cScope = i2b2.CRC.ctrlr.dateConstraint;
+		var tn = $(dateInputId);
+		var selectDate = selectedDate[0][0];
+		tn.value = selectDate[1]+'/'+selectDate[2]+'/'+selectDate[0];
+		$("calendarDiv").hide();
+		$("calendarDivMask").hide();
+
+	}, this.DateConstrainCal,true);
+	this.DateConstrainCal.clear();
+	// process click
+	var apos = Position.positionedOffset($(dateInputId));
+	var cx = apos[0] - $("calendarDiv").getWidth() + $(dateInputId).width + 3;
+	var cy = apos[1] + $(dateInputId).height + 3 - 300;
+	cx = 500;
+	cy = 500;
+	$("calendarDiv").style.top = cy+'px';
+	$("calendarDiv").style.left = cx+'px';
+	$(dateInputId).select();
+	var sDateValue = $(dateInputId).value;
+	var rxDate = /^\d{1,2}(\-|\/|\.)\d{1,2}\1\d{4}$/
+	if (rxDate.test(sDateValue)) {
+		var aDate = sDateValue.split(/\//);
+		this.DateConstrainCal.setMonth(aDate[0]-1);
+		this.DateConstrainCal.setYear(aDate[2]);
+	} else {
+		alert("Invalid Date Format, please use mm/dd/yyyy or select a date using the calendar.");
+	}
+	// display everything
+	$("calendarDiv").show();
+	var viewdim = document.viewport.getDimensions();
+	$("calendarDivMask").style.top = "0px";
+	$("calendarDivMask").style.left = "0px";
+	$("calendarDivMask").style.width = (viewdim.width - 10) + "px";
+	$("calendarDivMask").style.height = (viewdim.height - 10) + "px";
+	$("calendarDivMask").show();
+	this.DateConstrainCal.render(document.body);
+
 };

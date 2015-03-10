@@ -12,27 +12,68 @@
 	</settings>
 	<additionalInputs>
 		<input>
+			<name>Feature level</name>
+			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
+			<type>dropdown</type>
+			<default>3</default>
+			<items>
+				<item>0</item>
+				<item>1</item>
+				<item>2</item>
+				<item>3</item>
+				<item>4</item>
+			</items>
+		</input>
+		<input>
+			<name>Model Patient set</name>
+			<description>Leave empty for all patients</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Model data start</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+			<default>01/01/2007</default>
+		</input>
+		<input>
+			<name>Model data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+			<default>01/01/2008</default>
+		</input>
+		<input>
 			<name>Target concept</name>
 			<description>Drag and drop a concept on the field</description>
 			<type>concept</type>
 		</input>
 		<input>
-			<name>Model year</name>
-			<description>Year from which our model data should be taken</description>
-			<type>text</type>
-			<lines>1</lines>
-		</input>
-		<input>
-			<name>Model target interval</name>
-			<description>Year from which our model data should be taken</description>
-			<type>text</type>
-			<lines>1</lines>
-		</input>
-		<input>
-			<name>Prediction year</name>
+			<name>Target data start</name>
 			<description>Year for which our target should be predicted</description>
-			<type>text</type>
-			<lines>1</lines>
+			<type>date</type>
+			<default>01/01/2008</default>
+		</input>
+		<input>
+			<name>Target data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+			<default>01/01/2009</default>
+		</input>
+		<input>
+			<name>New Patient set</name>
+			<description>Leave empty for all patients</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Prediction data start</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+			<default>01/01/2010</default>
+		</input>
+		<input>
+			<name>Prediction data end</name>
+			<description>Year for which our target should be predicted</description>
+			<type>date</type>
+			<default>01/01/2011</default>
 		</input>
 	</additionalInputs>
 	<customOutputs>
@@ -41,8 +82,24 @@
 			<description>Information about the prediction</description>
 		</output>
 		<output>
+			<name>Summary</name>
+			<description>Information about the prediction</description>
+		</output>
+		<output>
+			<name>Statistics</name>
+			<description>Information about the prediction</description>
+		</output>
+		<output>
 			<name>Prediction</name>
 			<description>This is your prediction</description>
+		</output>
+		<output>
+			<name>Top coefficients</name>
+			<description>These coefficients have the largest impact on our prediction</description>
+		</output>
+		<output>
+			<name>Quality</name>
+			<description></description>
 		</output>
 	</customOutputs>
 </reportconf:Rscriptlet>

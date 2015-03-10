@@ -27,7 +27,7 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 	// Set some paths dynamically (see injected_screens.html)
 	$("report-loading-scriptlets-gif").src = i2b2.reportPlugin.cfg.config.assetDir + "loading.gif";
 	$("report-loading-results-gif").src = i2b2.reportPlugin.cfg.config.assetDir + "loading.gif";
-	$("report-environment-link").href = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
+	$("report-environment-link").href = i2b2.report.cfg.params.assetUrl + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
 
 	// Specify necessary message parameters for getRScriptlets request (No special parameters needed here)
 	var parameters = {};
@@ -613,7 +613,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 			// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
 			parValue.innerHTML = cbResults.model[i].value;
 			// Add a link to download csv
-			parCSVLink.href = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
+			parCSVLink.href = i2b2.report.cfg.params.assetUrl + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
 			Element.show(parCSVDiv);
 		}
 		resultCont.appendChild(newNode);
@@ -637,8 +637,8 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 		var plotIMG = Element.select(newNode, 'img')[0];
 		var plotA = Element.select(newNode, 'a')[0];
 		var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
-		plotIMG.src = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		plotA.href= i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotIMG.src = i2b2.report.cfg.params.assetUrl + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotA.href= i2b2.report.cfg.params.assetUrl + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
 		newNode.className = "report-plot";
 		plotsDiv.appendChild(newNode);
 		Element.show(newNode);

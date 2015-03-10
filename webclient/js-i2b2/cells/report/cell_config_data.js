@@ -9,7 +9,8 @@
 		name: "report Messaging",
 		category: ["core","cell"],
 		paramTranslation: [
-			{thinClientName:'queryTimeout', defaultValue:3600}
+			{thinClientName:'queryTimeout', defaultValue:3600},
+			{thinClientName:'assetUrl', defaultValue:'54.93.130.121/i2b2/report/assets/'}
 		]
 	}
 }

@@ -10,7 +10,7 @@
 		category: ["core","cell"],
 		paramTranslation: [
 			{thinClientName:'queryTimeout', defaultValue:3600},
-			{thinClientName:'assetUrl', defaultValue:'54.93.130.121/i2b2/report/assets/'}
+			{thinClientName:'assetUrl', defaultValue:'webclient/js-i2b2/cells/plugins/reportPlugin/assets/'}
 		]
 	}
 }

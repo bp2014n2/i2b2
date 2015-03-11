@@ -43,5 +43,5 @@ printPatientSet <- function(id) {
 smoothedLine <- function(x, y) {
   xnna <- x[!is.na(y)]
   ynna <- y[!is.na(y)]
-  lines(smooth.spline(xnna, ynna, spar=0.5), col="red", lwd=2)
+  lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), col="red", lwd=2)
 }

@@ -94,9 +94,8 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   return(feature_matrix)
 }
 
-generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
+generateTargetVector <- function(interval, patients, patient_set=-1, concept.cd) {
   
-  concept.cd <- getConceptCd(concept.path)
   concept.level <- nchar(gsub('.*:', '', concept.cd))
   observations <- getObservationsForConcept(concept=concept.cd, interval=interval, patient_set=patient_set, level=concept.level)
   
@@ -135,6 +134,8 @@ model.patient_set <- ifelse(nchar(report.input['Model Patient set']) != 0, strto
 
 model.target.interval <- list(start=i2b2DateToPOSIXlt(report.input['Target data start']), end=i2b2DateToPOSIXlt(report.input['Target data end']))
 target.concept.path <- report.input['Target concept']
+target.concept.cd <- getConceptCd(target.concept.path)
+target.concept.name <- getConceptName(target.concept.cd)
 
 newdata.interval <- list(start=i2b2DateToPOSIXlt(report.input['Prediction data start']), end=i2b2DateToPOSIXlt(report.input['Prediction data end']))
 newdata.patient_set <- ifelse(nchar(report.input['New Patient set']) != 0, strtoi(report.input['New Patient set']), -1)
@@ -150,7 +151,7 @@ newdata.patients <- getPatients(patient_set=newdata.patient_set)
 
 model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
 newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
-model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
+model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.cd=target.concept.cd)
 
 time.query.1 <- proc.time()
 time.query <- sum(c(time.query.1-time.query.0)[3])
@@ -170,7 +171,7 @@ prediction.sorted$probability <- prediction.sorted$probability * 100
 
 newdata.target.interval <- list(start=POSIXltToi2b2Date(as.Date(newdata.interval$start) + as.numeric(difftime(model.target.interval$start, model.interval$start))), end=POSIXltToi2b2Date(as.Date(newdata.interval$end) + as.numeric(difftime(model.target.interval$end, model.interval$end))))
 info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), report.input['Model data start'], report.input['Model data end'])
-info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.path, report.input['Target data start'], report.input['Target data end'])
+info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.name, report.input['Target data start'], report.input['Target data end'])
 info.newdata <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(newdata.patient_set), nrow(newdata.patients), report.input['Prediction data start'], report.input['Prediction data end'])
 info.newdata.target <- sprintf('Prediction from %s to %s', newdata.target.interval$start, newdata.target.interval$end)
 
@@ -182,6 +183,7 @@ summary <- data.frame(c(max(probabilities), min(probabilities), mean(probabiliti
 dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value')
 
 coefficients.top <- data.frame(head(sort(coef(fit), TRUE), 5))
+rownames(coefficients.top) <- sapply(rownames(coefficients.top), function(x) getConceptName(x))
 colnames(coefficients.top) <- c('Factor')
 
 statistics <- data.frame(c(time.query, time.prediction))
@@ -217,5 +219,5 @@ if(smooth_lines) {
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
 if(clear_env) {
-  rm(clear_env, coefficients.top, excl.ALL, features, features.filter, features.level, fit, info, info.model, info.model.target, info.newdata, info.newdata.target, model, model.interval, model.patients, model.patient_set, model.target, model.target.interval, newdata, newdata.interval, newdata.patients, newdata.patient_set, newdata.target.interval, performance, prediction, prediction.sorted, prediction.top, probabilities, quality, statistics, summary, target.concept.path, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
+  rm(clear_env, coefficients.top, excl.ALL, features, features.filter, features.level, fit, info, info.model, info.model.target, info.newdata, info.newdata.target, model, model.interval, model.patients, model.patient_set, model.target, model.target.interval, newdata, newdata.interval, newdata.patients, newdata.patient_set, newdata.target.interval, performance, prediction, prediction.sorted, prediction.top, probabilities, quality, statistics, summary, target.concept.cd, target.concept.name, target.concept.path, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
 }

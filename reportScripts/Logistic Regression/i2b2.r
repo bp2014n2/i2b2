@@ -33,6 +33,14 @@ getConcepts <- function(types=c(), level=3) {
   return(executeQuery(strunwrap(queries.features), level, feature_filter)$concept_cd)
 }
 
+getConceptName <- function(concept_cd) {
+  query <- "SELECT name_char
+    FROM i2b2demodata.concept_dimension
+    WHERE concept_cd LIKE '%s%%'
+    ORDER BY concept_cd"
+  return(executeQuery(strunwrap(query), concept_cd)[1,])
+}
+
 getObservations <- function(interval, types=c(), level=3, patient_set=-1) {
   feature_filter <- paste("(", paste(types, collapse="|"), "):", sep="")
   return(getObservationsForConcept(interval=interval, concept=feature_filter, level=level, patient_set=patient_set))

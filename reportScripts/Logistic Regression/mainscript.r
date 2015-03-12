@@ -153,6 +153,14 @@ model <- generateFeatureMatrix(level=features.level, interval=model.interval, pa
 newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
 model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.cd=target.concept.cd)
 
+model.split <- 0.6
+model.split.row <- round(nrow(model)*model.split)
+
+model.training <- model[1:model.split.row,]
+model.target.training <- model.target[1:model.split.row]
+model.test <- model[(model.split.row+1):nrow(model),]
+model.target.test <- model.target[(model.split.row+1):nrow(model)]
+
 time.query.1 <- proc.time()
 time.query <- sum(c(time.query.1-time.query.0)[3])
 
@@ -160,7 +168,7 @@ time.query <- sum(c(time.query.1-time.query.0)[3])
 
 time.prediction.0 <- proc.time()
 
-fit <- fitModel.speedglm(model, model.target)
+fit <- fitModel.speedglm(model.training, model.target.training)
 prediction <- predict.speedglm(fit, newdata)
 
 time.prediction.1 <- proc.time()
@@ -170,7 +178,7 @@ prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == '
 prediction.sorted$probability <- prediction.sorted$probability * 100
 
 newdata.target.interval <- list(start=POSIXltToi2b2Date(as.Date(newdata.interval$start) + as.numeric(difftime(model.target.interval$start, model.interval$start))), end=POSIXltToi2b2Date(as.Date(newdata.interval$end) + as.numeric(difftime(model.target.interval$end, model.interval$end))))
-info.model <- sprintf('Model Data for %s (%d patients) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), report.input['Model data start'], report.input['Model data end'])
+info.model <- sprintf('Model Data for %s (%d patients, split %d:%d) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), model.split*100, (1-model.split)*100, report.input['Model data start'], report.input['Model data end'])
 info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.name, report.input['Target data start'], report.input['Target data end'])
 info.newdata <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(newdata.patient_set), nrow(newdata.patients), report.input['Prediction data start'], report.input['Prediction data end'])
 info.newdata.target <- sprintf('Prediction from %s to %s', newdata.target.interval$start, newdata.target.interval$end)
@@ -192,7 +200,7 @@ dimnames(statistics) <- list(c('Data Query time', 'Prediction time'), 'Time (in 
 prediction.top <- head(prediction.sorted, 100)
 colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
 
-performance <- validateModel(fit, model, model.target)
+performance <- validateModel(fit, model.test, model.target.test)
 quality <- data.frame(c(performance$auc, performance$ppv))
 dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
 

@@ -97,7 +97,7 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
 generateTargetVector <- function(interval, patients, patient_set=-1, concept.cd) {
   
   concept.level <- nchar(gsub('.*:', '', concept.cd))
-  observations <- getObservationsForConcept(concept=concept.cd, interval=interval, patient_set=patient_set, level=concept.level)
+  observations <- getObservationsForConcept(concepts=c(concept.cd), interval=interval, patient_set=patient_set, level=concept.level)
   
   target_matrix <- generateObservationMatrix(observations, c(concept.cd), patients$patient_num)
   return(sign(target_matrix[,1]))

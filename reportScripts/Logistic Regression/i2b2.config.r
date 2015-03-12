@@ -1,0 +1,5 @@
+db.host <- 'localhost'
+db.port <- '5432'
+db.username <- 'i2b2demodata'
+db.password <- 'demouser'
+db.name <- 'i2b2'

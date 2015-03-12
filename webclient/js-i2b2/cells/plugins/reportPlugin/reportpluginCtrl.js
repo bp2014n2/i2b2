@@ -607,6 +607,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 		parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
 		// For security reasons the result values are escaped -> No HTML tags will be interpreted
 		parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
+		parValue.innerHTML = cbResults.model[i].value;
 		newNode.className = "report-result-element";
 		if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
 			// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed

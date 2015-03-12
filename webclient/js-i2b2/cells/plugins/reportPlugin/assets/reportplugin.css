@@ -16,7 +16,7 @@ DIV#report-TABS DIV.report-MainContent {
 
 DIV#report-TABS DIV.report-MainContentPad {
 	padding:10px 10px;
-	width: 400px;
+	width: 100%;
 }
 
 DIV#report-TABS H1 {

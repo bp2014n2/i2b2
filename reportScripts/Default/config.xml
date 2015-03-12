@@ -2,7 +2,7 @@
 <reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
 	<settings>
-		<title>Elsevier Report</title>
+                <title>Sample</title>
 		<description>This is a comprehensive report generated from the given patient set.</description>
 		<passROutput>false</passROutput>
 		<passRErrors>true</passRErrors>

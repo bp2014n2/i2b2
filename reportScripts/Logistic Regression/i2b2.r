@@ -1,3 +1,4 @@
+require(RPostgreSQL)
 require(RJDBC)
 
 source("utils.r")
@@ -15,8 +16,10 @@ executeQuery <- function(query, ...) {
 }
 
 initializeCRCConnection <- function() {
-  drv <- JDBC(db.class, db.jar)
-  return(dbConnect(drv, db.connection, db.username, db.password))
+  #drv <- JDBC(db.class, db.jar)
+  #return(dbConnect(drv, db.connection, db.username, db.password))
+  drv <- dbDriver("PostgreSQL")
+  return(dbConnect(drv, dbname=db.name, host=db.host, user=db.username, password=db.password, port=db.port))
 }
 
 destroyCRCConnection <- function(con) {

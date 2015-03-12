@@ -16,6 +16,7 @@
 			<path refid="common-classpath" />
 			<pathelement location="${classes}" />
 			<pathelement location="${lib}/JRI.jar" />
+			<pathelement location="${lib}/rJava.jar" />
 			<pathelement location="${lib}/jna-4.0.0.jar" />
 			<pathelement location="../${i2b2CommonProject}/dist/i2b2Common-core.jar" />
 			<pathelement location="." />

@@ -9,8 +9,7 @@
 		name: "report Messaging",
 		category: ["core","cell"],
 		paramTranslation: [
-			{thinClientName:'queryTimeout', defaultValue:3600},
-			{thinClientName:'assetUrl', defaultValue:'webclient/js-i2b2/cells/plugins/reportPlugin/assets/'}
+			{thinClientName:'queryTimeout', defaultValue:3600}
 		]
 	}
 }

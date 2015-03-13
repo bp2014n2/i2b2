@@ -70,6 +70,8 @@ public class reportUtil {
 	private static String JRILIBPATH = null;
 	// Path to the web directory
 	private static String WEBDIRPATH = null;
+	// Path to the web directory
+	private static String UPLOADURL = null;
 	
 	// Calling this method will configure the program for running locally (without jboss)
 	public static void setTestingmodeON(String path) {
@@ -91,6 +93,7 @@ public class reportUtil {
 				CONFIGSCHEMAPATH = testingprops.getProperty("config.schema.path");
 				JRILIBPATH = testingprops.getProperty("jri.libpath");
 				WEBDIRPATH = testingprops.getProperty("web.dir");
+				UPLOADURL = testingprops.getProperty("upload.url");
 			} catch (Exception e) {
 				// In testing mode a stack trace is sufficient
 				e.printStackTrace();
@@ -106,6 +109,7 @@ public class reportUtil {
 				String jbosshome = prop.getProperty("jboss.home");
 				JRILIBPATH = jbosshome + "/standalone/lib/ext";
 				WEBDIRPATH = prop.getProperty("web.dir");
+				UPLOADURL = prop.getProperty("upload.url");
 			} catch (IOException e) {
 				log.error("Exception stack trace:\n" + getStackTraceAsString(e));
 			}
@@ -115,6 +119,10 @@ public class reportUtil {
 	
 	public static String getWEBDIRPATH() {
 		return WEBDIRPATH;
+	}
+	
+	public static String getUPLOADURL() {
+		return UPLOADURL;
 	}
     
 	public static JAXBUtil getJAXBUtil() {

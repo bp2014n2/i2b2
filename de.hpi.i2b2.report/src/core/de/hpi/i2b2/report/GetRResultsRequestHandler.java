@@ -6,6 +6,7 @@ package de.hpi.i2b2.report;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -317,7 +318,32 @@ public class GetRResultsRequestHandler implements RequestHandler {
 		
 		// Flush R workspace
 		JRIProcessor.doFinalRTasks(extendedWebdirPath);
-		
+
+		String plotDirPath = extendedWebdirPath + "/plots";
+    	String csvDirPath = extendedWebdirPath + "/csv";
+    	String rImageDirPath = extendedWebdirPath + "/RImage";
+    	
+    	String uploadURL = reportUtil.getUPLOADURL();
+    	try {
+	    	File plots = new File(plotDirPath);
+	    	for (File file : plots.listFiles()) {
+	    		ReportFileUploader uploader = new ReportFileUploader(uploadURL, username);
+	    		uploader.uploadFile(file, file.getName(), "plots");
+	    	}
+	    	File csvs = new File(csvDirPath);
+	    	for (File file : csvs.listFiles()) {
+	    		ReportFileUploader uploader = new ReportFileUploader(uploadURL, username);
+	    		uploader.uploadFile(file, file.getName(), "csv");
+	    	}
+	    	File rImages = new File(rImageDirPath);
+	    	for (File file : rImages.listFiles()) {
+	    		ReportFileUploader uploader = new ReportFileUploader(uploadURL, username);
+	    		uploader.uploadFile(file, file.getName(), "RImage");
+	    	}
+    	} catch(IOException e) {
+    		
+    	}
+    	
 		// ============== Build and send answer message ==============
 		
 		// Assemble body part of response message (=RResultsType)

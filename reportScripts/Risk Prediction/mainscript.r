@@ -3,7 +3,6 @@ if(!exists('report.input')) {
 }
 source("lib/utils.r")
 source("lib/i2b2.r")
-setwd('./Risk Prediction/')
 
 require(Matrix)
 

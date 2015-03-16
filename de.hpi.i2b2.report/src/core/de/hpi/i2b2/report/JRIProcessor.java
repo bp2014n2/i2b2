@@ -48,7 +48,7 @@ public class JRIProcessor {
         re = Rengine.getMainEngine();
         // If not create a new one
         if (re == null) {
-        	log.info("Creating new R enginedfdf");
+        	log.info("Creating new R engine");
         	// Create new R engine but don't start main loop immediately (second argument)
         	re = new Rengine(args, false, new ScriptExecutorCallbackClass());
         } else {

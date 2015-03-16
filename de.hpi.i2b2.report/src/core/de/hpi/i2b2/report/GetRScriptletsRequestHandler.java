@@ -57,6 +57,9 @@ public class GetRScriptletsRequestHandler implements RequestHandler{
 			if ( ! f.isDirectory()) continue;
 			
 			String subdirectorypath = f.getPath();
+			if (subdirectorypath.endsWith("/lib")) {
+				continue;
+			}
 			
 			// Validate config file against XML schema and unmarshall into a JAXB Object
 			RscriptletType reportType = null;

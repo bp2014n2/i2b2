@@ -1,4 +1,5 @@
 setwd('/home/ubuntu/i2b2/reportScripts')
+options( java.parameters = "-Xmx2g" )
 
 report.patients <- c()
 report.observations <- c()
@@ -16,6 +17,6 @@ report.input['Target data end'] <- '01/01/2009'
 report.input['Prediction data start'] <- '01/01/2010'
 report.input['Prediction data end'] <- '01/01/2011'
 report.input['Target concept'] <- '\\ICD\\M00-M99\\M50-M54\\M54\\'
-report.input['Model Patient set'] <- '7'
-report.input['New Patient set'] <- '7'
+report.input['Model Patient set'] <- '-1'
+report.input['New Patient set'] <- '-1'
 report.input['Feature level'] <- '3'

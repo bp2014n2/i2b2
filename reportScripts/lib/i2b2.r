@@ -1,7 +1,7 @@
 require(RJDBC)
 
-source("utils.r")
-source("i2b2.config.r")
+source("lib/utils.r")
+source("lib/i2b2.config.r")
 
 executeQuery <- function(query, ...) {
   

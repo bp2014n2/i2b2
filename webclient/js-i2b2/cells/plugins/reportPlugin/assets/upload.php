@@ -1,5 +1,5 @@
 <?php
-$target_dir = "js-i2b2/cells/plugins/reportPlugin/assets/userfiles/" . $_POST["user"] . "/" . $_POST["type"] . "/";
+$target_dir = "userfiles/" . $_POST["user"] . "/" . $_POST["type"] . "/";
 $res = mkdir($target_dir, 0777, true);
 $target_file = $target_dir . basename($_FILES["file"]["name"]);
 $uploadOk = 1;

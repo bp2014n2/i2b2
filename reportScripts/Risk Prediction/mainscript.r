@@ -1,9 +1,9 @@
 if(!exists('report.input')) {
-  source("/home/ubuntu/i2b2/reportScripts/Logistic Regression/report.r")
+  source("/home/ubuntu/i2b2/reportScripts/Risk Prediction/report.r")
 }
 source("lib/utils.r")
 source("lib/i2b2.r")
-setwd('./Logistic Regression/')
+setwd('./Risk Prediction/')
 
 require(Matrix)
 

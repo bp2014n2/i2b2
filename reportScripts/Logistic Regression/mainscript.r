@@ -1,11 +1,9 @@
-setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
+if(!exists('report.input')) {
+  source("/home/ubuntu/i2b2/reportScripts/Logistic Regression/report.r")
+}
+setwd('./Logistic Regression/')
 source("utils.r")
 source("i2b2.r")
-clear_env <- TRUE
-if(!exists('report.input')) {
-  source("report.r")
-  clear_env <- FALSE
-}
 
 require(Matrix)
 
@@ -226,6 +224,3 @@ if(smooth_lines) {
 }
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
-if(clear_env) {
-  rm(clear_env, coefficients.top, excl.ALL, features, features.filter, features.level, fit, info, info.model, info.model.target, info.newdata, info.newdata.target, model, model.interval, model.patients, model.patient_set, model.target, model.target.interval, newdata, newdata.interval, newdata.patients, newdata.patient_set, newdata.target.interval, performance, prediction, prediction.sorted, prediction.top, probabilities, quality, statistics, summary, target.concept.cd, target.concept.name, target.concept.path, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
-}

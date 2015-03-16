@@ -1,3 +1,5 @@
+setwd('/home/ubuntu/i2b2/reportScripts')
+
 report.patients <- c()
 report.observations <- c()
 report.input <- c()

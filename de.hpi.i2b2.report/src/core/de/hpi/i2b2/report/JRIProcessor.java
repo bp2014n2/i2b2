@@ -48,7 +48,7 @@ public class JRIProcessor {
         re = Rengine.getMainEngine();
         // If not create a new one
         if (re == null) {
-        	log.info("Creating new R engine");
+        	log.info("Creating new R enginedfdf");
         	// Create new R engine but don't start main loop immediately (second argument)
         	re = new Rengine(args, false, new ScriptExecutorCallbackClass());
         } else {
@@ -57,6 +57,7 @@ public class JRIProcessor {
         
         // Load required R package 'xtable'
 		re.eval("library(xtable)");
+		re.eval("setwd('" + reportUtil.getRSCRIPTLETPATH() + "')");
     }
     
     // Do some preparation inside the R session for later output (plots, csvs, variables)

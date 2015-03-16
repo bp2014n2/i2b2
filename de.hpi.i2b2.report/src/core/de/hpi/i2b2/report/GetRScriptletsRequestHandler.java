@@ -55,11 +55,13 @@ public class GetRScriptletsRequestHandler implements RequestHandler{
 		String faultyConfigFiles = "";
 		for (File f : scriptletdirectory.listFiles()) {
 			if ( ! f.isDirectory()) continue;
+			boolean hasMainScriptFile = false;
+			for (File s : f.listFiles()) {
+				hasMainScriptFile |= s.getName().equals("mainscript.r");
+			}
+			if (!hasMainScriptFile) continue;
 			
 			String subdirectorypath = f.getPath();
-			if (subdirectorypath.endsWith("/lib")) {
-				continue;
-			}
 			
 			// Validate config file against XML schema and unmarshall into a JAXB Object
 			RscriptletType reportType = null;

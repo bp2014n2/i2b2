@@ -97,6 +97,8 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	var aiPatientSetProt = $$("DIV#reportplugin-mainDiv .report-patient-set-prototype")[0];
 	// Additional input date prototype
 	var aiDateProt = $$("DIV#reportplugin-mainDiv .report-date-select-prototype")[0];
+	// Additional input hidden prototype
+	var aiHiddenProt = $$("DIV#reportplugin-mainDiv .report-hidden-prototype")[0];
 	// All non-prototype input fields
 	var allNPInput = $$("DIV#reportplugin-mainDiv .report-input");
 	// Container div for additional inputs
@@ -134,7 +136,6 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	i2b2.reportPlugin.initDDFields(i2b2.reportPlugin.scriptlets[value]);
 	clearFieldsButton.show();
 	ddCont.show();
-
 	
 	// Display additional input parameters
 	var addIns = i2b2.reportPlugin.scriptlets[value].addInputs;
@@ -142,6 +143,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	var numberAIConceptFields = 0;
 	var numberAIPatientSetFields = 0;
 	var numberAIDateFields = 0;
+	var numberAIHiddenFields = 0;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
@@ -168,6 +170,19 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 				parSelect.options[parSelect.length] = n;
 			}
 			newNode.className = "report-input report-input-dropdown";
+		} else if (addIns[i].type == "hidden") {
+			newNode = aiHiddenProt.cloneNode(true);
+			var parTitle = Element.select(newNode, 'h3')[0];
+			var newID = "report-AIHIDDEN-" + numberAIHiddenFields;
+			var parTextfield = Element.select(newNode, 'input')[0];		
+			var parLink = Element.select(newNode, 'a')[0];
+			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
+			parTextfield.id = newID;
+			if (i2b2.h.Escape(addIns[i].default) != "") {
+				parTextfield.value = i2b2.h.Escape(addIns[i].default);
+			}
+			numberAIHiddenFields++;
+			newNode.className = "report-input report-input-hidden";
 		} else if (addIns[i].type == "date") {
 			newNode = aiDateProt.cloneNode(true);
 			var newID = "report-AIDATE-" + numberAIDateFields;
@@ -391,6 +406,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	var errorDivNoPI = $("report-error-emptyPI");
 	var errorDivNoPSCC = $("report-error-emptyPSorCC");
 	var allAIText = $$("DIV#reportplugin-mainDiv .report-input-textfield");
+	var allHiddenText = $$("DIV#reportplugin-mainDiv .report-input-hidden");
 	var allAIDate = $$("DIV#reportplugin-mainDiv .report-input-date-select");
 	var allAIDD = $$("DIV#reportplugin-mainDiv .report-input-dropdown");
 	var allAICO = $$("DIV#reportplugin-mainDiv .report-input-concept");
@@ -484,6 +500,15 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 		j++;
 	}
 
+	// Get additional Inputs: Hidden
+	for (var i = 0; i < allHiddenText.length; i++) {
+		var name = Element.select(allHiddenText[i], 'h3')[0].innerHTML;
+		var value = Element.select(allHiddenText[i], 'input')[0].value;
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional Inputs: Date
 	for (var i = 0; i < allAIDate.length; i++) {
 		var name = Element.select(allAIDate[i], 'h3')[0].innerHTML;
 		var value = Element.select(allAIDate[i], 'input')[0].value;

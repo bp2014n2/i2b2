@@ -1,11 +1,9 @@
-setwd('/home/ubuntu/i2b2/reportScripts/Logistic Regression/')
-source("utils.r")
-source("i2b2.r")
-clear_env <- TRUE
 if(!exists('report.input')) {
-  source("report.r")
-  clear_env <- FALSE
+  source("/home/ubuntu/i2b2/reportScripts/lib/report.r")
+  source("Risk Prediction/report.r")
 }
+
+source("lib/i2b2.r")
 
 require(Matrix)
 
@@ -87,19 +85,18 @@ generateObservationMatrix <- function(observations, features, patients) {
 
 generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3) {
   
-  observations <- getObservations(types=filter, interval=interval, patient_set=patient_set, level=level)
+  observations <- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
   
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
   feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(feature_matrix)
 }
 
-generateTargetVector <- function(interval, patients, patient_set=-1, concept.cd) {
+generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
   
-  concept.level <- nchar(gsub('.*:', '', concept.cd))
-  observations <- getObservationsForConcept(concepts=c(concept.cd), interval=interval, patient_set=patient_set, level=concept.level)
+  observations <- i2b2$crc$getObservationsForConcept(concept.path=concept.path, interval=interval, patient_set=patient_set)
   
-  target_matrix <- generateObservationMatrix(observations, c(concept.cd), patients$patient_num)
+  target_matrix <- generateObservationMatrix(observations, c('target'), patients$patient_num)
   return(sign(target_matrix[,1]))
 }
 
@@ -134,24 +131,26 @@ model.patient_set <- ifelse(nchar(report.input['Model Patient set']) != 0, strto
 
 model.target.interval <- list(start=i2b2DateToPOSIXlt(report.input['Target data start']), end=i2b2DateToPOSIXlt(report.input['Target data end']))
 target.concept.path <- report.input['Target concept']
-target.concept.cd <- getConceptCd(target.concept.path)
-target.concept.name <- getConceptName(target.concept.cd)
+target.concept.name <- i2b2$ont$getConceptName(target.concept.path)
 
 newdata.interval <- list(start=i2b2DateToPOSIXlt(report.input['Prediction data start']), end=i2b2DateToPOSIXlt(report.input['Prediction data end']))
 newdata.patient_set <- ifelse(nchar(report.input['New Patient set']) != 0, strtoi(report.input['New Patient set']), -1)
 
-features.filter <- c("ATC", "ICD")
+features.filter <- c("ATC:", "ICD:")
 features.level <- strtoi(report.input['Feature level'])
 
 time.query.0 <- proc.time()
 
-features <- getConcepts(types=features.filter, level=features.level)
-model.patients <- getPatients(patient_set=model.patient_set)
-newdata.patients <- getPatients(patient_set=newdata.patient_set)
+features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
+model.patients <- i2b2$crc$getPatients(patient_set=model.patient_set)
+newdata.patients <- i2b2$crc$getPatients(patient_set=newdata.patient_set)
 
 model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
 newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
-model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.cd=target.concept.cd)
+model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
+
+time.query.1 <- proc.time()
+time.query <- sum(c(time.query.1-time.query.0)[3])
 
 model.split <- 0.6
 model.split.row <- round(nrow(model)*model.split)
@@ -160,9 +159,6 @@ model.training <- model[1:model.split.row,]
 model.target.training <- model.target[1:model.split.row]
 model.test <- model[(model.split.row+1):nrow(model),]
 model.target.test <- model.target[(model.split.row+1):nrow(model)]
-
-time.query.1 <- proc.time()
-time.query <- sum(c(time.query.1-time.query.0)[3])
 
 # print result
 
@@ -226,6 +222,3 @@ if(smooth_lines) {
 }
 
 rm(report.input, report.concept.names, report.events, report.modifiers, report.observations, report.observers, report.patients); gc()
-if(clear_env) {
-  rm(clear_env, coefficients.top, excl.ALL, features, features.filter, features.level, fit, info, info.model, info.model.target, info.newdata, info.newdata.target, model, model.interval, model.patients, model.patient_set, model.target, model.target.interval, newdata, newdata.interval, newdata.patients, newdata.patient_set, newdata.target.interval, performance, prediction, prediction.sorted, prediction.top, probabilities, quality, statistics, summary, target.concept.cd, target.concept.name, target.concept.path, time.prediction, time.prediction.0, time.prediction.1, time.query, time.query.0, time.query.1); gc()
-}

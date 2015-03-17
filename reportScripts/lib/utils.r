@@ -2,6 +2,15 @@ strunwrap <- function(str) {
   return(strwrap(str, width=10000, simplify=TRUE))
 }
 
+escape <- function(string) {
+  return(gsub("[\\]", "\\\\\\\\", string))
+}
+
+getConceptName <- function(concept.cd) {
+  name <- i2b2$ont$getConceptNameForBasecode(concept.cd)[1,]
+  return(ifelse(is.na(name), concept.cd, name))
+}
+
 i2b2DateToPOSIXlt <- function(strdate) {
   return(as.POSIXlt(strdate, format='%m/%d/%Y'))
 }
@@ -12,6 +21,10 @@ POSIXltToi2b2Date <- function(date) {
 
 posixltToPSQLDate <- function(date) {
   return(strftime(date, format="%Y-%m-%dT%H:%M:%S"))
+}
+
+getConnectionString <- function(config=list()) {
+  return(paste('jdbc:', config['type'], '://', config['host'], ':', config['port'], '/', config['name'], sep=''))
 }
 
 age <- function(from, to) {
@@ -37,7 +50,7 @@ sort.data.frame <- function(data_frame, column) {
 }
 
 printPatientSet <- function(id) {
-  return(ifelse(id < 0, 'all Patients', getPatientSetDescription(id)))
+  return(ifelse(id < 0, 'all Patients', i2b2$crc$getPatientSetDescription(id)))
 }
 
 smoothedLine <- function(x, y) {

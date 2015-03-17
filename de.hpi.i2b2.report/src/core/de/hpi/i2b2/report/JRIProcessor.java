@@ -57,6 +57,7 @@ public class JRIProcessor {
         
         // Load required R package 'xtable'
 		re.eval("library(xtable)");
+		re.eval("setwd('" + reportUtil.getRSCRIPTLETPATH() + "')");
     }
     
     // Do some preparation inside the R session for later output (plots, csvs, variables)

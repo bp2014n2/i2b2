@@ -2,7 +2,7 @@
 <reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
 	<settings>
-		<title>Logistic Regression</title>
+		<title>Risk Prediction</title>
 		<description>Risk Prediction with Logistic Regression. The first patient set is supposed to be our set which we want to predict our target for. The second is our model patient set</description>
 		<passROutput>false</passROutput>
 		<passRErrors>false</passRErrors>
@@ -17,8 +17,6 @@
 			<type>dropdown</type>
 			<default>3</default>
 			<items>
-				<item>0</item>
-				<item>1</item>
 				<item>2</item>
 				<item>3</item>
 				<item>4</item>

@@ -35,7 +35,7 @@ import javax.xml.stream.XMLStreamReader;
  * Important: Before using this testing program, make sure that the additional properties in the build.properties
  * file are filled correctly!
  */
-public class reportServiceRESTTest {
+public class ReportServiceRESTTest {
 	
 	// Local method call or request to the deployed service
     private static boolean local;

@@ -16,7 +16,7 @@
               <div id="report-loading-scriptlets"><img src="//:0" id="report-loading-scriptlets-gif"/>Loading Templates</div>
 		<div id="report-statfunc-selector" style="display:none;">
                   Choose Report Template:<br />
-                  <select id="report-pilist" onchange="i2b2.reportPlugin.loadPlugin(this.value)"></select>
+                  <select id="report-pilist" onchange="i2b2.ReportPlugin.loadPlugin(this.value)"></select>
                </div>
               <div id="report-scriptlet-content">
                 <h1 id="report-scriptlet-title"></h1>
@@ -24,7 +24,7 @@
                 <div id="report-scriptlet-SDXButtons">
                   <div class="report-droptargets">
                     <div id="report-droptrgt-cont" style="display:none;">
-                      <div onclick="i2b2.reportPlugin.initDDFields()" id="report-clearField" style="display:none;">Clear</div>
+                      <div onclick="i2b2.ReportPlugin.initDDFields()" id="report-clearField" style="display:none;">Clear</div>
                       <div id="report-droptrgt-prs-fields">
                         <div class="report-droptrgt-prot SDX-PRS" id="report-PRSDROP-PROT" style="display:none;">Dummy</div>
                       </div>
@@ -68,7 +68,7 @@
           </div>
           <div>
             <div class="report-MainContent"><div class="report-MainContentPad">
-              <div id="report-error-emptyPI" style="display:none;">Please chose a report template first.</div>
+              <div id="report-error-emptyPI" style="display:none;">Please chose a Report template first.</div>
               <div id="report-error-emptyPSorCC" style="display:none;">Please chose a patient set first</div>
               <div id="report-waiting" style="display:none;"><img src="//:0" id="report-loading-results-gif"/>Waiting for results...</div>
               <div id="report-result" style="display:none;">

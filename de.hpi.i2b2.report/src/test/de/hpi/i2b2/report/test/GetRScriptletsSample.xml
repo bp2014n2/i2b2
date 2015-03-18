@@ -11,7 +11,7 @@
             <facility_name>Local client</facility_name>
         </sending_facility>
         <receiving_application>
-            <application_name>report Cell</application_name>
+            <application_name>Report Cell</application_name>
             <application_version>1.0</application_version>
         </receiving_application>
         <receiving_facility>
@@ -29,7 +29,7 @@
         <accept_acknowledgement_type>AL</accept_acknowledgement_type>
         <application_acknowledgement_type>AL</application_acknowledgement_type>
         <country_code>DE</country_code>
-        <project_id>report</project_id>
+        <project_id>Report</project_id>
     </message_header>
     <request_header>
         <result_waittime_ms>15000</result_waittime_ms>

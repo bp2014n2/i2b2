@@ -36,9 +36,9 @@ public class CRCResponseParser {
 	public static final String eventsColClasses = "c(\"i2b2DateTime\",\"i2b2DateTime\",\"character\",\"i2b2DateTime\",\"character\",\"character\"," +
 			"\"i2b2DateTime\",\"i2b2DateTime\",\"numeric\",\"numeric\",\"character\",\"character\",\"character\",\"character\")";
 	public static final String observersColClasses = "c(\"i2b2DateTime\",\"i2b2DateTime\",\"character\",\"character\",\"character\",\"character\",\"i2b2DateTime\",\"numeric\")";
-	private static String SEP = reportUtil.SEP;
+	private static String SEP = ReportUtil.SEP;
 	
-	public static reportCSVContainer parsePatientSet(PatientSet crcPS) {
+	public static ReportCSVContainer parsePatientSet(PatientSet crcPS) {
 		
 		boolean empty = true;
 		
@@ -84,11 +84,11 @@ public class CRCResponseParser {
 					((patient.getUploadId() == null)       ?   ""   :  (escape(patient.getUploadId()))) +
 					"\n" );
 		}
-		if (empty) return new reportCSVContainer(psSB.toString(), false);
-		else return new reportCSVContainer(psSB.toString(), true);
+		if (empty) return new ReportCSVContainer(psSB.toString(), false);
+		else return new ReportCSVContainer(psSB.toString(), true);
 	}
 	
-	public static reportCSVContainer parseObservationSet(ObservationSet crcOS, ConceptSet crcCS) {
+	public static ReportCSVContainer parseObservationSet(ObservationSet crcOS, ConceptSet crcCS) {
 		
 		boolean empty = true;
 		
@@ -149,11 +149,11 @@ public class CRCResponseParser {
 							"\n"
 					);
 		}
-		if (empty) return new reportCSVContainer(osSB.toString(), false);
-		else return new reportCSVContainer(osSB.toString(), true);
+		if (empty) return new ReportCSVContainer(osSB.toString(), false);
+		else return new ReportCSVContainer(osSB.toString(), true);
 	}
 	
-	public static reportCSVContainer parseModifierSet(ModifierSet crcMS) {
+	public static ReportCSVContainer parseModifierSet(ModifierSet crcMS) {
 		boolean empty = true;
 		// Build modifier set csv string
 		StringBuilder msSB = new StringBuilder(10000);
@@ -174,11 +174,11 @@ public class CRCResponseParser {
 					((modType.getUploadId() == null)                  ?  (SEP)  :  (modType.getUploadId())) +
 					"\n" );
 		}
-		if (empty) return new reportCSVContainer(msSB.toString(), false);
-		else return new reportCSVContainer(msSB.toString(), true);
+		if (empty) return new ReportCSVContainer(msSB.toString(), false);
+		else return new ReportCSVContainer(msSB.toString(), true);
 	}
 	
-	public static reportCSVContainer parseEventSet(EventSet crcES) {
+	public static ReportCSVContainer parseEventSet(EventSet crcES) {
 		boolean empty = true;
 		// Build modifier set csv string
 		StringBuilder esSB = new StringBuilder(10000);
@@ -212,11 +212,11 @@ public class CRCResponseParser {
 					((m.get("inout_cd") == null)                   ?  (SEP)  :  (escape(m.get("inout_cd")))) +
 					"\n" );
 		}
-		if (empty) return new reportCSVContainer(esSB.toString(), false);
-		else return new reportCSVContainer(esSB.toString(), true);
+		if (empty) return new ReportCSVContainer(esSB.toString(), false);
+		else return new ReportCSVContainer(esSB.toString(), true);
 	}
 	
-	public static reportCSVContainer parseObserverSet(ObserverSet crcObS) {
+	public static ReportCSVContainer parseObserverSet(ObserverSet crcObS) {
 		boolean empty = true;
 		// Build modifier set csv string
 		StringBuilder obsSB = new StringBuilder(10000);
@@ -237,8 +237,8 @@ public class CRCResponseParser {
 					((obsType.getUploadId() == null)       ?  (SEP)  :  (obsType.getUploadId())) +
 					"\n" );
 		}
-		if (empty) return new reportCSVContainer(obsSB.toString(), false);
-		else return new reportCSVContainer(obsSB.toString(), true);
+		if (empty) return new ReportCSVContainer(obsSB.toString(), false);
+		else return new ReportCSVContainer(obsSB.toString(), true);
 	}
 	
 	// Helper function for correct handling of separator strings

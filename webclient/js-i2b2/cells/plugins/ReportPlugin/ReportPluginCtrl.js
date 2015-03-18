@@ -4,30 +4,30 @@
  */
 
 // This function is called after the HTML is loaded into the viewer DIV
-i2b2.reportPlugin.Init = function(loadedDiv) {
+i2b2.ReportPlugin.Init = function(loadedDiv) {
 	// This map will hold information about all available scriptlets
-	i2b2.reportPlugin.scriptlets = {};
+	i2b2.ReportPlugin.scriptlets = {};
 	// Indicates if at least one drag&drop field holds data
-	i2b2.reportPlugin.model.prsDirty = false;
-	i2b2.reportPlugin.model.conceptDirty = false;
+	i2b2.ReportPlugin.model.prsDirty = false;
+	i2b2.ReportPlugin.model.conceptDirty = false;
 	// Holds the currently chosen scriptlet
-	i2b2.reportPlugin.model.currentScriptlet = "";
+	i2b2.ReportPlugin.model.currentScriptlet = "";
 	// Holds the concept names that are dropped on additional input values of type 'concept'
-	i2b2.reportPlugin.model.aiConcpts = {};
+	i2b2.ReportPlugin.model.aiConcpts = {};
 	// Holds the patient_set_ids that are dropped on additional input values of type 'patient_set'
-	i2b2.reportPlugin.model.aiPatientSets = {};
+	i2b2.ReportPlugin.model.aiPatientSets = {};
 	// Holds the highest index of a shown concept dd field (shown at lowest)
-	i2b2.reportPlugin.model.highestConcDDIndex = 0;
+	i2b2.ReportPlugin.model.highestConcDDIndex = 0;
 	// Holds the highest index of a shown patient set dd field (shown at lowest)
-	i2b2.reportPlugin.model.highestPSDDIndex = 0;
+	i2b2.ReportPlugin.model.highestPSDDIndex = 0;
 	// Holds the records (data of the dropped items) of the fields
-	i2b2.reportPlugin.model.prsRecords = [];
-	i2b2.reportPlugin.model.conceptRecords = [];
+	i2b2.ReportPlugin.model.prsRecords = [];
+	i2b2.ReportPlugin.model.conceptRecords = [];
 
 	// Set some paths dynamically (see injected_screens.html)
-	$("report-loading-scriptlets-gif").src = i2b2.reportPlugin.cfg.config.assetDir + "loading.gif";
-	$("report-loading-results-gif").src = i2b2.reportPlugin.cfg.config.assetDir + "loading.gif";
-	$("report-environment-link").href = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
+	$("report-loading-scriptlets-gif").src = i2b2.ReportPlugin.cfg.config.assetDir + "loading.gif";
+	$("report-loading-results-gif").src = i2b2.ReportPlugin.cfg.config.assetDir + "loading.gif";
+	$("report-environment-link").href = i2b2.ReportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
 
 	// Specify necessary message parameters for getRScriptlets request (No special parameters needed here)
 	var parameters = {};
@@ -54,10 +54,10 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 			var t = cbResults.model[i].title;
 			var n = new Option(i2b2.h.Escape(t), t);
 			selTrgt.options[selTrgt.length] = n;
-			i2b2.reportPlugin.scriptlets[t] = cbResults.model[i];
+			i2b2.ReportPlugin.scriptlets[t] = cbResults.model[i];
 			if(i == 0) {
 				selTrgt.selectedIndex = 0;
-				i2b2.reportPlugin.loadPlugin(i2b2.h.Escape(t));
+				i2b2.ReportPlugin.loadPlugin(i2b2.h.Escape(t));
 			}
 		}
 		if (cbResults.faultyScriptlets != "" && cbResults.faultyScriptlets != undefined) {	
@@ -65,24 +65,24 @@ i2b2.reportPlugin.Init = function(loadedDiv) {
 		}
 	}
 	// Send message to get all available scriptlets. After response arrived, the callback function above is called
-	var commObjRef = eval("(i2b2.report.ajax)");
-	commObjRef['getRScriptlets']("reportPlugin Client", parameters, scoped_callback);
+	var commObjRef = eval("(i2b2.Report.ajax)");
+	commObjRef['getRScriptlets']("ReportPlugin Client", parameters, scoped_callback);
 	// Manage YUI tabs
 	var cfgObj = {activeIndex : 0};
 	this.yuiTabs = new YAHOO.widget.TabView("report-TABS", cfgObj);
 	this.yuiTabs.on('activeTabChange', function(ev) {
 		// If tab is changed to 'View results' -> Call function buildAndSendMsg()
 		if (ev.newValue.get('id')=="report-TAB1") {
-			i2b2.reportPlugin.buildAndSendMsg();
+			i2b2.ReportPlugin.buildAndSendMsg();
 		}
 	});
 };
 
 // This function is called when a user selected a scriptlet from drop down list
-i2b2.reportPlugin.loadPlugin = function(value) {
+i2b2.ReportPlugin.loadPlugin = function(value) {
 	
 	// Set global variable
-	i2b2.reportPlugin.model.currentScriptlet = value;
+	i2b2.ReportPlugin.model.currentScriptlet = value;
 
 	// Get handles
 	var title = $("report-scriptlet-title");
@@ -119,25 +119,25 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 	}
 	
 	// Clear old additional concepts
-	i2b2.reportPlugin.model.aiConcpts = {};
+	i2b2.ReportPlugin.model.aiConcpts = {};
 	// Clear old additional patient sets
-	i2b2.reportPlugin.model.aiPatientSets = {};
+	i2b2.ReportPlugin.model.aiPatientSets = {};
 
 	// If empty scriptlet is chosen -> return now
 	if (value == '') { return; }
 
 	// Display new scriptlet title and description
-	title.innerHTML = i2b2.h.Escape(i2b2.reportPlugin.scriptlets[value].title);
-	description.innerHTML = i2b2.h.Escape(i2b2.reportPlugin.scriptlets[value].descr);
+	title.innerHTML = i2b2.h.Escape(i2b2.ReportPlugin.scriptlets[value].title);
+	description.innerHTML = i2b2.h.Escape(i2b2.ReportPlugin.scriptlets[value].descr);
 	
 	// Clear old and register new drag/drop fields
-	i2b2.reportPlugin.initDDFields(i2b2.reportPlugin.scriptlets[value]);
+	i2b2.ReportPlugin.initDDFields(i2b2.ReportPlugin.scriptlets[value]);
 	clearFieldsButton.show();
 	ddCont.show();
 
 	
 	// Display additional input parameters
-	var addIns = i2b2.reportPlugin.scriptlets[value].addInputs;
+	var addIns = i2b2.ReportPlugin.scriptlets[value].addInputs;
 	if (addIns.length > 0) piInputsDiv.show();
 	var numberAIConceptFields = 0;
 	var numberAIPatientSetFields = 0;
@@ -181,7 +181,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			if (i2b2.h.Escape(addIns[i].default) != "") {
 				parTextfield.value = i2b2.h.Escape(addIns[i].default);
 			}
-			parLink.href = "Javascript:i2b2.reportPlugin.doShowCalendar('" + parTextfield.id + "')"
+			parLink.href = "Javascript:i2b2.ReportPlugin.doShowCalendar('" + parTextfield.id + "')"
 			numberAIDateFields++;
 			newNode.className = "report-input report-input-date-select";
 		} else if (addIns[i].type == "concept") {
@@ -197,7 +197,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			var op_trgt = {dropTarget:true};
 			i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
 			i2b2.sdx.Master.AttachType(newID, "CONCPT", op_trgt);
-			i2b2.sdx.Master.setHandlerCustom(newID, "CONCPT", "DropHandler", i2b2.reportPlugin.aiconceptDropped);
+			i2b2.sdx.Master.setHandlerCustom(newID, "CONCPT", "DropHandler", i2b2.ReportPlugin.aiconceptDropped);
 			numberAIConceptFields++;
 			newNode.className = "report-input report-input-concept";
 		} else if (addIns[i].type == "patient_set") {
@@ -213,7 +213,7 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			var op_trgt = {dropTarget:true};
 			i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
 			i2b2.sdx.Master.AttachType(newID, "PRS", op_trgt);
-			i2b2.sdx.Master.setHandlerCustom(newID, "PRS", "DropHandler", i2b2.reportPlugin.aipatientsetDropped);
+			i2b2.sdx.Master.setHandlerCustom(newID, "PRS", "DropHandler", i2b2.ReportPlugin.aipatientsetDropped);
 			numberAIPatientSetFields++;
 			newNode.className = "report-input report-input-patient-set";
 		}
@@ -223,24 +223,24 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 };
 
 // This function is called when a patient set is dropped
-i2b2.reportPlugin.prsDropped = function(sdxData, droppedOnID) {
+i2b2.ReportPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(15,18));
 	// [DISABLED] Creation of new field
-	if (false && i2b2.reportPlugin.model.highestPSDDIndex == fieldIndex) {
-		i2b2.reportPlugin.createNewPSDDField();
+	if (false && i2b2.ReportPlugin.model.highestPSDDIndex == fieldIndex) {
+		i2b2.ReportPlugin.createNewPSDDField();
 	}
 	// Save the info to our local data model
 	sdxData = sdxData[0];
-	i2b2.reportPlugin.model.prsRecords[fieldIndex] = sdxData;
+	i2b2.ReportPlugin.model.prsRecords[fieldIndex] = sdxData;
 	// Change appearance of the drop field
 	$("report-PRSDROP-" + fieldIndex).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
 	$("report-PRSDROP-" + fieldIndex).style.background = "#CFB"; 
-	i2b2.reportPlugin.model.prsDirty = true;
+	i2b2.ReportPlugin.model.prsDirty = true;
 };
 
 // This function is called when a concept is dropped on an additional input drag&drop field
-i2b2.reportPlugin.aipatientsetDropped = function(sdxData, droppedOnID) {
+i2b2.ReportPlugin.aipatientsetDropped = function(sdxData, droppedOnID) {
 	// Determine name of the additional input variable 
 	var divNode = $(droppedOnID);
 	var h3Node = $(droppedOnID + "-title");
@@ -249,35 +249,35 @@ i2b2.reportPlugin.aipatientsetDropped = function(sdxData, droppedOnID) {
 	sdxData = sdxData[0];
 	var psInfo = sdxData.sdxInfo.sdxKeyValue
 	// Save in local data modal
-	i2b2.reportPlugin.model.aiPatientSets[i2b2.h.Escape(aiName)] = psInfo;
+	i2b2.ReportPlugin.model.aiPatientSets[i2b2.h.Escape(aiName)] = psInfo;
 	// Change appearance of the drop field
 	$(droppedOnID).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
 	$(droppedOnID).style.background = "#CFB"; 
 };
 
 // This function is called when a concept is dropped
-i2b2.reportPlugin.conceptDropped = function(sdxData, droppedOnID) {
+i2b2.ReportPlugin.conceptDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
 	var fieldIndex = parseInt(droppedOnID.slice(18,20));
 	//[DISABLED] Creation of new field
-	if (false && i2b2.reportPlugin.model.highestConcDDIndex == fieldIndex) {
+	if (false && i2b2.ReportPlugin.model.highestConcDDIndex == fieldIndex) {
 		// Timeout to prevent a browser error that would occur when a new dd field is created too fast here
 		// The error is harmless -> so this pseudo-fix is sufficient
-		window.setTimeout(i2b2.reportPlugin.createNewCONCDDField,200);
+		window.setTimeout(i2b2.ReportPlugin.createNewCONCDDField,200);
 	}
 	sdxData = sdxData[0];
 	// Check for lab / modifier value, open popup etc. (see function)
-	i2b2.reportPlugin.bringPopup(sdxData, fieldIndex);
+	i2b2.ReportPlugin.bringPopup(sdxData, fieldIndex);
 	// Save the info to our local data model
-	i2b2.reportPlugin.model.conceptRecords[fieldIndex] = sdxData;
+	i2b2.ReportPlugin.model.conceptRecords[fieldIndex] = sdxData;
 	// Change appearance of the drop field
 	$("report-CONCPTDROP-" + fieldIndex).innerHTML = i2b2.h.Escape(sdxData.sdxInfo.sdxDisplayName);
 	$("report-CONCPTDROP-" + fieldIndex).style.background = "#CFB"; 
-	i2b2.reportPlugin.model.conceptDirty = true;
+	i2b2.ReportPlugin.model.conceptDirty = true;
 };
 
 // This function is called when a concept is dropped on an additional input drag&drop field
-i2b2.reportPlugin.aiconceptDropped = function(sdxData, droppedOnID) {
+i2b2.ReportPlugin.aiconceptDropped = function(sdxData, droppedOnID) {
 	// Determine name of the additional input variable 
 	var divNode = $(droppedOnID);
 	var h3Node = $(droppedOnID + "-title");
@@ -286,16 +286,16 @@ i2b2.reportPlugin.aiconceptDropped = function(sdxData, droppedOnID) {
 	var concInfo = sdxData[0].origData.xmlOrig;
 	var aiValue = i2b2.h.getXNodeVal(concInfo, "dimcode");
 	// Save in local data modal
-	i2b2.reportPlugin.model.aiConcpts[i2b2.h.Escape(aiName)] = aiValue;
+	i2b2.ReportPlugin.model.aiConcpts[i2b2.h.Escape(aiName)] = aiValue;
 	// Change appearance of the drop field
 	$(droppedOnID).innerHTML = i2b2.h.Escape(sdxData[0].sdxInfo.sdxDisplayName);
 	$(droppedOnID).style.background = "#CFB"; 
 };
 
 // Helper function: It creates & registers a new drag&drop field for a patient set
-i2b2.reportPlugin.createNewPSDDField = function() {
+i2b2.ReportPlugin.createNewPSDDField = function() {
 	// Increment highest field counter
-	var ind = ++i2b2.reportPlugin.model.highestPSDDIndex;
+	var ind = ++i2b2.ReportPlugin.model.highestPSDDIndex;
 	// Get handles and create a new visible field by cloning the prototype
 	var psFieldProt = $("report-PRSDROP-PROT");
 	var psFieldContainer = $("report-droptrgt-prs-fields");
@@ -310,14 +310,14 @@ i2b2.reportPlugin.createNewPSDDField = function() {
 	i2b2.sdx.Master._sysData["report-PRSDROP-" + ind] = {}; // hack to get an old dd field unregistered as there's no function for it...
 	var op_trgt = {dropTarget:true};
 	i2b2.sdx.Master.AttachType("report-PRSDROP-" + ind, "PRS", op_trgt);
-	i2b2.sdx.Master.setHandlerCustom("report-PRSDROP-" + ind, "PRS", "DropHandler", i2b2.reportPlugin.prsDropped);
+	i2b2.sdx.Master.setHandlerCustom("report-PRSDROP-" + ind, "PRS", "DropHandler", i2b2.ReportPlugin.prsDropped);
 	console.log("Added new drag n drop field");
 };
 
 // Helper function: It creates & registers a new drag&drop field for a concept
-i2b2.reportPlugin.createNewCONCDDField = function() {
+i2b2.ReportPlugin.createNewCONCDDField = function() {
 	// Increment highest field counter
-	var ind = ++i2b2.reportPlugin.model.highestConcDDIndex;
+	var ind = ++i2b2.ReportPlugin.model.highestConcDDIndex;
 	// Get handles and create a new visible field by cloning the prototype
 	var concFieldProt = $("report-CONCPTDROP-PROT");
 	var concFieldContainer = $("report-droptrgt-conc-fields");
@@ -331,33 +331,33 @@ i2b2.reportPlugin.createNewCONCDDField = function() {
 	i2b2.sdx.Master._sysData["report-CONCPTDROP-" + ind] = {}; // hack to get an old dd field unregistered as there's no function for it...
 	var op_trgt = {dropTarget:true};
 	i2b2.sdx.Master.AttachType("report-CONCPTDROP-" + ind, "CONCPT", op_trgt);
-	i2b2.sdx.Master.setHandlerCustom("report-CONCPTDROP-" + ind, "CONCPT", "DropHandler", i2b2.reportPlugin.conceptDropped);
+	i2b2.sdx.Master.setHandlerCustom("report-CONCPTDROP-" + ind, "CONCPT", "DropHandler", i2b2.ReportPlugin.conceptDropped);
 };
 
 // Helper function: It clears all drag&drop fields and shows one initial concept & patient set dd field
-i2b2.reportPlugin.clearDDFields = function() {
+i2b2.ReportPlugin.clearDDFields = function() {
 	// Remove all drag&drop fields
 	var allOldDDFields = $$(".report-droptrgt");
 	for (var i = 0; i < allOldDDFields.length; i++) {
 		allOldDDFields[i].parentElement.removeChild(allOldDDFields[i]);
 	}
 	// Reset counters, tokens and data
-	i2b2.reportPlugin.model.highestConcDDIndex = -1; // will be increment to 0 shortly after
-	i2b2.reportPlugin.model.highestPSDDIndex = -1; // will be increment to 0 shortly after
-	i2b2.reportPlugin.model.prsDirty = false;
-	i2b2.reportPlugin.model.conceptDirty = false;
-	i2b2.reportPlugin.model.conceptRecords = [];
-	i2b2.reportPlugin.model.prsRecords = [];
+	i2b2.ReportPlugin.model.highestConcDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.ReportPlugin.model.highestPSDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.ReportPlugin.model.prsDirty = false;
+	i2b2.ReportPlugin.model.conceptDirty = false;
+	i2b2.ReportPlugin.model.conceptRecords = [];
+	i2b2.ReportPlugin.model.prsRecords = [];
 
 	// Create one patient set field
-	i2b2.reportPlugin.createNewPSDDField();
+	i2b2.ReportPlugin.createNewPSDDField();
 	// Create one concept field
-	i2b2.reportPlugin.createNewCONCDDField();
+	i2b2.ReportPlugin.createNewCONCDDField();
 };
 
 
 // Helper function: Initializes drag&drop fields
-i2b2.reportPlugin.initDDFields = function(scriptlet) {
+i2b2.ReportPlugin.initDDFields = function(scriptlet) {
 	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".SDX-CONCPT").length;
 	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".SDX-PRS").length;
 
@@ -367,25 +367,25 @@ i2b2.reportPlugin.initDDFields = function(scriptlet) {
 		allOldDDFields[i].parentElement.removeChild(allOldDDFields[i]);
 	}
 	// Reset counters, tokens and data
-	i2b2.reportPlugin.model.highestConcDDIndex = -1; // will be increment to 0 shortly after
-	i2b2.reportPlugin.model.highestPSDDIndex = -1; // will be increment to 0 shortly after
-	i2b2.reportPlugin.model.prsDirty = false;
-	i2b2.reportPlugin.model.conceptDirty = false;
-	i2b2.reportPlugin.model.conceptRecords = [];
-	i2b2.reportPlugin.model.prsRecords = [];
+	i2b2.ReportPlugin.model.highestConcDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.ReportPlugin.model.highestPSDDIndex = -1; // will be increment to 0 shortly after
+	i2b2.ReportPlugin.model.prsDirty = false;
+	i2b2.ReportPlugin.model.conceptDirty = false;
+	i2b2.ReportPlugin.model.conceptRecords = [];
+	i2b2.ReportPlugin.model.prsRecords = [];
 
 	// Create patient set fields
 	for(var i = 0; i < numberOfPatientSets; i++) {
-		i2b2.reportPlugin.createNewPSDDField();
+		i2b2.ReportPlugin.createNewPSDDField();
 	}
 	// Create concept fields
 	for(var i = 0; i < numberOfConcepts; i++) {
-		i2b2.reportPlugin.createNewCONCDDField();
+		i2b2.ReportPlugin.createNewCONCDDField();
 	}
 };
 
 // This function is called when a user clicks on the tab "View Results"
-i2b2.reportPlugin.buildAndSendMsg = function() {
+i2b2.ReportPlugin.buildAndSendMsg = function() {
 	// Get handles
 	var piList = $("report-pilist");
 	var errorDivNoPI = $("report-error-emptyPI");
@@ -430,10 +430,10 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 		return;
 	}
 	// Get subdirectory name
-	var piDirName = i2b2.reportPlugin.scriptlets[piTitle].subdir;
+	var piDirName = i2b2.ReportPlugin.scriptlets[piTitle].subdir;
 
 	// Error case: No patient set selected [DEACTIVATED]
-	if ( false && ! i2b2.reportPlugin.model.prsDirty ) {
+	if ( false && ! i2b2.ReportPlugin.model.prsDirty ) {
 		errorDivNoPSCC.show();
 		return;
 	}
@@ -443,22 +443,22 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	
 	// Get patient set and concept information
 	var patientSets = [];
-	for (var i = 0; i < i2b2.reportPlugin.model.prsRecords.length; i++) {
-		patientSets[i] = i2b2.reportPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
+	for (var i = 0; i < i2b2.ReportPlugin.model.prsRecords.length; i++) {
+		patientSets[i] = i2b2.ReportPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
 	}
 
 	var concepts = [];
-	for (var i = 0; i < i2b2.reportPlugin.model.conceptRecords.length; i++) {
+	for (var i = 0; i < i2b2.ReportPlugin.model.conceptRecords.length; i++) {
 		var t;
 		var cdata;
-		t = i2b2.reportPlugin.model.conceptRecords[i].origData.xmlOrig;
+		t = i2b2.ReportPlugin.model.conceptRecords[i].origData.xmlOrig;
 		cdata = {};
 		cdata.level = i2b2.h.getXNodeVal(t, "level");
 		cdata.key = i2b2.h.getXNodeVal(t, "key");
 		cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
 		cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
 		cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
-		cdata.constrainString = i2b2.reportPlugin.buildConstrainString(i);
+		cdata.constrainString = i2b2.ReportPlugin.buildConstrainString(i);
 		concepts[i] = cdata;
 	}
 	
@@ -494,7 +494,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAICO.length; i++) {
 		var name = Element.select(allAICO[i], 'h3')[0].innerHTML;
-		var value = i2b2.reportPlugin.model.aiConcpts[name];
+		var value = i2b2.ReportPlugin.model.aiConcpts[name];
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;
@@ -503,7 +503,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAIPS.length; i++) {
 		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
-		var value = i2b2.reportPlugin.model.aiPatientSets[name];
+		var value = i2b2.ReportPlugin.model.aiPatientSets[name];
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;
@@ -544,7 +544,7 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
 	messParams['additional_input'] = aiMessPart;
-	messParams['result_wait_time'] = i2b2.report.cfg.params.queryTimeout;
+	messParams['result_wait_time'] = i2b2.Report.cfg.params.queryTimeout;
 	// Display waiting message
 	var resultsDiv = $("report-result");
 	resultsDiv.hide();
@@ -556,14 +556,14 @@ i2b2.reportPlugin.buildAndSendMsg = function() {
 	// Send message (see above)
 	var scoped_callback = new i2b2_scopedCallback;
 	scoped_callback.scope = this;
-	scoped_callback.callback = i2b2.reportPlugin.displayResults;
-	var commObjRef = eval("(i2b2.report.ajax)");
-	commObjRef['getRResults']("reportPlugin Client", messParams, scoped_callback);
+	scoped_callback.callback = i2b2.ReportPlugin.displayResults;
+	var commObjRef = eval("(i2b2.Report.ajax)");
+	commObjRef['getRResults']("ReportPlugin Client", messParams, scoped_callback);
 
 };
 
 // This function processes and displays the results coming from the answer message
-i2b2.reportPlugin.displayResults = function(cbResults) {
+i2b2.ReportPlugin.displayResults = function(cbResults) {
 	// Hide waiting screen
 	var waitingDiv = $("report-waiting");
 	waitingDiv.hide();
@@ -584,11 +584,11 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 
 	// Show custom heading
 	var heading = Element.select(resultsDiv, 'h1')[0];
-	heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.reportPlugin.scriptlets[i2b2.reportPlugin.model.currentScriptlet].title) + "'"
+	heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.ReportPlugin.scriptlets[i2b2.ReportPlugin.model.currentScriptlet].title) + "'"
 
 	// Show results descriptions
 	var resDescr = Element.select(resultsDiv, 'p')[0];
-	resDescr.innerHTML = i2b2.h.Escape(i2b2.reportPlugin.scriptlets[i2b2.reportPlugin.model.currentScriptlet].resDescr);
+	resDescr.innerHTML = i2b2.h.Escape(i2b2.ReportPlugin.scriptlets[i2b2.ReportPlugin.model.currentScriptlet].resDescr);
 
 	// Parse message
 	cbResults.parse();
@@ -614,7 +614,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 			// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
 			parValue.innerHTML = cbResults.model[i].value;
 			// Add a link to download csv
-			parCSVLink.href = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
+			parCSVLink.href = i2b2.ReportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
 			Element.show(parCSVDiv);
 		}
 		resultCont.appendChild(newNode);
@@ -629,7 +629,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 
 	// Show plot description
 	var plotHeading = Element.select(plotsDiv, 'p')[0];
-	plotHeading.innerHTML = i2b2.h.Escape(i2b2.reportPlugin.scriptlets[i2b2.reportPlugin.model.currentScriptlet].plotDescr);	
+	plotHeading.innerHTML = i2b2.h.Escape(i2b2.ReportPlugin.scriptlets[i2b2.ReportPlugin.model.currentScriptlet].plotDescr);	
 
 	// Show plots if available
 	var plotProt = $$("DIV#reportplugin-mainDiv .report-plot-prot")[0];
@@ -638,8 +638,8 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 		var plotIMG = Element.select(newNode, 'img')[0];
 		var plotA = Element.select(newNode, 'a')[0];
 		var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
-		plotIMG.src = i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		plotA.href= i2b2.reportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotIMG.src = i2b2.ReportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotA.href= i2b2.ReportPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
 		newNode.className = "report-plot";
 		plotsDiv.appendChild(newNode);
 		Element.show(newNode);
@@ -650,7 +650,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 	
 	// Show R output area if desired
 	var oStreamDiv = $("report-ostream");
-	if(i2b2.reportPlugin.scriptlets[i2b2.reportPlugin.model.currentScriptlet].ostream == "true") {
+	if(i2b2.ReportPlugin.scriptlets[i2b2.ReportPlugin.model.currentScriptlet].ostream == "true") {
 		Element.show(oStreamDiv);
 		var outputText = Element.select(oStreamDiv, 'p')[0];
 		if (cbResults.Routput == "") {
@@ -662,7 +662,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 	
 	// Show R error area if desired
 	var eStreamDiv = $("report-estream");
-	if(i2b2.reportPlugin.scriptlets[i2b2.reportPlugin.model.currentScriptlet].estream == "true") {
+	if(i2b2.ReportPlugin.scriptlets[i2b2.ReportPlugin.model.currentScriptlet].estream == "true") {
 		Element.show(eStreamDiv);
 		var errorsText = Element.select(eStreamDiv, 'p')[0];
 		if (cbResults.Rerrors == "") {
@@ -681,7 +681,7 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 };
 
 // This function brings a popup if a (lab) value or a modifier concept was dropped
-i2b2.reportPlugin.bringPopup = function(sdxData, fieldIndex) {
+i2b2.ReportPlugin.bringPopup = function(sdxData, fieldIndex) {
 	
 	// Currently not supported to define modifier values via a popup
 	if (sdxData.origData.isModifier) {
@@ -697,7 +697,7 @@ i2b2.reportPlugin.bringPopup = function(sdxData, fieldIndex) {
 		var lvMetaDatas1 = i2b2.h.XPath(sdxData.origData.xmlOrig, 'metadataxml/ValueMetadata[string-length(Version)>0]');
 		if (lvMetaDatas1.length > 0) {
 			// Bring up popup
-			i2b2.reportPlugin.view.modalLabValues.show(this, sdxData.origData.key, sdxData, false, fieldIndex);			
+			i2b2.ReportPlugin.view.modalLabValues.show(this, sdxData.origData.key, sdxData, false, fieldIndex);			
 		} else {
 			// No values available
 			return;
@@ -706,9 +706,9 @@ i2b2.reportPlugin.bringPopup = function(sdxData, fieldIndex) {
 };
 
 // This function builds the constrain string for (lab) values or modifiers
-i2b2.reportPlugin.buildConstrainString = function(index) {
-	if ( ! Object.isUndefined(i2b2.reportPlugin.model.conceptRecords[index].LabValues) ) {
-		var lvd = i2b2.reportPlugin.model.conceptRecords[index].LabValues;
+i2b2.ReportPlugin.buildConstrainString = function(index) {
+	if ( ! Object.isUndefined(i2b2.ReportPlugin.model.conceptRecords[index].LabValues) ) {
+		var lvd = i2b2.ReportPlugin.model.conceptRecords[index].LabValues;
 		// This code is from Timeline_ctrlr.js
 		var s = '\t\t\t\t\t\t<constrain_by_value>\n';
 		switch(lvd.MatchBy) {
@@ -758,7 +758,7 @@ i2b2.reportPlugin.buildConstrainString = function(index) {
 		return s;
 	}
 
-	if ( ! Object.isUndefined(i2b2.reportPlugin.model.conceptRecords[index].ModValues) ) {
+	if ( ! Object.isUndefined(i2b2.ReportPlugin.model.conceptRecords[index].ModValues) ) {
 		// Currently not supported
 		return "";
 	}
@@ -767,21 +767,21 @@ i2b2.reportPlugin.buildConstrainString = function(index) {
 };
 
 // Reset model
-i2b2.reportPlugin.Unload = function() {
-	i2b2.reportPlugin.model.aiConcpts = {};
-	i2b2.reportPlugin.model.aiPatientSets = {};
-	i2b2.reportPlugin.scriptlets = {};
-	i2b2.reportPlugin.model.currentScriptlet = "";
-	i2b2.reportPlugin.model.highestConcDDIndex = 0;
-	i2b2.reportPlugin.model.highestPSDDIndex = 0;
-	i2b2.reportPlugin.model.prsDirty = false;
-	i2b2.reportPlugin.model.conceptDirty = false;
-	i2b2.reportPlugin.model.conceptRecords = [];
-	i2b2.reportPlugin.model.prsRecords = [];
+i2b2.ReportPlugin.Unload = function() {
+	i2b2.ReportPlugin.model.aiConcpts = {};
+	i2b2.ReportPlugin.model.aiPatientSets = {};
+	i2b2.ReportPlugin.scriptlets = {};
+	i2b2.ReportPlugin.model.currentScriptlet = "";
+	i2b2.ReportPlugin.model.highestConcDDIndex = 0;
+	i2b2.ReportPlugin.model.highestPSDDIndex = 0;
+	i2b2.ReportPlugin.model.prsDirty = false;
+	i2b2.ReportPlugin.model.conceptDirty = false;
+	i2b2.ReportPlugin.model.conceptRecords = [];
+	i2b2.ReportPlugin.model.prsRecords = [];
 	return true;
 };
 
-i2b2.reportPlugin.doShowCalendar = function(dateInputId) {
+i2b2.ReportPlugin.doShowCalendar = function(dateInputId) {
 	
 	// create calendar if not already initialized
 	if (!this.DateConstrainCal) {

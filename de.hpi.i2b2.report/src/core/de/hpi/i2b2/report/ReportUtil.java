@@ -38,7 +38,7 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 
 // Helper class with some useful methods and constants
-public class reportUtil {
+public class ReportUtil {
 	
 	// Needed for jaxb initialization
     private static final String[] DEFAULT_PACKAGE_NAME = new String[] {
@@ -48,13 +48,13 @@ public class reportUtil {
         "de.hpi.i2b2.report.datavo.reportconfig",
         "de.hpi.i2b2.report.datavo.reportmessages"
     };
-    private static Log log = LogFactory.getLog(reportUtil.class);
+    private static Log log = LogFactory.getLog(ReportUtil.class);
     private static boolean initialized = false;
     private static JAXBUtil jaxbutil = null;
     // This is the separator character used for csv string that is imported into R
 	public final static String SEP = ";";
     
-    // testingmode is for local testing without binding aar/jar packages and deploying it to jboss. Just call a service method in reportService
+    // testingmode is for local testing without binding aar/jar packages and deploying it to jboss. Just call a service method in ReportService
     // from a testing main class. Note that testingmode won't work in jboss and non-testingmode won't work locally!
     private static boolean testingmode = false;
     
@@ -82,13 +82,13 @@ public class reportUtil {
 	// Initializes some important constants
 		// a) from a build.properties file on the local file system (in testingmode)
 		// b) from the build.properties file that was packed by ant into the aar file (that runs in jboss)
-	public static void initializereportUtil() {
+	public static void initializeReportUtil() {
 		if (initialized) return;
 		if (testingmode) {
 			Properties testingprops = new Properties();
 			try {
 				testingprops.load(new FileInputStream(BUILDPROPERTIESPATH));
-				RSCRIPTLETPATH = testingprops.getProperty("report.directory");
+				RSCRIPTLETPATH = testingprops.getProperty("Report.directory");
 				RHOME = testingprops.getProperty("r.home");
 				CONFIGSCHEMAPATH = testingprops.getProperty("config.schema.path");
 				JRILIBPATH = testingprops.getProperty("jri.libpath");
@@ -102,9 +102,9 @@ public class reportUtil {
 			Properties prop = new Properties();
 			Enumeration<URL> resources = null;
 			try {
-				resources = reportUtil.class.getClassLoader().getResources("etc/build.properties");
+				resources = ReportUtil.class.getClassLoader().getResources("etc/build.properties");
 				prop.load(resources.nextElement().openStream());
-				RSCRIPTLETPATH = prop.getProperty("report.directory");
+				RSCRIPTLETPATH = prop.getProperty("Report.directory");
 				RHOME = prop.getProperty("r.home");
 				String jbosshome = prop.getProperty("jboss.home");
 				JRILIBPATH = jbosshome + "/standalone/lib/ext";
@@ -157,10 +157,10 @@ public class reportUtil {
 				}
 			return ret;
 		} else {
-			// Schema file reportConfig.xsd is packed into the archive file report.aar and is accessed by the following code
+			// Schema file ReportConfig.xsd is packed into the archive file Report.aar and is accessed by the following code
 			Enumeration<URL> resources = null;
 			try {
-				resources = reportUtil.class.getClassLoader().getResources("etc/reportConfig.xsd");
+				resources = ReportUtil.class.getClassLoader().getResources("etc/ReportConfig.xsd");
 			} catch (IOException e) {
 				throw new I2B2Exception("Error accessing resource: Config schema file", e);
 			}
@@ -196,7 +196,7 @@ public class reportUtil {
 			}
 			
 		} else {
-			// If no config file is provided, just create a minimal report object
+			// If no config file is provided, just create a minimal Report object
 			de.hpi.i2b2.report.datavo.reportconfig.ObjectFactory reportconfFac = new de.hpi.i2b2.report.datavo.reportconfig.ObjectFactory();
 			reportType = reportconfFac.createRscriptletType();
 			reportType.setSettings(reportconfFac.createSettingsType());

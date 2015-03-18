@@ -2,7 +2,7 @@
 <ns4:request xmlns:ns4="http://www.i2b2.org/xsd/hive/msg/1.1/"  xmlns:ns2="http://www.i2b2.org/xsd/cell/report/1.0/" xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/pdo/1.1/">
 	<message_header>
 		<proxy>
-            <redirect_url>http://localhost:9090/i2b2/services/reportService/getRResults</redirect_url>
+            <redirect_url>http://localhost:9090/i2b2/services/ReportService/getRResults</redirect_url>
         </proxy>
 
 		<i2b2_version_compatible>1.1</i2b2_version_compatible>
@@ -15,7 +15,7 @@
 			<facility_name>i2b2 Hive</facility_name>
 		</sending_facility>
 		<receiving_application>
-			<application_name>report Cell</application_name>
+			<application_name>Report Cell</application_name>
 			<application_version>1.0</application_version>
 		</receiving_application>
 		<receiving_facility>

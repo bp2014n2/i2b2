@@ -5,12 +5,12 @@
 package de.hpi.i2b2.report;
 
 // This class just holds a csv string and a boolean value indicating that the csv String has data rows
-public class reportCSVContainer {
+public class ReportCSVContainer {
 	
 	private String csvString;
 	private boolean hasData;
 	
-	public reportCSVContainer(String csvString, boolean hasData) {
+	public ReportCSVContainer(String csvString, boolean hasData) {
 		this.csvString = csvString;
 		this.hasData = hasData;
 	}

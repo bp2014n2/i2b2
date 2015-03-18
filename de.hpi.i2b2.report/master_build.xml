@@ -1,4 +1,4 @@
-<project name="report server build">
+<project name="Report server build">
 	
 	<property environment="env"/>
 	<import file="../edu.harvard.i2b2.common/common_build.xml"/>

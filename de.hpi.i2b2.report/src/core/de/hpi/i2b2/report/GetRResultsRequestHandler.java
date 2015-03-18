@@ -70,7 +70,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 			password = input.getMessageHeader().getSecurity().getPassword().getValue();
 			project = input.getMessageHeader().getProjectId();
 		} catch (Exception e) {
-			log.error("Incoming request XML is not valid. Stack trace: " + reportUtil.getStackTraceAsString(e));
+			log.error("Incoming request XML is not valid. Stack trace: " + ReportUtil.getStackTraceAsString(e));
 			throw new I2B2Exception("Error message delivered from server: Incomplete or invalid XML request header");
 		}
 		
@@ -91,7 +91,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 				throw new NullPointerException();
 			}
 		} catch (Exception e) {
-			log.error("Incoming XML request body is not valid or complete. Stack trace: " + reportUtil.getStackTraceAsString(e));
+			log.error("Incoming XML request body is not valid or complete. Stack trace: " + ReportUtil.getStackTraceAsString(e));
 			throw new I2B2Exception("Error message delivered from server: Incoming XML request body is not valid or complete.");
 		}
 		AdditionalInputType addInType = reportResType.getAdditionalInput();
@@ -100,7 +100,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 		scriptletDirectoryName.replace("/", ""); // for security
 		scriptletDirectoryName.replace("..", ""); // for security
 		scriptletDirectoryName.replace("\\", ""); // for security
-		String scriptletDirectoryPath = reportUtil.getRSCRIPTLETPATH() + "/" + scriptletDirectoryName;
+		String scriptletDirectoryPath = ReportUtil.getRSCRIPTLETPATH() + "/" + scriptletDirectoryName;
 		File scriptletDirectory = new File(scriptletDirectoryPath);
 		if (! scriptletDirectory.exists() || ! scriptletDirectory.canRead() || ! scriptletDirectory.isDirectory()) {
 			log.error("Scriptlet directory error (Existing? Is a directory? Access rights?) at path: " + scriptletDirectoryPath);
@@ -110,7 +110,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 		// Validate corresponding config file against XML schema and unmarshall into a JAXB Object
 		RscriptletType reportType = null;
 		try {
-			reportType = reportUtil.validateAndUnmarshallScriptletConfigFile(scriptletDirectoryPath, scriptletDirectoryName);
+			reportType = ReportUtil.validateAndUnmarshallScriptletConfigFile(scriptletDirectoryPath, scriptletDirectoryName);
 		} catch (SAXException e) {
 			log.error("Error (SAXException) while validateAndUnmarshallScriptletConfigFile: " + e.getMessage());
 			throw new I2B2Exception("Error delivered from server: Error while validating / unmarhsalling config.xml file:\n" + e.getMessage());
@@ -127,7 +127,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 			// For handy access convert the request input parameter list into a map
 			Map<String, String> inputParametersFromRequest = null;
 			if (addInType != null) {
-				inputParametersFromRequest = reportUtil.convertListIntoMapAndDecodeHTML(addInType.getInputParameter());
+				inputParametersFromRequest = ReportUtil.convertListIntoMapAndDecodeHTML(addInType.getInputParameter());
 			}
 			// For every specified (in config file!) additional input value...
 			for (InputType ipt : reportType.getAdditionalInputs().getInput()) {
@@ -163,7 +163,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 		JRIProcessor.initializeR();
 		
 		// Add username suffix to webdir path and create folder
-		String extendedWebdirPath = reportUtil.getWEBDIRPATH() + "/userfiles/" + username + "/";
+		String extendedWebdirPath = ReportUtil.getWEBDIRPATH() + "/userfiles/" + username + "/";
 		File extendedWebdirFile = new File(extendedWebdirPath);
 		if (! extendedWebdirFile.exists()) {
 			if (! extendedWebdirFile.mkdirs()) {
@@ -322,7 +322,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
     	String csvDirPath = extendedWebdirPath + "/csv";
     	String rImageDirPath = extendedWebdirPath + "/RImage";
     	
-    	String uploadURL = reportUtil.getUPLOADURL();
+    	String uploadURL = ReportUtil.getUPLOADURL();
     	ReportFileUploader uploader = new ReportFileUploader(uploadURL, username);
     	File plots = new File(plotDirPath);
 	    for (File file : plots.listFiles()) {

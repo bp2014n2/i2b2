@@ -93,7 +93,7 @@ public class MessageUtil {
 		messageHeader.setHl7VersionCompatible(new BigDecimal("2.4"));
 		
         ApplicationType appType = new ApplicationType();
-        appType.setApplicationName("report Cell");
+        appType.setApplicationName("Report Cell");
         appType.setApplicationVersion("1.0");
         messageHeader.setSendingApplication(appType);
 
@@ -175,7 +175,7 @@ public class MessageUtil {
 		messageHeader.setHl7VersionCompatible(new BigDecimal("2.4"));
 		
         ApplicationType sendAppType = new ApplicationType();
-        sendAppType.setApplicationName("report Cell");
+        sendAppType.setApplicationName("Report Cell");
         sendAppType.setApplicationVersion("1.0");
         messageHeader.setSendingApplication(sendAppType);
 
@@ -321,7 +321,7 @@ public class MessageUtil {
     // Convert XML string to RequestMessageType (JAXB) = unmarshalling the request (from client)
 	public static RequestMessageType convertXMLTORequestMessageType(String xmlString) throws I2B2Exception {
 		try {
-			RequestMessageType rmt = (RequestMessageType) reportUtil.getJAXBUtil().unMashallFromString(xmlString).getValue();
+			RequestMessageType rmt = (RequestMessageType) ReportUtil.getJAXBUtil().unMashallFromString(xmlString).getValue();
 			if (rmt == null) {
 				throw new I2B2Exception("Null value from unmarshall for VDO xml : " + xmlString);
 			}
@@ -335,7 +335,7 @@ public class MessageUtil {
 	public static ResponseMessageType convertXMLTOResponseMessageType(String xmlString) throws I2B2Exception {
 
 		try {
-			ResponseMessageType rmt = (ResponseMessageType) reportUtil.getJAXBUtil().unMashallFromString(xmlString).getValue();
+			ResponseMessageType rmt = (ResponseMessageType) ReportUtil.getJAXBUtil().unMashallFromString(xmlString).getValue();
 			if (rmt == null) {
 				throw new I2B2Exception("Null value from unmarshall for VDO xml : " + xmlString);
 			}
@@ -350,7 +350,7 @@ public class MessageUtil {
         StringWriter strWriter = null;
 
         try {
-            JAXBUtil jaxbUtil = reportUtil.getJAXBUtil();
+            JAXBUtil jaxbUtil = ReportUtil.getJAXBUtil();
             strWriter = new StringWriter();
 
             de.hpi.i2b2.report.datavo.i2b2message.ObjectFactory objectFactory = new de.hpi.i2b2.report.datavo.i2b2message.ObjectFactory();
@@ -367,7 +367,7 @@ public class MessageUtil {
         StringWriter strWriter = null;
 
         try {
-            JAXBUtil jaxbUtil = reportUtil.getJAXBUtil();
+            JAXBUtil jaxbUtil = ReportUtil.getJAXBUtil();
             strWriter = new StringWriter();
 
             de.hpi.i2b2.report.datavo.i2b2message.ObjectFactory objectFactory = new de.hpi.i2b2.report.datavo.i2b2message.ObjectFactory();

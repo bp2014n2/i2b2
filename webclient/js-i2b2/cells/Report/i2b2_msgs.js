@@ -1,21 +1,21 @@
 /**
- * @projectDescription	Messages to configure and build a report cell communicator object.
- * @namespace	i2b2.report.ajax
+ * @projectDescription	Messages to configure and build a Report cell communicator object.
+ * @namespace	i2b2.Report.ajax
  * @author		Bastian Weinlich
  * @version 	0.1
  */
 
 // create the communicator Object
-i2b2.report.ajax = i2b2.hive.communicatorFactory("report");
+i2b2.Report.ajax = i2b2.hive.communicatorFactory("Report");
 
 // create namespaces to hold all the communicator messages and parsing routines
-i2b2.report.cfg.msgs = {};
-i2b2.report.cfg.parsers = {};
+i2b2.Report.cfg.msgs = {};
+i2b2.Report.cfg.parsers = {};
 
 
 // ================================================================================================== //
-// URL: Address: http://localhost:9090/i2b2/rest/reportService/getRScriptlets
-i2b2.report.cfg.msgs.getRScriptlets = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+// URL: Address: http://localhost:9090/i2b2/rest/ReportService/getRScriptlets
+i2b2.Report.cfg.msgs.getRScriptlets = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
 '<ns4:request xmlns:ns4="http://www.i2b2.org/xsd/hive/msg/1.1/" >\n'+
 '	<message_header>\n'+
 '		{{{proxy_info}}}\n'+
@@ -28,7 +28,7 @@ i2b2.report.cfg.msgs.getRScriptlets = '<?xml version="1.0" encoding="UTF-8" stan
 '			<facility_name>i2b2 Hive</facility_name>\n'+
 '		</sending_facility>\n'+
 '		<receiving_application>\n'+
-'			<application_name>report Cell</application_name>\n'+
+'			<application_name>Report Cell</application_name>\n'+
 '			<application_version>1.0</application_version>\n'+
 '		</receiving_application>\n'+
 '		<receiving_facility>\n'+
@@ -58,7 +58,7 @@ i2b2.report.cfg.msgs.getRScriptlets = '<?xml version="1.0" encoding="UTF-8" stan
 '	</request_header>\n'+
 '</ns4:request>';
 // Parse answer message
-i2b2.report.cfg.parsers.getRScriptlets = function(){
+i2b2.Report.cfg.parsers.getRScriptlets = function(){
 	if (!this.error) {
 		this.model = [];
 		// Extract fields of every available R-scriptlet
@@ -120,13 +120,13 @@ i2b2.report.cfg.parsers.getRScriptlets = function(){
 	}
 	return this;
 }
-i2b2.report.ajax._addFunctionCall("getRScriptlets","{{{URL}}}getRScriptlets",i2b2.report.cfg.msgs.getRScriptlets,null,i2b2.report.cfg.parsers.getRScriptlets);
+i2b2.Report.ajax._addFunctionCall("getRScriptlets","{{{URL}}}getRScriptlets",i2b2.Report.cfg.msgs.getRScriptlets,null,i2b2.Report.cfg.parsers.getRScriptlets);
 
 
 
 // ================================================================================================== //
-// URL: Address: http://localhost:9090/i2b2/rest/reportService/getRResults
-i2b2.report.cfg.msgs.getRResults = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+// URL: Address: http://localhost:9090/i2b2/rest/ReportService/getRResults
+i2b2.Report.cfg.msgs.getRResults = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
 '<ns4:request xmlns:ns4="http://www.i2b2.org/xsd/hive/msg/1.1/"  xmlns:ns2="http://www.i2b2.org/xsd/cell/report/1.0/" xmlns:ns3="http://www.i2b2.org/xsd/cell/crc/pdo/1.1/">\n'+
 '	<message_header>\n'+
 '		{{{proxy_info}}}\n'+
@@ -140,7 +140,7 @@ i2b2.report.cfg.msgs.getRResults = '<?xml version="1.0" encoding="UTF-8" standal
 '			<facility_name>i2b2 Hive</facility_name>\n'+
 '		</sending_facility>\n'+
 '		<receiving_application>\n'+
-'			<application_name>report Cell</application_name>\n'+
+'			<application_name>Report Cell</application_name>\n'+
 '			<application_version>1.0</application_version>\n'+
 '		</receiving_application>\n'+
 '		<receiving_facility>\n'+
@@ -178,7 +178,7 @@ i2b2.report.cfg.msgs.getRResults = '<?xml version="1.0" encoding="UTF-8" standal
 '		</ns2:RScriptletResult>\n'+
 '	</message_body>\n'+
 '</ns4:request>';
-i2b2.report.cfg.parsers.getRResults = function(){
+i2b2.Report.cfg.parsers.getRResults = function(){
 	if (!this.error) {
 		this.model = [];
 		// Extract fields of every available R-Results
@@ -207,4 +207,4 @@ i2b2.report.cfg.parsers.getRResults = function(){
 	}
 	return this;
 }
-i2b2.report.ajax._addFunctionCall("getRResults","{{{URL}}}getRResults",i2b2.report.cfg.msgs.getRResults,["patient_sets", "additional_input", "concepts"],i2b2.report.cfg.parsers.getRResults);
+i2b2.Report.ajax._addFunctionCall("getRResults","{{{URL}}}getRResults",i2b2.Report.cfg.msgs.getRResults,["patient_sets", "additional_input", "concepts"],i2b2.Report.cfg.parsers.getRResults);

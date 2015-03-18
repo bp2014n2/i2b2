@@ -18,7 +18,7 @@ import org.rosuda.JRI.REXP;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 
-import de.hpi.i2b2.report.reportUtil;
+import de.hpi.i2b2.report.ReportUtil;
 
 // This class interacts directly with JRI (Java R Interface) library
 public class JRIProcessor {
@@ -31,7 +31,7 @@ public class JRIProcessor {
     public static void initializeR() throws I2B2Exception {
     	
     	// Set some system settings that are required for running R
-    	reportUtil.setUpREnvironment();
+    	ReportUtil.setUpREnvironment();
     	
     	// Make sure we have the right version of everything
     	boolean versionOK = Rengine.versionCheck();
@@ -57,7 +57,7 @@ public class JRIProcessor {
         
         // Load required R package 'xtable'
 		re.eval("library(xtable)");
-		re.eval("setwd('" + reportUtil.getRSCRIPTLETPATH() + "')");
+		re.eval("setwd('" + ReportUtil.getRSCRIPTLETPATH() + "')");
     }
     
     // Do some preparation inside the R session for later output (plots, csvs, variables)
@@ -143,19 +143,19 @@ public class JRIProcessor {
     }
     
     // Read in patient data
-    public static void readDataFrameFromString(String name, reportCSVContainer s, String colClasses) throws I2B2Exception {
+    public static void readDataFrameFromString(String name, ReportCSVContainer s, String colClasses) throws I2B2Exception {
     	// Uncomment for debugging purposes
     	// log.info(name + "\n\n" + s.getString());
     	
     	// Case: No data available -> Initialize empty data.frame (read.table would cause an error otherwise) and return
     	if (!s.hasData()) {
-    		String initStr = s.getString().replace(reportUtil.SEP, "=character(),");
+    		String initStr = s.getString().replace(ReportUtil.SEP, "=character(),");
     		initStr = initStr.concat("=character()");
     		re.eval(name + " <- data.frame(" + initStr +  ")");
     		return;
     	}
     	re.assign("tmp", s.getString());
-    	REXP ret = re.eval(name + " <- read.table(textConnection(tmp), sep=\"" + reportUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
+    	REXP ret = re.eval(name + " <- read.table(textConnection(tmp), sep=\"" + ReportUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
     			"colClasses = " + colClasses + ", na.string=c(\"\"))");
     	if (ret == null) {
 			log.error("Error reading in patient data into data.frame " + name);
@@ -379,23 +379,23 @@ class ScriptExecutorCallbackClass implements RMainLoopCallbacks {
 	// Hence the R script could be buggy -> The user is warned by a message
 	public String rChooseFile(Rengine re, int newFile) {
 		log.error("rChooseFile called");
-		JRIProcessor.appendRErrors("report-Warning: Forbidden R method (choose file) called. Please check your R script");
+		JRIProcessor.appendRErrors("Report-Warning: Forbidden R method (choose file) called. Please check your R script");
 		return "";
 	}
 	
 	public String rReadConsole(Rengine re, String prompt, int addToHistory) {
 		log.info("rReadConsole called");
-		JRIProcessor.appendRErrors("report-Warning: Forbidden R method (read from console) called. Please check your R script");
+		JRIProcessor.appendRErrors("Report-Warning: Forbidden R method (read from console) called. Please check your R script");
 		return null;
 	}
 	
 	public void rLoadHistory (Rengine re, String filename) {
 		log.error("rLoadHistory called");
-		JRIProcessor.appendRErrors("report-Warning: Forbidden R method (load history) called. Please check your R script");
+		JRIProcessor.appendRErrors("Report-Warning: Forbidden R method (load history) called. Please check your R script");
 	}			
  
 	public void rSaveHistory (Rengine re, String filename) {
 		log.error("rSaveHistory called");
-		JRIProcessor.appendRErrors("report-Warning: Forbidden R method (save history) called. Please check your R script");
+		JRIProcessor.appendRErrors("Report-Warning: Forbidden R method (save history) called. Please check your R script");
 	}			
 }

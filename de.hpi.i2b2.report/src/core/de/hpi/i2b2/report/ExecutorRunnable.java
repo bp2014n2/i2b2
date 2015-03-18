@@ -6,7 +6,7 @@
  * 
  * Contributors:
  *     Mike Mendis - initial API and implementation
- *     Bastian Weinlich - Adaption to reportCell
+ *     Bastian Weinlich - Adaption to ReportCell
  */
 
 package de.hpi.i2b2.report;

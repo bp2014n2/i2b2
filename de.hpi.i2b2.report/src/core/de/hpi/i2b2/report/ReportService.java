@@ -6,7 +6,7 @@
  * 
  * Contributors:
  *     Mike Mendis - initial API and implementation
- *     Bastian Weinlich - Adaption to reportCell
+ *     Bastian Weinlich - Adaption to ReportCell
  */
 
 package de.hpi.i2b2.report;
@@ -21,15 +21,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // This class is a modification of the PFTService class of the main i2b2 project
-// It is the entry point for the two possible reportCell requests
-public class reportService {
-    private static Log log = LogFactory.getLog(reportService.class);
+// It is the entry point for the two possible ReportCell requests
+public class ReportService {
+    private static Log log = LogFactory.getLog(ReportService.class);
     
     // This method parses incoming getRScriptlets requests, checks the header and sets the appropriate handler
     public OMElement getRScriptlets(OMElement getRScriptletsDataElement) throws I2B2Exception {
     	
     	log.info("Incoming getRScriptlets request");
-    	reportUtil.initializereportUtil();
+    	ReportUtil.initializeReportUtil();
     	// Check for errors
 		if (getRScriptletsDataElement == null) {
 			log.error("Incoming request is null");
@@ -59,7 +59,7 @@ public class reportService {
     public OMElement getRResults(OMElement getRResultsDataElement) throws I2B2Exception {
     	
     	log.info("Incoming getRResults request");
-    	reportUtil.initializereportUtil();
+    	ReportUtil.initializeReportUtil();
     	// Check for errors
 		if (getRResultsDataElement == null) {
 			log.error("Incoming request is null");
@@ -126,7 +126,7 @@ public class reportService {
 					if (er.getJobException() != null) {
 						// Error case 1.1: Causing exception was set -> Default unknown error message & logging stack trace
 						if (er.getJobException().getCause() != null) {
-							log.error("Exception stack trace:\n" + reportUtil.getStackTraceAsString(er.getJobException()));
+							log.error("Exception stack trace:\n" + ReportUtil.getStackTraceAsString(er.getJobException()));
 							ResponseMessageType responseMsgType = MessageUtil.doBuildErrorResponseMessageType(null, unknownErrorMessage);
 							reportDataResponse = MessageUtil.convertResponseMessageTypeToXML(responseMsgType);
 						} else {
@@ -151,7 +151,7 @@ public class reportService {
 				}
 			} catch (InterruptedException e) {
 				log.error(e.getMessage());
-				throw new I2B2Exception("Thread error while running report job");
+				throw new I2B2Exception("Thread error while running Report job");
 			} finally {
 				t.interrupt();
 				er = null;

@@ -34,19 +34,19 @@ public class GetRScriptletsRequestHandler implements RequestHandler{
 		RScriptletsType reportsType = reportmesFac.createRScriptletsType();
 		
 		// Open scriptlet directory and check for errors
-		File scriptletdirectory = new File(reportUtil.getRSCRIPTLETPATH());
+		File scriptletdirectory = new File(ReportUtil.getRSCRIPTLETPATH());
 		if (! scriptletdirectory.exists()) {
-			String scriptletdirerror = "Scriptlet directory error: Does not exist. Path: " + reportUtil.getRSCRIPTLETPATH();
+			String scriptletdirerror = "Scriptlet directory error: Does not exist. Path: " + ReportUtil.getRSCRIPTLETPATH();
 			log.error(scriptletdirerror);
 			throw new I2B2Exception("Error delivered from server: " + scriptletdirerror);
 		}
 		if (! scriptletdirectory.isDirectory()) {
-			String scriptletdirerror = "Scriptlet directory error: Not a directory. Path: " + reportUtil.getRSCRIPTLETPATH();
+			String scriptletdirerror = "Scriptlet directory error: Not a directory. Path: " + ReportUtil.getRSCRIPTLETPATH();
 			log.error(scriptletdirerror);
 			throw new I2B2Exception("Error delivered from server: " + scriptletdirerror);
 		}
 		if (! scriptletdirectory.canRead()) {
-			String scriptletdirerror = "Scriptlet directory error: No access rights for reading. Path: " + reportUtil.getRSCRIPTLETPATH();
+			String scriptletdirerror = "Scriptlet directory error: No access rights for reading. Path: " + ReportUtil.getRSCRIPTLETPATH();
 			log.error(scriptletdirerror);
 			throw new I2B2Exception("Error delivered from server: " + scriptletdirerror);
 		}
@@ -66,7 +66,7 @@ public class GetRScriptletsRequestHandler implements RequestHandler{
 			// Validate config file against XML schema and unmarshall into a JAXB Object
 			RscriptletType reportType = null;
 			try {
-				reportType = reportUtil.validateAndUnmarshallScriptletConfigFile(subdirectorypath, f.getName());
+				reportType = ReportUtil.validateAndUnmarshallScriptletConfigFile(subdirectorypath, f.getName());
 			} catch (SAXException e) {
 				// If config file is invalid -> Append hint to faultyConfigFiles and skip this scriptlet
 				faultyConfigFiles += f.getName() + "\nError message: " + e.getMessage() + "\n\n";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<service name="reportService" scope="request">
+<service name="ReportService" scope="request">
     <description>
-        report Service
+        Report Service
     </description>
     <operation name="getRScriptlets">
         <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
@@ -9,5 +9,5 @@
     <operation name="getRResults">
         <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
     </operation>
-    <parameter name="ServiceClass">de.hpi.i2b2.report.reportService</parameter>
+    <parameter name="ServiceClass">de.hpi.i2b2.report.ReportService</parameter>
 </service>

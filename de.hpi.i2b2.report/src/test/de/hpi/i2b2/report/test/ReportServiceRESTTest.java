@@ -4,8 +4,8 @@
  */
 package de.hpi.i2b2.report.test;
 
-import de.hpi.i2b2.report.reportService;
-import de.hpi.i2b2.report.reportUtil;
+import de.hpi.i2b2.report.ReportService;
+import de.hpi.i2b2.report.ReportUtil;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
@@ -29,7 +29,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-// Class to test report Cell locally
+// Class to test Report Cell locally
 
 /*
  * Important: Before using this testing program, make sure that the additional properties in the build.properties
@@ -52,12 +52,12 @@ public class reportServiceRESTTest {
     	
     	// Modify as desired!
     		// true: Read in sample XML as request and call method locally (program runs outside jboss!)
-    		// false: Read in sample XML as request and send it to a running (= deployed in running jboss) report cell on report.webservice.url
+    		// false: Read in sample XML as request and send it to a running (= deployed in running jboss) Report cell on report.webservice.url
     	local = true;
     	
     	// Configure program for local testing
     	if (local) {
-    		reportUtil.setTestingmodeON(args[0]);
+    		ReportUtil.setTestingmodeON(args[0]);
     	}
     	
     	// Choose one of the requests
@@ -119,7 +119,7 @@ public class reportServiceRESTTest {
     	OMElement result = null;
     	if (local) {
     			// Just call the service method
-            	reportService ps = new reportService();
+            	ReportService ps = new ReportService();
             	result = ps.getRScriptlets(request); 
     	} else {
         	EndpointReference targetEPR = new EndpointReference(prop.getProperty("report.webservice.url") + "/getRScriptlets");
@@ -154,7 +154,7 @@ public class reportServiceRESTTest {
     	OMElement result = null;
     	if (local) {
     			// Just call the service method
-            	reportService ps = new reportService();
+            	ReportService ps = new ReportService();
             	result = ps.getRResults(request); 
     	} else {
         	EndpointReference targetEPR = new EndpointReference(prop.getProperty("report.webservice.url") + "/getRResults");

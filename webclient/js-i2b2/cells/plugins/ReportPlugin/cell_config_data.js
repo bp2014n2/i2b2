@@ -1,7 +1,7 @@
 // this file contains a list of all files that need to be loaded dynamically for this plugin
 // every file in this list will be loaded after the plugin's Init function is called
 {
-	files:[ "reportpluginCtrl.js", "report_modLabRange.js" ],
+	files:[ "ReportPluginCtrl.js", "Report_modLabRange.js" ],
 	css:[ "reportplugin.css" ],
 	config: {
 		// additional configuration variables that are set by the system

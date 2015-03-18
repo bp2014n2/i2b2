@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 d12a7f616bc8b131209d3dc96484d2c7a5727a43 Carl Ambroselli <git@carl-ambroselli.de> 1426177706 +0100	clone: from https://github.com/CarlAmbroselli/R-Dev-Environment.git
+d12a7f616bc8b131209d3dc96484d2c7a5727a43 088745d65f96685e62a5f572f287d48da0700305 Carl Ambroselli <git@carl-ambroselli.de> 1426177734 +0100	commit: added config
+088745d65f96685e62a5f572f287d48da0700305 bf2406ee3a65c1d2e38c15b393c4e91d66b0017e Carl Ambroselli <git@carl-ambroselli.de> 1426182825 +0100	commit: reportCell integration
+bf2406ee3a65c1d2e38c15b393c4e91d66b0017e d2115de9c652378d4204bcd392bb0d230f33069c Carl Ambroselli <git@carl-ambroselli.de> 1426586620 +0100	commit: mainscript changes
+d2115de9c652378d4204bcd392bb0d230f33069c fb44dfb4e2a0452083e720f59688f8e8866bacb6 Carl Ambroselli <git@carl-ambroselli.de> 1426586642 +0100	commit: cleanup
+fb44dfb4e2a0452083e720f59688f8e8866bacb6 7163ae2949a1dae843350cb15193eb6b8a08ca30 Carl Ambroselli <git@carl-ambroselli.de> 1426600282 +0100	commit: hidden fields
+7163ae2949a1dae843350cb15193eb6b8a08ca30 c52f317722b58f5b7af0f1501aa443511ad67de9 Carl Ambroselli <git@carl-ambroselli.de> 1426674888 +0100	commit: switch to local

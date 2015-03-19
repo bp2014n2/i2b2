@@ -4,21 +4,14 @@ require(Matrix)
 require(Matching)
 
 source("PSM/ph_utils.r")
-#source("PSM/ph_i2b2.r")
 source("PSM/jp_utils.r")
-
 source("lib/i2b2.r")
 
-#print("given patient concept:")
-#print(girix.input['Observed patient concept'])
-#print("given treatment:")
-#print(girix.input['Evaluated treatment'])
-
-#i2b2ConceptToHuman(girix.input['Observed patient concept'])
-#i2b2ConceptToHuman(girix.input['Observed treatment'])
+if(!exists('girix.input')) {
+  source("PSM/girix_input.r")
+}
 
 # to do: to be set in configuration tab
-girix.input <- c()
 girix.input['Feature level'] <- 3
 
 #for running independent of girix cell
@@ -44,11 +37,10 @@ generateObservationMatrix <- function(observations, features, patients) {
 
 #to do: usable for all sorts of concepts
 #returns scores and treatments for patients of given concept
-Scores.TreatmentsForMonitoredConcept <- function(all.patients, probabilities, concept) {
+Scores.TreatmentsForMonitoredConcept <- function(all.patients, patients.probabilities, concept) {
   diagnosed.ind <- which(all.patients[,i2b2ConceptToHuman(concept)]==1)
-  probs.to.match <- probs[diagnosed.ind]
-  treatments.to.match <- treatments[diagnosed.ind]
-  result <- cbind(probs.to.match, treatments.to.match)
+  result <- patients.probabilities[diagnosed.ind,]
+#  result <- cbind(probs.to.match, patientnums.to.match)
   colnames(result) <- c("Probability", "Treatment")
   return(result)
 }
@@ -94,7 +86,9 @@ ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept) {
   probabilities <- exp(-featureMatrix%*%b)
   probabilities <- as.vector(1/(1+probabilities))
   
-  return(probabilities)  
+  patient.probabilities <- cbind(probabilities, target.vector)
+
+  return(patient.probabilities)  
 }
 
 #input preparation to be done by GIRI
@@ -107,11 +101,12 @@ print("getting featureMatrix")
 featureMatrix <- generateFeatureMatrix(interval=list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01")), 
                                       patients_limit= 10000, level=features.level, features=features, filter=features.filter)
 
-print("calculating probabilities")
-probs <- ProbabilitiesOfLogRegFitting(featureMatrix=featureMatrix, target.concept=girix.input['Evaluated treatment'])
+print("calculating probabilities, evaluated treatment:")
+print(girix.input['Evaluated treatment'])
+patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])
 
 
-to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, probabilities = probs, 
+to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, patients.probabilities = patients.probs, 
                                                  concept=girix.input['Observed patient concept'])
 
 print("matching")
@@ -119,5 +114,5 @@ matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FA
 
 print("outputting")
 output <- cbind(rownames(to.match[matched$index.control,]), to.match[matched$index.control,"Probability"], rownames(to.match[matched$index.treated,]), to.match[matched$index.treated, "Probability"])
-rownames(output) <- NULL
-girix.output[["Matched patients"]] <- output[1:20,]
+rownames(output) <- c("Control group patient number", "Score", "Treatment group patient number", "Score")
+girix.output[["Matched patients"]] <- output

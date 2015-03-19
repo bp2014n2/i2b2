@@ -6,8 +6,6 @@ options(warn=-1)
 library(extrafont)
 loadfonts()
 
-setwd("../")
-
 source("utils/utils.r")
 source("utils/load_data.r")
 

@@ -178,11 +178,12 @@ i2b2.reportPlugin.loadPlugin = function(value) {
 			var parLink = Element.select(newNode, 'a')[0];
 			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
 			parTextfield.id = newID;
+                        parTextfield.className = "input-" + i2b2.h.Escape(addIns[i].name);
 			if (i2b2.h.Escape(addIns[i].default) != "") {
 				parTextfield.value = i2b2.h.Escape(addIns[i].default);
 			}
 			numberAIHiddenFields++;
-			newNode.className = "report-input report-input-hidden";
+			newNode.className = "report-input report-input-hidden"
 		} else if (addIns[i].type == "date") {
 			newNode = aiDateProt.cloneNode(true);
 			var newID = "report-AIDATE-" + numberAIDateFields;
@@ -398,6 +399,161 @@ i2b2.reportPlugin.initDDFields = function(scriptlet) {
 		i2b2.reportPlugin.createNewCONCDDField();
 	}
 };
+
+// This function is used for asyncronous calls
+i2b2.reportPlugin.requestResults = function(callback) {
+	// Get handles
+	var piList = $("report-pilist");
+	var errorDivNoPI = $("report-error-emptyPI");
+	var errorDivNoPSCC = $("report-error-emptyPSorCC");
+	var allAIText = $$("DIV#reportplugin-mainDiv .report-input-textfield");
+	var allHiddenText = $$("DIV#reportplugin-mainDiv .report-input-hidden");
+	var allAIDate = $$("DIV#reportplugin-mainDiv .report-input-date-select");
+	var allAIDD = $$("DIV#reportplugin-mainDiv .report-input-dropdown");
+	var allAICO = $$("DIV#reportplugin-mainDiv .report-input-concept");
+	var allAIPS = $$("DIV#reportplugin-mainDiv .report-input-patient-set");
+
+        // Read out selected scriptlet
+	var piTitle = piList.options[piList.selectedIndex].value;
+	// Error case: "Empty scriptlet" chosen
+	if (piTitle == '') {
+		errorDivNoPI.show();
+		return;
+	}
+	// Get subdirectory name
+	var piDirName = i2b2.reportPlugin.scriptlets[piTitle].subdir;
+
+	// Error case: No patient set selected [DEACTIVATED]
+	if ( false && ! i2b2.reportPlugin.model.prsDirty ) {
+		errorDivNoPSCC.show();
+		return;
+	}
+
+	// Get URL of the Query Tool Service
+	var qtsUrl = i2b2["CRC"].cfg.cellURL;
+	
+	// Get patient set and concept information
+	var patientSets = [];
+	for (var i = 0; i < i2b2.reportPlugin.model.prsRecords.length; i++) {
+		patientSets[i] = i2b2.reportPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
+	}
+
+	var concepts = [];
+	for (var i = 0; i < i2b2.reportPlugin.model.conceptRecords.length; i++) {
+		var t;
+		var cdata;
+		t = i2b2.reportPlugin.model.conceptRecords[i].origData.xmlOrig;
+		cdata = {};
+		cdata.level = i2b2.h.getXNodeVal(t, "level");
+		cdata.key = i2b2.h.getXNodeVal(t, "key");
+		cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
+		cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
+		cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
+		cdata.constrainString = i2b2.reportPlugin.buildConstrainString(i);
+		concepts[i] = cdata;
+	}
+	
+	// Get additional inputs: Text fields
+	var addIns = [];
+	var j = 0;
+	for (var i = 0; i < allAIText.length; i++) {
+		var name = Element.select(allAIText[i], 'h3')[0].innerHTML;
+		var value = Element.select(allAIText[i], 'textarea')[0].value;
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional inputs: Drop down lists
+	for (var i = 0; i < allAIDD.length; i++) {
+		var name = Element.select(allAIDD[i], 'h3')[0].innerHTML;
+		var list = Element.select(allAIDD[i], 'select')[0];
+		var value = "";
+		if (list.options.length != 0) {
+			value = list.options[list.selectedIndex].value;
+		}
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional Inputs: Hidden
+	for (var i = 0; i < allHiddenText.length; i++) {
+		var name = Element.select(allHiddenText[i], 'h3')[0].innerHTML;
+		var value = Element.select(allHiddenText[i], 'input')[0].value;
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional Inputs: Date
+	for (var i = 0; i < allAIDate.length; i++) {
+		var name = Element.select(allAIDate[i], 'h3')[0].innerHTML;
+		var value = Element.select(allAIDate[i], 'input')[0].value;
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional inputs: Concept drag and drop fields
+	for (var i = 0; i < allAICO.length; i++) {
+		var name = Element.select(allAICO[i], 'h3')[0].innerHTML;
+		var value = i2b2.reportPlugin.model.aiConcpts[name];
+		if (value == undefined) value = "";
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional inputs: Concept drag and drop fields
+	for (var i = 0; i < allAIPS.length; i++) {
+		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
+		var value = i2b2.reportPlugin.model.aiPatientSets[name];
+		if (value == undefined) value = "";
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Build patient set message part
+	var psMessPart = '';
+	for (var i = 0; i < patientSets.length; i++) {
+		psMessPart += '					<patient_set_coll_id>' + i2b2.h.Escape(patientSets[i]) + '</patient_set_coll_id>\n';
+	}
+	// Build concepts message part
+	var conceptsMessPart = '';
+	for (var i = 0; i < concepts.length; i++) {
+		conceptsMessPart +=
+		'					<concept>\n'+
+		'						<hlevel>' + i2b2.h.Escape(concepts[i].level) + '</hlevel>\n'+
+		'						<item_key>' + i2b2.h.Escape(concepts[i].key) + '</item_key>\n'+
+		'						<dim_tablename>' + i2b2.h.Escape(concepts[i].tablename) + '</dim_tablename>\n'+
+		'						<dim_dimcode>' + i2b2.h.Escape(concepts[i].dimcode) + '</dim_dimcode>\n'+
+		'						<item_is_synonym>' + i2b2.h.Escape(concepts[i].synonym) + '</item_is_synonym>\n'+
+										concepts[i].constrainString +
+		'					</concept>\n';
+	}
+	// Build additional input message part
+	var aiMessPart = '';
+	for (var i = 0; i < addIns.length; i++) {
+		//alert("name: " + addIns[i][0] + " value: " + addIns[i][1]);
+		aiMessPart += '' +
+			'				<inputParameter>\n'+
+			'					<name>' + i2b2.h.Escape(addIns[i][0]) + '</name>\n'+
+			'					<value>' + i2b2.h.Escape(addIns[i][1]) + '</value>\n'+
+			'				</inputParameter>\n';
+	}
+	// Build object holding message parameters
+	var messParams = {};
+	messParams['r_scriptlet_name'] = i2b2.h.Escape(piDirName);
+	messParams['qts_url'] = i2b2.h.Escape(qtsUrl);
+	messParams['patient_sets'] = psMessPart;
+	messParams['concepts'] = conceptsMessPart;
+	messParams['additional_input'] = aiMessPart;
+	messParams['result_wait_time'] = i2b2.report.cfg.params.queryTimeout;
+
+        // Send message (see above)
+	var scoped_callback = new i2b2_scopedCallback;
+	scoped_callback.scope = this;
+	scoped_callback.callback = callback;
+	var commObjRef = eval("(i2b2.report.ajax)");
+	commObjRef['getRResults']("reportPlugin Client", messParams, scoped_callback);
+};
+
 
 // This function is called when a user clicks on the tab "View Results"
 i2b2.reportPlugin.buildAndSendMsg = function() {
@@ -631,8 +787,9 @@ i2b2.reportPlugin.displayResults = function(cbResults) {
 		parName.innerHTML = i2b2.h.Escape(cbResults.model[i].title);
 		parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
 		// For security reasons the result values are escaped -> No HTML tags will be interpreted
-		parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
+		//parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
 		parValue.innerHTML = cbResults.model[i].value;
+                exec_body_scripts(parValue)
 		newNode.className = "report-result-element";
 		if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
 			// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed
@@ -853,4 +1010,56 @@ i2b2.reportPlugin.doShowCalendar = function(dateInputId) {
 	$("calendarDivMask").show();
 	this.DateConstrainCal.render(document.body);
 
+};
+
+exec_body_scripts = function(body_el) {
+    // Finds and executes scripts in a newly added element's body.
+    // Needed since innerHTML does not run scripts.
+    //
+    // Argument body_el is an element in the dom.
+
+    function nodeName(elem, name) {
+          return elem.nodeName && elem.nodeName.toUpperCase() ===
+                          name.toUpperCase();
+            };
+
+      function evalScript(elem) {
+            var data = (elem.text || elem.textContent || elem.innerHTML || "" ),
+                        head = document.getElementsByTagName("head")[0] ||
+                                            document.documentElement,
+                                script = document.createElement("script");
+
+                script.type = "text/javascript";
+                    try {
+                            // doesn't work on ie...
+                            script.appendChild(document.createTextNode(data));      
+                                } catch(e) {
+                                        // IE has funky script nodes
+                                        script.text = data;
+                                            }
+
+                        head.insertBefore(script, head.firstChild);
+                            head.removeChild(script);
+                              };
+
+        // main section of function
+        var scripts = [],
+                  script,
+                        children_nodes = body_el.childNodes,
+                              child,
+                                    i;
+
+          for (i = 0; children_nodes[i]; i++) {
+                child = children_nodes[i];
+                    if (nodeName(child, "script" ) &&
+                              (!child.type || child.type.toLowerCase() === "text/javascript")) {
+                                          scripts.push(child);
+                                                }
+                      }
+
+            for (i = 0; scripts[i]; i++) {
+                  script = scripts[i];
+                      if (script.parentNode) {script.parentNode.removeChild(script);}
+                          evalScript(scripts[i]);
+                            }
 };

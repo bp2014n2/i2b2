@@ -11,9 +11,32 @@ dir.create(paste(tmpFolder, '/plots',  sep=''), mode="0777")
 
 input <- report.input
 
+#Setup Knitr
+
+# Deactivates code output globally
+library(knitr)
+knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='hide')
+opts_knit$set(progress = FALSE, verbose = FALSE)
+opts_chunk$set(fig.width=5, fig.height=5)
+
+source('main.r')
+
+# Embed SVGs in HTML
+hook_plot = knit_hooks$get('plot')
+knit_hooks$set(plot = function(x, options) {
+ x = paste(x, collapse = '.')
+ if (!grepl('\\.svg', x)) return(hook_plot(x, options))
+ # read the content of the svg image and write it out without <?xml ... ?>
+ paste("<img src='data:image/svg+xml;utf8,", paste(readLines(x)[-1], collapse = '\n'), "'>", sep="")
+})
+
 # Generate File
 fileName <- 'main.html'
-knit('layout/main.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+if(input["requestDiagram"] == "all"){
+  knit('layout/main.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+} else {
+  knit('diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+}
 
 # Output
 report.output[["Report"]] <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size)

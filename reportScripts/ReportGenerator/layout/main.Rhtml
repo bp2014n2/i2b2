@@ -1,26 +1,10 @@
-<!--begin.rcode echo=FALSE
-  # Deactivates code output globally
-  library(knitr)
-  knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='hide')
-  opts_knit$set(progress = FALSE, verbose = FALSE)
-  opts_chunk$set(fig.width=5, fig.height=5)
-
-  setwd("../")
-  knitr::read_chunk('main.r')
-
-  # Embed SVGs in HTML
-   hook_plot = knit_hooks$get('plot')
-   knit_hooks$set(plot = function(x, options) {
-     x = paste(x, collapse = '.')
-     if (!grepl('\\.svg', x)) return(hook_plot(x, options))
-     # read the content of the svg image and write it out without <?xml ... ?>
-     paste("<img src='data:image/svg+xml;utf8,", paste(readLines(x)[-1], collapse = '\n'), "'>", sep="")
-     })
-end.rcode-->
-
   <!-- Must be run before any childs to load data, etc. -->
-  <!--begin.rcode mainImports, include=FALSE
-  end.rcode-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script>
+    setParameter = function(parameter, value){
+      document.getElementsByClassName("input-"+parameter)[0].value = value
+    }
+  </script>
 
   <h1>Statistical Overview</h1>
   <h3>Demo Patient Set</h3>

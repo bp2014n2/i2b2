@@ -1,6 +1,6 @@
 /* 
- * Created on : 27.01.2015
- * Author     : Carl Ambroselli
+ * Created on : 07-11-2013 
+ * Author     : Bastian Weinlich
  */
 
 // This function is called after the HTML is loaded into the viewer DIV

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /></head>
+  <body oncontextmenu="return true;">
+    <div id='girixplugin-mainDiv'>
+
+      <div id="girix-TABS" class="yui-navset">
+        <ul class="yui-nav">
+          <li id="girix-TAB0" class="selected"><a href="#girix-TAB0"><em>Configuration</em></a></li>
+          <li id="girix-TAB1"><a href="#girix-TAB1"><em>GIRIX</em></a></li>
+        </ul>
+    
+        <div class="yui-content" id="girix-CONTENT">
+          <div>
+            <div class="girix-MainContent"><div class="girix-MainContentPad">
+              <div id="girix-loading-scriptlets"><img src="//:0" id="girix-loading-scriptlets-gif"/>Loading Templates</div>
+		<div id="girix-statfunc-selector" style="display:none;">
+                  Choose GIRIX Template:<br />
+                  <select id="girix-pilist" onchange="i2b2.GIRIXPlugin.loadPlugin(this.value)"></select>
+               </div>
+              <div id="girix-scriptlet-content">
+                <h1 id="girix-scriptlet-title"></h1>
+                <p id="girix-scriptlet-description"></p>
+                <div id="girix-scriptlet-SDXButtons">
+                  <div class="girix-droptargets">
+                    <div id="girix-droptrgt-cont" style="display:none;">
+                      <div onclick="i2b2.GIRIXPlugin.initDDFields()" id="girix-clearField" style="display:none;">Clear</div>
+                      <div id="girix-droptrgt-prs-fields">
+                        <div class="girix-droptrgt-prot SDX-PRS" id="girix-PRSDROP-PROT" style="display:none;">Dummy</div>
+                      </div>
+                      <div id="girix-droptrgt-conc-fields">
+                        <div class="girix-droptrgt-prot SDX-CONCPT" id="girix-CONCPTDROP-PROT" style="display:none;">Dummy</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="girix-scriptlets-inputs" style="display:none;">
+                  <h2>Additional input settings</h2>
+                  <div class="girix-hidden-prototype" style="display:none;">
+                    <h3 style="display:none"></h3>
+                    <input type="hidden" class="girix-hidden" value="testing"></input>
+                  </div>
+                  <div class="girix-text-prototype" style="display:none;">
+                    <h3></h3>
+                    <p></p>
+                    <textarea class="girix-textarea" cols="50" rows="10"></textarea>
+                  </div>
+                  <div class="girix-dropdown-prototype" style="display:none;">
+                    <h3></h3>
+                    <p></p>
+                    <select class="girix-dropdown"></select>
+                  </div>
+                  <div class="girix-concept-prototype" style="display:none;">
+                    <h3></h3>
+                    <p></p>
+                    <div class="girix-addConc SDX-CONCPT">Drop concept here</div>
+                  </div>
+                  <div class="girix-patient-set-prototype" style="display:none;">
+                    <h3></h3>
+                    <p></p>
+                    <div class="girix-addPatientSet SDX-PRS">Drop patient set here</div>
+                  </div>
+                  <div class="girix-date-select-prototype" style="display:none;">
+                    <h3></h3>
+                    <p></p>
+                    <input class="girix-date-select" value="01/01/2007" style="width:75px;" />
+                    <a><img style="position:relative; top:1px; border:none;" class="calendarDropdown" src="assets/images/b_dropdown.gif" alt="" /></a>
+                  </div>
+                </div>
+              </div>
+            </div></div>
+          </div>
+          <div>
+            <div class="girix-MainContent"><div class="girix-MainContentPad">
+              <div id="girix-error-emptyPI" style="display:none;">Please chose a GIRIX template first.</div>
+              <div id="girix-error-emptyPSorCC" style="display:none;">Please chose a patient set first</div>
+              <div id="girix-waiting" style="display:none;"><img src="//:0" id="girix-loading-results-gif"/>Waiting for results...</div>
+              <div id="girix-result" style="display:none;">
+                <h1>Results</h1>
+                <p></p>
+                <div id="girix-results-list">
+                  <div class="girix-result-prot" style="display:none;">
+                    <h3></h3>
+                    <p class="girix-result-descr"></p>
+                    <p class="girix-result-value"></p>
+                    <div class="girix-download-button" style="display:none;"><a href="dummy" class="girix-buttonLink">Click here to download CSV file</a></div>
+                  </div>
+                </div>
+              </div>
+              <div id="girix-plots" style="display:none;">
+                <h2>Associated plots</h2>
+                <p></p>
+                <div class="girix-plot-prot" style="display:none;">
+                  <img src="//:0" />
+                  <div class="girix-download-button"><a href="dummy" target="_blank" class="girix-buttonLink">Click here to download SVG image file</a></div>
+                </div>
+              </div>
+              <div id="girix-ostream" class="girix-stream" style="display:none;">
+                <h2>R output</h2>
+                <p></p>
+              </div>
+              <div id="girix-estream" class="girix-stream" style="display:none;">
+                <h2>R errors</h2>
+                <p></p>
+              </div>
+              <div class="girix-download-button" style="display:none;" id="girix-envionment-div"><a href="dummy" id="girix-environment-link" class="girix-buttonLink">Click here to download R environment</a></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </body>
+</html>
+

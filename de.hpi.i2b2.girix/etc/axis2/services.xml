@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service name="GIRIXService" scope="request">
+    <description>
+        GIRIX Service
+    </description>
+    <operation name="getRScriptlets">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
+    <operation name="getRResults">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
+    <parameter name="ServiceClass">de.hpi.i2b2.girix.GIRIXService</parameter>
+</service>

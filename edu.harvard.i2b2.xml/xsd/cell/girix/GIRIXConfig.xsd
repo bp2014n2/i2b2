@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/"
+    targetNamespace="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
+ 
+	<xs:element name="Rscriptlet" type="girixconf:RscriptletType"/>
+
+	<xs:complexType name="RscriptletType">
+        	<xs:sequence>
+           		<xs:element name="settings" type="girixconf:settingsType" minOccurs="0"/>
+			<xs:element name="additionalInputs" type="girixconf:additionalInputsType" minOccurs="0">
+				<xs:unique name="uniqueInputName">
+					<xs:selector xpath="input"/>
+					<xs:field xpath="name"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="customOutputs" type="girixconf:customOutputsType" minOccurs="0">
+				<xs:unique name="uniqueOutputName">
+					<xs:selector xpath="output"/>
+					<xs:field xpath="name"/>
+				</xs:unique>
+			</xs:element>
+        	</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="settingsType">
+        	<xs:sequence>
+           		<xs:element name="title" type="xs:string" minOccurs="0"/>
+			<xs:element name="description" type="xs:string" minOccurs="0"/>
+			<xs:element name="subdirectory" type="xs:string" minOccurs="0"/>
+			<xs:element name="passROutput" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="passRErrors" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="resultDescription" type="xs:string" minOccurs="0"/>
+			<xs:element name="plotDescription" type="xs:string" minOccurs="0"/>
+			<xs:element name="numberOfPatientSets" type="xs:string" minOccurs="0"/>
+			<xs:element name="numberOfConcepts" type="xs:string" minOccurs="0"/>
+        	</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="additionalInputsType">
+        	<xs:sequence>
+           		<xs:element name="input" type="girixconf:inputType" maxOccurs="unbounded"/>
+        	</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="inputType">
+        	<xs:sequence>
+			<xs:element name="name" type="girixconf:nonEmptyString"/>
+			<xs:element name="description" type="xs:string" minOccurs="0"/>
+			<xs:element name="type" type="girixconf:typeType" />
+			<xs:element name="default" type="xs:string" minOccurs="0"/>
+			<xs:element name="items" type="girixconf:itemsType" minOccurs="0"/>
+			<xs:element name="lines" type="xs:unsignedByte" minOccurs="0"/>
+        	</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="typeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="text"/>
+			<xs:enumeration value="dropdown"/>
+			<xs:enumeration value="concept"/>
+			<xs:enumeration value="patient_set"/>
+			<xs:enumeration value="date"/>
+			<xs:enumeration value="hidden"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="nonEmptyString">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(\s*[^\s]\s*)+"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="itemsType">
+        	<xs:sequence>
+           		<xs:element name="item" type="girixconf:nonEmptyString" maxOccurs="unbounded"/>
+        	</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="customOutputsType">
+        	<xs:sequence>
+           		<xs:element name="output" type="girixconf:outputType" maxOccurs="unbounded"/>
+        	</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="outputType">
+        	<xs:sequence>
+			<xs:element name="name" type="girixconf:nonEmptyString"/>
+			<xs:element name="description" type="xs:string" minOccurs="0"/>
+        	</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

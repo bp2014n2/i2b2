@@ -1,5 +1,5 @@
 if(!exists('girix.input')) {
-  source("/home/ubuntu/i2b2/girixScripts/lib/girix.r")
+  source("/home/ubuntu/i2b2/GIRIXScripts/lib/girix.r")
   source("Risk Prediction/girix.r")
 }
 

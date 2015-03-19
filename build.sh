@@ -1,17 +1,32 @@
 #!/bin/bash
 
 result=0
-cd edu.harvard.i2b2.server-common
-sudo ant clean dist
+cd edu.harvard.i2b2.server-common/
+ant clean dist
 result=$((result + $?))
-cd ../edu.harvard.i2b2.pm
-sudo ant -f master_build.xml clean build-all
+cd ../edu.harvard.i2b2.common/
+ant clean dist
+result=$((result + $?))
+cd ../edu.harvard.i2b2.pm/
+ant -f master_build.xml clean build-all
 result=$((result + $?))
 cd ../edu.harvard.i2b2.ontology/
-sudo ant -f master_build.xml clean build-all
+ant -f master_build.xml clean build-all
 result=$((result + $?))
 cd ../edu.harvard.i2b2.crc/
-sudo ant -f master_build.xml clean build-all
+ant -f master_build.xml clean build-all
+result=$((result + $?))
+cd ../edu.harvard.i2b2.workplace/
+ant -f master_build.xml clean build-all
+result=$((result + $?))
+cd ../edu.harvard.i2b2.fr/
+ant -f master_build.xml clean build-all
+result=$((result + $?))
+cd ../edu.harvard.i2b2.im/
+ant -f master_build.xml clean build-all
+result=$((result + $?))
+cd ../de.hpi.i2b2.girix
+ant -f master_build.xml build-all
 result=$((result + $?))
 cd ..
 exit $result

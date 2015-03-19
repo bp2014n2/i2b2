@@ -1,0 +1,22 @@
+  <!-- Must be run before any childs to load data, etc. -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script>
+    setParameter = function(parameter, value){
+      document.getElementsByClassName("input-"+parameter)[0].value = value
+    }
+  </script>
+
+  <h1>Statistical Overview</h1>
+  <h3>Demo Patient Set</h3>
+
+  <h4>Different approaches to display age</h4>
+
+  <!--begin.rcode child='../diagrams/age-histogram/layout.Rhtml' 
+  end.rcode-->
+
+<!--
+    <div id="outputDom"></div>
+    <script type="text/javascript">
+      document.querySelector('#outputDom').createShadowRoot().innerHTML = document.querySelector('#testingDom').innerHTML
+    </script>
+-->

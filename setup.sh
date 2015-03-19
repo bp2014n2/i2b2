@@ -22,10 +22,13 @@ cd ~
 export ANT_HOME=/usr/share/ant
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 export JBOSS_HOME=`pwd`/jboss
+export GIRIX_ASSETS=`pwd`/girix
+export WWW_HOME=/var/www/html/
+export WWW_LOC=http://localhost/webclient
+mkdir $GIRIX_ASSETS
 mkdir $JBOSS_HOME
 mkdir log
 export LOG_FILE=`pwd`/log/log.txt
-touch $LOG_FILE
 
 db_loc="localhost:5432"
 
@@ -38,8 +41,10 @@ echo "Installing software"
 progress &
 progPid=$!
 {
-    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip
+    cd $I2B2_HOME
+    sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base
     sudo /etc/init.d/apache2 restart
+    sudo R CMD ./install_giri_packages.r
 }  >> $LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
 
@@ -47,8 +52,11 @@ echo "Setting up webserver"
 progress &
 progPid=$!
 {
-    sudo cp -r $I2B2_HOME/admin /var/www/html/
-    sudo cp -r $I2B2_HOME/webclient /var/www/html/
+    cd $I2B2_HOME
+    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/
+    sudo cp -r $I2B2_HOME/admin $WWW_HOME
+    sudo cp -r $I2B2_HOME/webclient $WWW_HOME
+    sudo chmod -R 777 $WWW_HOME/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
@@ -56,6 +64,7 @@ echo "Downloading jboss"
 progress &
 progPid=$!
 {
+    cd ~
     curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip
     unzip -d $JBOSS_HOME jboss.zip
 } >> $LOG_FILE
@@ -66,7 +75,10 @@ progress &
 progPid=$!
 {
     cd $I2B2_HOME
-    sudo sh config_db.sh $db_loc
+    sh config_db.sh $db_loc
+    sed "s|\${env\.I2B2_HOME}|`echo $I2B2_HOME`|g" */build.properties -i
+    sed "s|\${env\.WWW_LOC}|`echo $WWW_LOC`|g" */build.properties -i
+    sed "s|\${env\.GIRIX_ASSETS}|`echo $GIRIX_ASSETS`|g" */build.properties -i
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */build.properties -i
     sed "s|\${env\.JBOSS_HOME}|`echo $JBOSS_HOME`|g" */etc/spring/*_application_directory.properties -i
 } >> $LOG_FILE
@@ -76,13 +88,14 @@ echo "Building cells"
 progress &
 progPid=$!
 {
-    sudo sh $I2B2_HOME/build.sh
-    sudo sh $I2B2_HOME/deploy.sh
+    cd $I2B2_HOME
+    sh build.sh
+    sh deploy.sh
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
 
 echo "Cleaning up"
-sudo rm -rf ~/jboss.zip
+rm -rf ~/jboss.zip
 
 clear;
 echo "Setup completed"

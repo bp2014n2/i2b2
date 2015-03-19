@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:girix="http://www.i2b2.org/xsd/cell/girix/1.0/"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/"
+    targetNamespace="http://www.i2b2.org/xsd/cell/girix/1.0/">
+ 
+    <xs:import namespace="http://www.i2b2.org/xsd/cell/girixconf/1.0/"/>
+
+    <xs:element name="RScriptlets" type="girix:RScriptletsType" />
+    
+    <xs:complexType name="RScriptletsType">
+        <xs:sequence>
+		<xs:element name="faultyScriptlets" type="xs:string"/>
+		<xs:element name="rscriptlet" type="girixconf:RscriptletType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType> 
+
+</xs:schema>

@@ -1,5 +1,5 @@
 library(knitr); 
-setwd("/home/ubuntu/i2b2/reportScripts/Report")
+setwd("Report")
 
 # Unique information
 randomNumber <- floor(runif(1, 10000000, 99999999))

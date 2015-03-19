@@ -12,10 +12,10 @@
 <script>
   reload1 = function() {
     setParameter("requestDiagram", "age-histo")
+    setParameter("params", '{"headline": "Sample"}')
     i2b2.reportPlugin.requestResults(function(result) {
         result.parse()
         document.getElementById("age-histogram-output").innerHTML = result.model[0].value
       })
   }
-  //i2b2.reportPlugin.buildAndSendMsg(function(result){console.log(result)});
 </script>

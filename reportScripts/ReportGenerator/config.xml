@@ -11,10 +11,15 @@
 		<numberOfConcepts>0</numberOfConcepts>
         </settings>
         <additionalInputs>
-		<input>
+	        <input>
 			<name>requestDiagram</name>
 			<type>hidden</type>
 			<default>all</default>
+		</input>
+        	<input>
+			<name>params</name>
+			<type>hidden</type>
+			<default>{}</default>
 		</input>
         </additionalInputs>
        <customOutputs>

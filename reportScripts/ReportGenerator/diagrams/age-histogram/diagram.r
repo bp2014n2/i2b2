@@ -55,7 +55,12 @@ hist_age_extended <- function(ages) {
 
   # Titles
   mtext("Age Distribution",3,line=1.3,adj=0,cex=1.2,family="Lato Black",outer=T)
-  mtext("Histogram",3,line=0,adj=0,cex=0.9,outer=T)
+  
+  if(!is.null(params$headline)) {
+    mtext(params$headline,3,line=0,adj=0,cex=0.9,outer=T)
+  } else {
+    mtext("Histogram",3,line=0,adj=0,cex=0.9,outer=T)
+  }
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
 }
 

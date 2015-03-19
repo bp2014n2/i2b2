@@ -59,4 +59,5 @@ hist_age_extended <- function(ages) {
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
 }
 
+age <- loaded_data$age_in_years_num
 hist_age_extended(age)

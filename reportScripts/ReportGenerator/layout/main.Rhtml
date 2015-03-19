@@ -5,9 +5,8 @@
   opts_knit$set(progress = FALSE, verbose = FALSE)
   opts_chunk$set(fig.width=5, fig.height=5)
 
-  if(T || input["requestDiagram"] == "all"){
-    knitr::read_chunk('../main.r')
-  }
+  setwd("../")
+  knitr::read_chunk('main.r')
 
   # Embed SVGs in HTML
    hook_plot = knit_hooks$get('plot')
@@ -19,18 +18,16 @@
      })
 end.rcode-->
 
+  <!-- Must be run before any childs to load data, etc. -->
   <!--begin.rcode mainImports, include=FALSE
   end.rcode-->
-
-  <title>Elsevier Report</title>
-  <link rel="stylesheet" type="text/css" href="main.css">
 
   <h1>Statistical Overview</h1>
   <h3>Demo Patient Set</h3>
 
   <h4>Different approaches to display age</h4>
 
-  <!--begin.rcode child='../diagrams/agehist/layout.Rhtml' 
+  <!--begin.rcode child='../diagrams/age-histogram/layout.Rhtml' 
   end.rcode-->
 
 <!--

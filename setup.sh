@@ -52,6 +52,8 @@ echo "Setting up webserver"
 progress &
 progPid=$!
 {
+    cd $I2B2_HOME
+    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/userfiles/
     sudo cp -r $I2B2_HOME/admin $WWW_HOME
     sudo cp -r $I2B2_HOME/webclient $WWW_HOME
     sudo chmod -R 777 $WWW_HOME/webclient/js-i2b2/cells/plugins/ReportPlugin/assets/userfiles/

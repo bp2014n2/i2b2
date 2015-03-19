@@ -1,15 +1,14 @@
 library(knitr); 
-setwd("/home/ubuntu/i2b2/reportScripts/ReportGenerator")
 
 # Unique information
 randomNumber <- floor(runif(1, 10000000, 99999999))
 currentTimestamp <- print(as.numeric(Sys.time()))
-tmpFolder <- paste('tmp/', randomNumber, currentTimestamp, "/", sep='')
+tmpFolder <- paste('ReportGenerator/tmp/', randomNumber, currentTimestamp, "/", sep='')
 
 dir.create(tmpFolder, mode="0777")
 dir.create(paste(tmpFolder, '/plots',  sep=''), mode="0777")
 
-input <- report.input
+input <- girix.input
 
 #Setup Knitr
 
@@ -19,7 +18,7 @@ knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FA
 opts_knit$set(progress = FALSE, verbose = FALSE)
 opts_chunk$set(fig.width=5, fig.height=5)
 
-source('main.r')
+source('ReportGenerator/main.r')
 
 # Embed SVGs in HTML
 hook_plot = knit_hooks$get('plot')
@@ -33,10 +32,10 @@ knit_hooks$set(plot = function(x, options) {
 # Generate File
 fileName <- 'main.html'
 if(input["requestDiagram"] == "all"){
-  knit('layout/main.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+  knit('ReportGenerator/layout/main.Rhtml', output=paste(tmpFolder, fileName, sep=""))
 } else {
-  knit('diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+  knit('ReportGenerator/diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
 }
 
 # Output
-report.output[["Report"]] <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size)
+girix.output[["Report"]] <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size)

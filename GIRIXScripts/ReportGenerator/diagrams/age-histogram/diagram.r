@@ -1,6 +1,6 @@
 # ---- code ----
 hist_age_extended <- function(ages) {
-  histogram <- hist(ages, plot=FALSE, breaks=c(5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90), right=F)
+  histogram <- hist(ages, plot=FALSE, breaks=c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,200), right=F)
 
   attach(histogram)
   mean_count <- mean(counts)
@@ -36,7 +36,12 @@ hist_age_extended <- function(ages) {
   {
     if (counts[i] > mean_count) 
         {schrift<-"Lato Black"} else {schrift<-"Lato Light"}
-    text(maxVal/100*(-2),x[i],paste(breaks[i]-breaks[1], "-", breaks[i]-1),xpd=T,adj=1,cex=0.85,family=schrift)
+    if(i == 1)
+      text(maxVal/100*(-2),x[i],paste(0, "-", breaks[i+1]-1),xpd=T,adj=1,cex=0.85,family=schrift)
+    if(i == length(counts))
+      text(maxVal/100*(-2),x[i],paste(">=", breaks[i]),xpd=T,adj=1,cex=0.85,family=schrift)
+    else
+      text(maxVal/100*(-2),x[i],paste(breaks[i], "-", breaks[i+1]-1),xpd=T,adj=1,cex=0.85,family=schrift)
     if(counts[i] > maxVal/10) {
       text(counts[i]-(maxVal/100*0.1),x[i],counts[i],xpd=T,adj=1,cex=0.55,family=schrift)
     }
@@ -64,5 +69,8 @@ hist_age_extended <- function(ages) {
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
 }
 
+loaded_data <- executeCRCQuery("SELECT * FROM i2b2demodata.patient_dimension")
+
 age <- loaded_data$age_in_years_num
+print(age)
 hist_age_extended(age)

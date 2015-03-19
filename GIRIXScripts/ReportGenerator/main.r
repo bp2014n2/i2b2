@@ -6,11 +6,14 @@ options(warn=-1)
 library(jsonlite)
 library(extrafont)
 
-source("utils/utils.r")
-source("utils/load_data.r")
+source("lib/i2b2.r")
+
+source("ReportGenerator/utils/utils.r")
+# source("utils/load_data.r")
+
 
 main <- function(){
-  loaded_data <<- load_data()
+  # loaded_data <<- load_data()
   params <<- fromJSON(input[["params"]])
 }
 

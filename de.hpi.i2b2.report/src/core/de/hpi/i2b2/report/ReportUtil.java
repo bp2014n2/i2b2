@@ -88,7 +88,7 @@ public class ReportUtil {
 			Properties testingprops = new Properties();
 			try {
 				testingprops.load(new FileInputStream(BUILDPROPERTIESPATH));
-				RSCRIPTLETPATH = testingprops.getProperty("Report.directory");
+				RSCRIPTLETPATH = testingprops.getProperty("report.directory");
 				RHOME = testingprops.getProperty("r.home");
 				CONFIGSCHEMAPATH = testingprops.getProperty("config.schema.path");
 				JRILIBPATH = testingprops.getProperty("jri.libpath");
@@ -104,7 +104,7 @@ public class ReportUtil {
 			try {
 				resources = ReportUtil.class.getClassLoader().getResources("etc/build.properties");
 				prop.load(resources.nextElement().openStream());
-				RSCRIPTLETPATH = prop.getProperty("Report.directory");
+				RSCRIPTLETPATH = prop.getProperty("report.directory");
 				RHOME = prop.getProperty("r.home");
 				String jbosshome = prop.getProperty("jboss.home");
 				JRILIBPATH = jbosshome + "/standalone/lib/ext";

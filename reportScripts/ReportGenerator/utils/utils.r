@@ -1,14 +1,5 @@
 #!/usr/local/bin/Rscript
 
-stop <- function(){}
-if(X11) {
-  X11()
-  stop <- function(){
-    message("Press Return To Continue")
-    invisible(readLines("stdin", n=1))
-  }
-}
-
 random_dates <- function(N, st="2011/01/01", et="2014/12/31") {
     st <- as.POSIXct(as.Date(st))
     et <- as.POSIXct(as.Date(et))

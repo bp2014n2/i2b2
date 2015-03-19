@@ -98,7 +98,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	// Additional input date prototype
 	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];
 	// Additional input hidden prototype
-	var aiHiddenProt = $$("DIV#reportplugin-mainDiv .report-hidden-prototype")[0];
+	var aiHiddenProt = $$("DIV#girixplugin-mainDiv .girix-hidden-prototype")[0];
 	// All non-prototype input fields
 	var allNPInput = $$("DIV#girixplugin-mainDiv .girix-input");
 	// Container div for additional inputs
@@ -173,7 +173,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 		} else if (addIns[i].type == "hidden") {
 			newNode = aiHiddenProt.cloneNode(true);
 			var parTitle = Element.select(newNode, 'h3')[0];
-			var newID = "report-AIHIDDEN-" + numberAIHiddenFields;
+			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
 			var parTextfield = Element.select(newNode, 'input')[0];		
 			var parLink = Element.select(newNode, 'a')[0];
 			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
@@ -183,7 +183,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 				parTextfield.value = i2b2.h.Escape(addIns[i].default);
 			}
 			numberAIHiddenFields++;
-			newNode.className = "report-input report-input-hidden"
+			newNode.className = "girix-input girix-input-hidden"
 		} else if (addIns[i].type == "date") {
 			newNode = aiDateProt.cloneNode(true);
 			var newID = "girix-AIDATE-" + numberAIDateFields;
@@ -401,17 +401,17 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 };
 
 // This function is used for asyncronous calls
-i2b2.reportPlugin.requestResults = function(callback) {
+i2b2.GIRIXPlugin.requestResults = function(callback) {
 	// Get handles
-	var piList = $("report-pilist");
-	var errorDivNoPI = $("report-error-emptyPI");
-	var errorDivNoPSCC = $("report-error-emptyPSorCC");
-	var allAIText = $$("DIV#reportplugin-mainDiv .report-input-textfield");
-	var allHiddenText = $$("DIV#reportplugin-mainDiv .report-input-hidden");
-	var allAIDate = $$("DIV#reportplugin-mainDiv .report-input-date-select");
-	var allAIDD = $$("DIV#reportplugin-mainDiv .report-input-dropdown");
-	var allAICO = $$("DIV#reportplugin-mainDiv .report-input-concept");
-	var allAIPS = $$("DIV#reportplugin-mainDiv .report-input-patient-set");
+	var piList = $("girix-pilist");
+	var errorDivNoPI = $("girix-error-emptyPI");
+	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
+	var allAIText = $$("DIV#girixplugin-mainDiv .girix-input-textfield");
+	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
+	var allAIDate = $$("DIV#girixplugin-mainDiv .girix-input-date-select");
+	var allAIDD = $$("DIV#girixplugin-mainDiv .girix-input-dropdown");
+	var allAICO = $$("DIV#girixplugin-mainDiv .girix-input-concept");
+	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
 
         // Read out selected scriptlet
 	var piTitle = piList.options[piList.selectedIndex].value;
@@ -421,10 +421,10 @@ i2b2.reportPlugin.requestResults = function(callback) {
 		return;
 	}
 	// Get subdirectory name
-	var piDirName = i2b2.reportPlugin.scriptlets[piTitle].subdir;
+	var piDirName = i2b2.GIRIXPlugin.scriptlets[piTitle].subdir;
 
 	// Error case: No patient set selected [DEACTIVATED]
-	if ( false && ! i2b2.reportPlugin.model.prsDirty ) {
+	if ( false && ! i2b2.GIRIXPlugin.model.prsDirty ) {
 		errorDivNoPSCC.show();
 		return;
 	}
@@ -434,22 +434,22 @@ i2b2.reportPlugin.requestResults = function(callback) {
 	
 	// Get patient set and concept information
 	var patientSets = [];
-	for (var i = 0; i < i2b2.reportPlugin.model.prsRecords.length; i++) {
-		patientSets[i] = i2b2.reportPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
+	for (var i = 0; i < i2b2.GIRIXPlugin.model.prsRecords.length; i++) {
+		patientSets[i] = i2b2.GIRIXPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
 	}
 
 	var concepts = [];
-	for (var i = 0; i < i2b2.reportPlugin.model.conceptRecords.length; i++) {
+	for (var i = 0; i < i2b2.GIRIXPlugin.model.conceptRecords.length; i++) {
 		var t;
 		var cdata;
-		t = i2b2.reportPlugin.model.conceptRecords[i].origData.xmlOrig;
+		t = i2b2.GIRIXPlugin.model.conceptRecords[i].origData.xmlOrig;
 		cdata = {};
 		cdata.level = i2b2.h.getXNodeVal(t, "level");
 		cdata.key = i2b2.h.getXNodeVal(t, "key");
 		cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
 		cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
 		cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
-		cdata.constrainString = i2b2.reportPlugin.buildConstrainString(i);
+		cdata.constrainString = i2b2.GIRIXPlugin.buildConstrainString(i);
 		concepts[i] = cdata;
 	}
 	
@@ -494,7 +494,7 @@ i2b2.reportPlugin.requestResults = function(callback) {
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAICO.length; i++) {
 		var name = Element.select(allAICO[i], 'h3')[0].innerHTML;
-		var value = i2b2.reportPlugin.model.aiConcpts[name];
+		var value = i2b2.GIRIXPlugin.model.aiConcpts[name];
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;
@@ -503,7 +503,7 @@ i2b2.reportPlugin.requestResults = function(callback) {
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAIPS.length; i++) {
 		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
-		var value = i2b2.reportPlugin.model.aiPatientSets[name];
+		var value = i2b2.GIRIXPlugin.model.aiPatientSets[name];
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;
@@ -544,14 +544,14 @@ i2b2.reportPlugin.requestResults = function(callback) {
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
 	messParams['additional_input'] = aiMessPart;
-	messParams['result_wait_time'] = i2b2.report.cfg.params.queryTimeout;
+	messParams['result_wait_time'] = i2b2.GIRIX.cfg.params.queryTimeout;
 
         // Send message (see above)
 	var scoped_callback = new i2b2_scopedCallback;
 	scoped_callback.scope = this;
 	scoped_callback.callback = callback;
-	var commObjRef = eval("(i2b2.report.ajax)");
-	commObjRef['getRResults']("reportPlugin Client", messParams, scoped_callback);
+	var commObjRef = eval("(i2b2.GIRIX.ajax)");
+	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
 };
 
 

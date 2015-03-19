@@ -1,0 +1,11 @@
+local({r <- getOption("repos")
+    r["CRAN"] <- "http://cran.us.r-project.org" 
+    options(repos=r)
+})
+update.packages(checkBuilt=TRUE, ask=FALSE)
+install.packages('ggplot2')
+install.packages('knitr', dependencies = TRUE)
+install.packages('ggmap')
+install.packages("extrafont")
+library(extrafont)
+font_import(prompt = FALSE)

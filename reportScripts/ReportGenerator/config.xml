@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+	<settings>
+		<title>Elsevier Report</title>
+		<description>This is a comprehensive report generated from the given patient set.</description>
+		<passROutput>true</passROutput>
+		<passRErrors>true</passRErrors>
+		<resultDescription>Your generated report:</resultDescription>
+		<numberOfPatientSets>1</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
+        </settings>
+        <additionalInputs>
+		<input>
+			<name>requestDiagram</name>
+			<type>hidden</type>
+			<default>all</default>
+		</input>
+        </additionalInputs>
+       <customOutputs>
+               <output>
+                        <name>Report</name>
+                        <description></description>
+                </output>
+        </customOutputs>
+	
+</reportconf:Rscriptlet>
+

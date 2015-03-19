@@ -1,4 +1,3 @@
-#! /usr/bin/Rscript
 local({r <- getOption("repos")
     r["CRAN"] <- "http://cran.us.r-project.org" 
     options(repos=r)
@@ -9,13 +8,5 @@ install.packages('knitr', dependencies = TRUE)
 install.packages('ggmap')
 install.packages("extrafont")
 install.packages("jsonlite")
-install.packages("xtable")
-install.packages("doMC")
-install.packages("speedglm")
-install.packages("glmnet")
-install.packages("Matrix")
-install.packages("RJDBC")
-install.packages("ROCR")
-install.packages("Matching")
 library(extrafont)
 font_import(prompt = FALSE)

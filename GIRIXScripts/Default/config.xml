@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
+	<settings>
+                <title>Sample</title>
+		<description>This is a comprehensive girix generated from the given patient set.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>true</passRErrors>
+		<resultDescription>Your generated girix:</resultDescription>
+		<numberOfPatientSets>1</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
+	</settings>
+</girixconf:Rscriptlet>
+

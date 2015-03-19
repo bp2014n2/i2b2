@@ -2,64 +2,64 @@
 <html>
   <head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /></head>
   <body oncontextmenu="return true;">
-    <div id='reportplugin-mainDiv'>
+    <div id='girixplugin-mainDiv'>
 
-      <div id="report-TABS" class="yui-navset">
+      <div id="girix-TABS" class="yui-navset">
         <ul class="yui-nav">
-          <li id="report-TAB0" class="selected"><a href="#report-TAB0"><em>Configuration</em></a></li>
-          <li id="report-TAB1"><a href="#report-TAB1"><em>Report</em></a></li>
+          <li id="girix-TAB0" class="selected"><a href="#girix-TAB0"><em>Configuration</em></a></li>
+          <li id="girix-TAB1"><a href="#girix-TAB1"><em>GIRIX</em></a></li>
         </ul>
     
-        <div class="yui-content" id="report-CONTENT">
+        <div class="yui-content" id="girix-CONTENT">
           <div>
-            <div class="report-MainContent"><div class="report-MainContentPad">
-              <div id="report-loading-scriptlets"><img src="//:0" id="report-loading-scriptlets-gif"/>Loading Templates</div>
-		<div id="report-statfunc-selector" style="display:none;">
-                  Choose Report Template:<br />
-                  <select id="report-pilist" onchange="i2b2.ReportPlugin.loadPlugin(this.value)"></select>
+            <div class="girix-MainContent"><div class="girix-MainContentPad">
+              <div id="girix-loading-scriptlets"><img src="//:0" id="girix-loading-scriptlets-gif"/>Loading Templates</div>
+		<div id="girix-statfunc-selector" style="display:none;">
+                  Choose GIRIX Template:<br />
+                  <select id="girix-pilist" onchange="i2b2.GIRIXPlugin.loadPlugin(this.value)"></select>
                </div>
-              <div id="report-scriptlet-content">
-                <h1 id="report-scriptlet-title"></h1>
-                <p id="report-scriptlet-description"></p>
-                <div id="report-scriptlet-SDXButtons">
-                  <div class="report-droptargets">
-                    <div id="report-droptrgt-cont" style="display:none;">
-                      <div onclick="i2b2.ReportPlugin.initDDFields()" id="report-clearField" style="display:none;">Clear</div>
-                      <div id="report-droptrgt-prs-fields">
-                        <div class="report-droptrgt-prot SDX-PRS" id="report-PRSDROP-PROT" style="display:none;">Dummy</div>
+              <div id="girix-scriptlet-content">
+                <h1 id="girix-scriptlet-title"></h1>
+                <p id="girix-scriptlet-description"></p>
+                <div id="girix-scriptlet-SDXButtons">
+                  <div class="girix-droptargets">
+                    <div id="girix-droptrgt-cont" style="display:none;">
+                      <div onclick="i2b2.GIRIXPlugin.initDDFields()" id="girix-clearField" style="display:none;">Clear</div>
+                      <div id="girix-droptrgt-prs-fields">
+                        <div class="girix-droptrgt-prot SDX-PRS" id="girix-PRSDROP-PROT" style="display:none;">Dummy</div>
                       </div>
-                      <div id="report-droptrgt-conc-fields">
-                        <div class="report-droptrgt-prot SDX-CONCPT" id="report-CONCPTDROP-PROT" style="display:none;">Dummy</div>
+                      <div id="girix-droptrgt-conc-fields">
+                        <div class="girix-droptrgt-prot SDX-CONCPT" id="girix-CONCPTDROP-PROT" style="display:none;">Dummy</div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div id="report-scriptlets-inputs" style="display:none;">
+                <div id="girix-scriptlets-inputs" style="display:none;">
                   <h2>Additional input settings</h2>
-                  <div class="report-text-prototype" style="display:none;">
+                  <div class="girix-text-prototype" style="display:none;">
                     <h3></h3>
                     <p></p>
-                    <textarea class="report-textarea" cols="50" rows="10"></textarea>
+                    <textarea class="girix-textarea" cols="50" rows="10"></textarea>
                   </div>
-                  <div class="report-dropdown-prototype" style="display:none;">
+                  <div class="girix-dropdown-prototype" style="display:none;">
                     <h3></h3>
                     <p></p>
-                    <select class="report-dropdown"></select>
+                    <select class="girix-dropdown"></select>
                   </div>
-                  <div class="report-concept-prototype" style="display:none;">
+                  <div class="girix-concept-prototype" style="display:none;">
                     <h3></h3>
                     <p></p>
-                    <div class="report-addConc SDX-CONCPT">Drop concept here</div>
+                    <div class="girix-addConc SDX-CONCPT">Drop concept here</div>
                   </div>
-                  <div class="report-patient-set-prototype" style="display:none;">
+                  <div class="girix-patient-set-prototype" style="display:none;">
                     <h3></h3>
                     <p></p>
-                    <div class="report-addPatientSet SDX-PRS">Drop patient set here</div>
+                    <div class="girix-addPatientSet SDX-PRS">Drop patient set here</div>
                   </div>
-                  <div class="report-date-select-prototype" style="display:none;">
+                  <div class="girix-date-select-prototype" style="display:none;">
                     <h3></h3>
                     <p></p>
-                    <input class="report-date-select" value="01/01/2007" style="width:75px;" />
+                    <input class="girix-date-select" value="01/01/2007" style="width:75px;" />
                     <a><img style="position:relative; top:1px; border:none;" class="calendarDropdown" src="assets/images/b_dropdown.gif" alt="" /></a>
                   </div>
                 </div>
@@ -67,39 +67,39 @@
             </div></div>
           </div>
           <div>
-            <div class="report-MainContent"><div class="report-MainContentPad">
-              <div id="report-error-emptyPI" style="display:none;">Please chose a Report template first.</div>
-              <div id="report-error-emptyPSorCC" style="display:none;">Please chose a patient set first</div>
-              <div id="report-waiting" style="display:none;"><img src="//:0" id="report-loading-results-gif"/>Waiting for results...</div>
-              <div id="report-result" style="display:none;">
+            <div class="girix-MainContent"><div class="girix-MainContentPad">
+              <div id="girix-error-emptyPI" style="display:none;">Please chose a GIRIX template first.</div>
+              <div id="girix-error-emptyPSorCC" style="display:none;">Please chose a patient set first</div>
+              <div id="girix-waiting" style="display:none;"><img src="//:0" id="girix-loading-results-gif"/>Waiting for results...</div>
+              <div id="girix-result" style="display:none;">
                 <h1>Results</h1>
                 <p></p>
-                <div id="report-results-list">
-                  <div class="report-result-prot" style="display:none;">
+                <div id="girix-results-list">
+                  <div class="girix-result-prot" style="display:none;">
                     <h3></h3>
-                    <p class="report-result-descr"></p>
-                    <p class="report-result-value"></p>
-                    <div class="report-download-button" style="display:none;"><a href="dummy" class="report-buttonLink">Click here to download CSV file</a></div>
+                    <p class="girix-result-descr"></p>
+                    <p class="girix-result-value"></p>
+                    <div class="girix-download-button" style="display:none;"><a href="dummy" class="girix-buttonLink">Click here to download CSV file</a></div>
                   </div>
                 </div>
               </div>
-              <div id="report-plots" style="display:none;">
+              <div id="girix-plots" style="display:none;">
                 <h2>Associated plots</h2>
                 <p></p>
-                <div class="report-plot-prot" style="display:none;">
+                <div class="girix-plot-prot" style="display:none;">
                   <img src="//:0" />
-                  <div class="report-download-button"><a href="dummy" target="_blank" class="report-buttonLink">Click here to download SVG image file</a></div>
+                  <div class="girix-download-button"><a href="dummy" target="_blank" class="girix-buttonLink">Click here to download SVG image file</a></div>
                 </div>
               </div>
-              <div id="report-ostream" class="report-stream" style="display:none;">
+              <div id="girix-ostream" class="girix-stream" style="display:none;">
                 <h2>R output</h2>
                 <p></p>
               </div>
-              <div id="report-estream" class="report-stream" style="display:none;">
+              <div id="girix-estream" class="girix-stream" style="display:none;">
                 <h2>R errors</h2>
                 <p></p>
               </div>
-              <div class="report-download-button" style="display:none;" id="report-envionment-div"><a href="dummy" id="report-environment-link" class="report-buttonLink">Click here to download R environment</a></div>
+              <div class="girix-download-button" style="display:none;" id="girix-envionment-div"><a href="dummy" id="girix-environment-link" class="girix-buttonLink">Click here to download R environment</a></div>
             </div></div>
           </div>
         </div>

@@ -41,8 +41,8 @@ i2b2.hive.tempCellsList = [
 		   forceLoading: true,
 		   forceConfigMsg: { params: [] }
 		},
-        { code: "Report"},
-        { code: "ReportPlugin",
+        { code: "GIRIX"},
+        { code: "GIRIXPlugin",
             forceLoading: true,
             forceConfigMsg: { params: [] },
             roles: [ "DATA_LDS", "DATA_DEID", "DATA_PROT" ],

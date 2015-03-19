@@ -1,12 +1,12 @@
 // this file contains a list of all files that need to be loaded dynamically for this plugin
 // every file in this list will be loaded after the plugin's Init function is called
 {
-	files:[ "ReportPluginCtrl.js", "Report_modLabRange.js" ],
-	css:[ "reportplugin.css" ],
+	files:[ "GIRIXPluginCtrl.js", "GIRIX_modLabRange.js" ],
+	css:[ "girixplugin.css" ],
 	config: {
 		// additional configuration variables that are set by the system
-		short_name: "ReportPlugin",
-		name: "Report: Statistical functions",
+		short_name: "GIRIXPlugin",
+		name: "GIRIX: Statistical functions",
 		description: "This plugin provides several statistical functions based on the statistic program R.",
 		category: ["plugin"],
 		plugin: {
@@ -15,7 +15,7 @@
 			standardTabs: true, // this means the plugin uses standard tabs at top
 			html: {
 				source: 'injected_screens.html',
-				mainDivId: 'reportplugin-mainDiv'
+				mainDivId: 'girixplugin-mainDiv'
 			}
 		}
 	}

@@ -6,7 +6,7 @@
 	],
 	config: {
 		// additional configuration variables that are set by the system
-		name: "Report Messaging",
+		name: "GIRIX Messaging",
 		category: ["core","cell"],
 		paramTranslation: [
 			{thinClientName:'queryTimeout', defaultValue:3600}

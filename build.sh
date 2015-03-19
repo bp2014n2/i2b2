@@ -25,7 +25,7 @@ result=$((result + $?))
 cd ../edu.harvard.i2b2.im/
 ant -f master_build.xml clean build-all
 result=$((result + $?))
-cd ../de.hpi.i2b2.report
+cd ../de.hpi.i2b2.girix
 ant -f master_build.xml build-all
 result=$((result + $?))
 cd ..

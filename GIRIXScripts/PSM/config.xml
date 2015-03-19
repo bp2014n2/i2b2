@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<reportconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:reportconf="http://www.i2b2.org/xsd/cell/reportconf/1.0/">
+<girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
 	<settings>
         <title>Propensity Score Matching</title>
 		<description>Propensity score matching using logistic regression as scoring algorithm. Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
@@ -28,4 +28,4 @@
 			<description>Matched patients:</description>
 		</output>
 	</customOutputs>
-</reportconf:Rscriptlet>
+</girixconf:Rscriptlet>

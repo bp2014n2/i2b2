@@ -10,27 +10,27 @@ source("PSM/jp_utils.r")
 source("lib/i2b2.r")
 
 #print("given patient concept:")
-#print(report.input['Observed patient concept'])
+#print(girix.input['Observed patient concept'])
 #print("given treatment:")
-#print(report.input['Evaluated treatment'])
+#print(girix.input['Evaluated treatment'])
 
-#i2b2ConceptToHuman(report.input['Observed patient concept'])
-#i2b2ConceptToHuman(report.input['Observed treatment'])
+#i2b2ConceptToHuman(girix.input['Observed patient concept'])
+#i2b2ConceptToHuman(girix.input['Observed treatment'])
 
 # to do: to be set in configuration tab
-report.input <- c()
-report.input['Feature level'] <- 3
+girix.input <- c()
+girix.input['Feature level'] <- 3
 
-#for running independent of report cell
-#source("PSM/report_input.r")
+#for running independent of girix cell
+#source("PSM/girix_input.r")
 
 # not available on windows:
 #require(doMC)
 
 
-generateFeatureMatrix <- function(interval, patient_set=-1, features, filter, level=3) {
-  patients <- i2b2$crc$getPatients(patient_set=patient_set)
-  observations <- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
+generateFeatureMatrix <- function(interval, patients_limit, features, filter, level=3) {
+  patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
+  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, interval=interval, patients_limit=patients_limit, level=level)
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
   feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(feature_matrix)
@@ -99,19 +99,20 @@ ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept) {
 
 #input preparation to be done by GIRI
 features.filter <- c("ATC:", "ICD:")
-features.level <- strtoi(report.input['Feature level'])
+features.level <- strtoi(girix.input['Feature level'])
 features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level) # to adapt feature set
 
 print("getting featureMatrix")
 # get feature set including all ATC/ICDs out of database
-featureMatrix <- generateFeatureMatrix(interval=list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01")), level=features.level, features=features, filter=features.filter)
+featureMatrix <- generateFeatureMatrix(interval=list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01")), 
+                                      patients_limit= 10000, level=features.level, features=features, filter=features.filter)
 
 print("calculating probabilities")
-probs <- ProbabilitiesOfLogRegFitting(featureMatrix=featureMatrix, target.concept=report.input['Evaluated treatment'])
+probs <- ProbabilitiesOfLogRegFitting(featureMatrix=featureMatrix, target.concept=girix.input['Evaluated treatment'])
 
 
 to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, probabilities = probs, 
-                                                 concept=report.input['Observed patient concept'])
+                                                 concept=girix.input['Observed patient concept'])
 
 print("matching")
 matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FALSE, ties=F, version="fast")
@@ -119,4 +120,4 @@ matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FA
 print("outputting")
 output <- cbind(rownames(to.match[matched$index.control,]), to.match[matched$index.control,"Probability"], rownames(to.match[matched$index.treated,]), to.match[matched$index.treated, "Probability"])
 rownames(output) <- NULL
-report.output[["Matched patients"]] <- output[1:20,]
+girix.output[["Matched patients"]] <- output[1:20,]

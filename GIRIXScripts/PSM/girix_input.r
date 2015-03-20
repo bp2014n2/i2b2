@@ -1,12 +1,13 @@
-report.patients <- c()
-report.observations <- c()
-report.input <- c()
-report.output <- list()
-report.concept.names <- c()
-report.modifiers <- c()
-report.events <- c()
-report.observers <- c()
+# sets environment input from webclient to make mainscript.r runable independently of webclient
 
-report.input['Observed treatment'] <- "\\ATC\\N\\06\\"
-report.input['Observed concept'] <- "\\ICD\\M00-M99\\M50-M54\\M54\\"
-report.input['Feature level'] <- 3
+girix.patients <- c()
+girix.observations <- c()
+girix.input <- c()
+girix.output <- list()
+girix.concept.names <- c()
+girix.modifiers <- c()
+girix.events <- c()
+girix.observers <- c()
+
+girix.input['Evaluated treatment'] <- "\\ATC\\N\\06\\"
+girix.input['Observed patient concept'] <- "\\ICD\\M00-M99\\M50-M54\\M54\\"

@@ -1,5 +1,7 @@
 # ---- code ----
 setwd("../../../")
+require(plyr)
+
 hist_age_extended <- function(ages) {
   histogram <- hist(ages, plot=FALSE, breaks=c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,200), right=F)
 
@@ -63,21 +65,21 @@ hist_age_extended <- function(ages) {
   mtext("Age Distribution",3,line=1.3,adj=0,cex=1.2,family="Lato Black",outer=T)
   
   if(!is.null(params$limit)) {
-    mtext(paste0("Histogram for first ", params$limit, " patients"),3,line=0,adj=0,cex=0.9,outer=T)
+    mtext(paste0("Histogram for ", params$limit, " random patients"), ,3,line=0,adj=0,cex=0.9,outer=T)
   } else {
-    mtext(paste0("Histogram for all patients"),3,line=0,adj=0,cex=0.9,outer=T)
+    mtext("Histogram for 1000 random patients",3,line=0,adj=0,cex=0.9,outer=T)
   }
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
 }
 
 age_histogram_main <- function() {
-     if(!is.null(params$limit)){
-     patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
-   } else {
-     patients <- i2b2$crc$getPatients(model.patient_set)
-   } 
+  if(is.null(params$limit))
+    patients <- executeCRCQuery("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY RANDOM() LIMIT 1000")
+  else
+    patients <- executeCRCQuery(paste0("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY RANDOM() LIMIT ", params$limit))
   # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
-  hist_age_extended(age(as.Date(patients$birth_date), Sys.Date()))
+  today <- Sys.Date()
+  hist_age_extended(age(as.Date(patients$birth_date), today))
 }
 
 age_histogram_main()

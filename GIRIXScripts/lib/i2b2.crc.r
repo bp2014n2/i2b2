@@ -68,6 +68,20 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
+
+i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
+  queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
+    FROM i2b2demodata.patient_dimension
+    WHERE %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d)
+    LIMIT ", limit)
+  
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+}
+
 i2b2$crc$getPatientSetDescription <- function(patient_set) {
   queries.patient_set <- "SELECT description
     FROM i2b2demodata.qt_query_result_instance

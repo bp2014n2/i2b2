@@ -17,7 +17,6 @@ main <- function(){
   # patients <- executeCRCQuery("SELECT birth_date FROM i2b2demodata.patient_dimension LIMIT 10")
   # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
   params <<- fromJSON(input[["params"]])
-  model.patient_set <<- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
 }
 
 main()

@@ -3,79 +3,12 @@ if(!exists('girix.input')) {
   source("Risk Prediction/girix.r")
 }
 
+risk.type <- girix.input['Method']
+
 source("lib/i2b2.r")
+source("Risk Prediction/risk.r")
 
 require(Matrix)
-
-fitModel.speedglm <- function(model, target) {
-  
-  # required packages needed, must be installed first
-  require(speedglm)
-  
-  # compute the fit model using multiple cores
-  # this is the actual logistic regression process
-  
-  # bind a intercept column to our data
-  model <- cBind(1, model)
-  colnames(model)[1] <- 'intercept'
-  
-  # We need to filter out features where not enough observations were captured
-  n.IG     <- colSums(sign(model[target==1,]))
-  n.VG     <- colSums(sign(model[target==0,]))
-  excl.IG  <- which(n.IG<5)
-  excl.VG  <- which(n.VG<5)
-  excl.ALL <<- intersect(excl.IG, excl.VG)
-  if(length(excl.ALL)>0){ 
-    model <- model[,-excl.ALL]
-  }
-  
-  fit <- speedglm.wfit(y=target, X=model, family=binomial(), sparse=TRUE)
-  
-  return(fit)
-  
-}
-  
-predict.speedglm <- function(fit, newdata) {  
-
-  newdata <- cBind(1, newdata)
-  colnames(newdata)[1] <- 'intercept'
-  if(length(excl.ALL)>0){ 
-    newdata <- newdata[,-excl.ALL]
-  }
-  
-  b <- coef(fit)
-  
-  pb <- exp(-newdata%*%b)
-  pb <- as.vector(1/(1+pb))
-  pb <- data.frame(rownames(newdata), pb)
-  colnames(pb) <- c('patient_num', 'probability')
-  return(pb)
-  
-}
-
-fitModel.my.glmnet <- function(model, target, newdata) {
-  
-  require(glmnet)
-  require(doMC)
-  
-  registerDoMC(cores=2)
-  
-  fit <- cv.glmnet(model, target, parallel=TRUE, family = "binomial", type.measure = "deviance")
-
-  return(fit)
-  
-}
-
-predict.my.glmnet <- function(fit, newdata) {
-  
-  require(glmnet)
-  #pb <- predict(fit, newx=newdata, s=fit$lambda[which.max(fit$nzero)], type = "response")
-  pb <- predict(fit, newx=newdata, type="response")
-  pb <- data.frame(rownames(newdata), pb)
-  colnames(pb) <- c('patient_num', 'probability')
-  return(pb)
-  
-}
 
 generateObservationMatrix <- function(observations, features, patients) {
   m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
@@ -104,7 +37,7 @@ validateModel <- function(fit, model, target) {
 
   require(ROCR)
 
-  prediction <- predict.speedglm(fit, model)
+  prediction <- risk[[risk.type]]$predict(fit, model)
   pred <- prediction(prediction$probability, target)
 
   roc <- performance(pred, "tpr", "fpr")
@@ -164,8 +97,8 @@ model.target.test <- model.target[(model.split.row+1):nrow(model)]
 
 time.prediction.0 <- proc.time()
 
-fit <- fitModel.speedglm(model.training, model.target.training)
-prediction <- predict.speedglm(fit, newdata)
+fit <- risk[[risk.type]]$fit(model.training, model.target.training)
+prediction <- risk[[risk.type]]$predict(fit, newdata)
 
 time.prediction.1 <- proc.time()
 time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
@@ -186,7 +119,7 @@ probabilities <- prediction.sorted$probability
 summary <- data.frame(c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
 dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value')
 
-coefficients.top <- data.frame(head(sort(coef(fit), TRUE), 5))
+coefficients.top <- data.frame(head(sort(risk[[risk.type]]$coef(fit), TRUE), 5))
 rownames(coefficients.top) <- sapply(rownames(coefficients.top), function(x) getConceptName(x))
 colnames(coefficients.top) <- c('Factor')
 

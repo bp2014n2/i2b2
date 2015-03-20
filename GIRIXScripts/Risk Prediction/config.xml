@@ -12,6 +12,17 @@
 	</settings>
 	<additionalInputs>
 		<input>
+			<name>Method</name>
+			<description>Which method for computation should be used. WARNING: glmnet not working correctly, svm only for small patient sets</description>
+			<type>dropdown</type>
+			<default>speedglm</default>
+			<items>
+				<item>speedglm</item>
+				<item>svm</item>
+				<item>glmnet</item>
+			</items>
+		</input>
+		<input>
 			<name>Feature level</name>
 			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
 			<type>dropdown</type>

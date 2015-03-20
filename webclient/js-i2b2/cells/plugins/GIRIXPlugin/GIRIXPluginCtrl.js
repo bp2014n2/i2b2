@@ -560,6 +560,10 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
 	scoped_callback.callback = function(result) { result.parse(); callback(result.model[0].value) };
 	var commObjRef = eval("(i2b2.GIRIX.ajax)");
 	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
+
+        setParameter("requestDiagram", "all")
+        setParameter("params", "{}")
+
 };
 
 

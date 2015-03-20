@@ -15,6 +15,8 @@ risk$svm$fit <- function(model, target) {
 
 risk$svm$predict <- function(fit, newdata) {  
   
+  require(e1071)
+  
   pb <- predict(fit, newdata, probability=TRUE)
   pb <- data.frame(rownames(newdata), pb)
   colnames(pb) <- c('patient_num', 'probability')

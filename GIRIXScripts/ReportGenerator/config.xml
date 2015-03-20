@@ -4,8 +4,8 @@
 	<settings>
 		<title>Elsevier Report</title>
 		<description>This is a comprehensive girix generated from the given patient set.</description>
-		<passROutput>true</passROutput>
-		<passRErrors>true</passRErrors>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
 		<resultDescription>Your generated girix:</resultDescription>
 		<numberOfPatientSets>1</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>

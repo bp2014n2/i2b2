@@ -1,21 +1,28 @@
 <!--rinline knitr::read_chunk('diagram.r')-->
 
+<style>
+  #age-histogram-output img {
+    width: 100%;
+    max-width: 1000px;
+  }
+</style>
+
 <div id="age-histogram-output">
   <h2>External Diagram</h2>
   <button id="clickMe" onclick="reload1()">clickMe</button>
   <pre id="rescontent"></pre>
 
-  <!--begin.rcode code, fig.width=12, fig.height=8, out.width="100%"
+  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
       end.rcode-->
 </div>
 
 <script>
   reload1 = function() {
-    setParameter("requestDiagram", "age-histo")
-    setParameter("params", '{"headline": "Sample"}')
-    i2b2.reportPlugin.requestResults(function(result) {
-        result.parse()
-        document.getElementById("age-histogram-output").innerHTML = result.model[0].value
+    params = {
+      "headline" : "Sampler"
+    }
+    i2b2.GIRIXPlugin.requestResults("age-histo", JSON.stringify(params), function(result) {
+        document.getElementById("age-histogram-output").innerHTML = result
       })
   }
 </script>

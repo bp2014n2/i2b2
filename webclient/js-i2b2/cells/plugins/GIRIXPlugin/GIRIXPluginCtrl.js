@@ -399,10 +399,18 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 		i2b2.GIRIXPlugin.createNewCONCDDField();
 	}
 };
-
+    
+setParameter = function(parameter, value){
+  document.getElementsByClassName("input-"+parameter)[0].value = value
+}
+ 
 // This function is used for asyncronous calls
-i2b2.GIRIXPlugin.requestResults = function(callback) {
-	// Get handles
+i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
+
+        setParameter("requestDiagram", diagram)
+        setParameter("params", params)
+
+        // Get handles
 	var piList = $("girix-pilist");
 	var errorDivNoPI = $("girix-error-emptyPI");
 	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
@@ -549,9 +557,13 @@ i2b2.GIRIXPlugin.requestResults = function(callback) {
         // Send message (see above)
 	var scoped_callback = new i2b2_scopedCallback;
 	scoped_callback.scope = this;
-	scoped_callback.callback = callback;
+	scoped_callback.callback = function(result) { result.parse(); callback(result.model[0].value) };
 	var commObjRef = eval("(i2b2.GIRIX.ajax)");
 	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
+
+        setParameter("requestDiagram", "all")
+        setParameter("params", "{}")
+
 };
 
 
@@ -966,10 +978,8 @@ i2b2.GIRIXPlugin.Unload = function() {
 i2b2.GIRIXPlugin.doShowCalendar = function(dateInputId) {
 	
 	// create calendar if not already initialized
-	if (!this.DateConstrainCal) {
-		this.DateConstrainCal = new YAHOO.widget.Calendar("DateContstrainCal","calendarDiv");
-	}
-	this.DateConstrainCal.selectEvent.subscribe(function(eventName, selectedDate) {
+	dateConstrainCal = new YAHOO.widget.Calendar("DateContstrainCal","calendarDiv");
+	dateConstrainCal.selectEvent.subscribe(function(eventName, selectedDate) {
 
 		// function is event callback fired by YUI Calendar control 
 		// (this function looses it's class scope)
@@ -980,8 +990,8 @@ i2b2.GIRIXPlugin.doShowCalendar = function(dateInputId) {
 		$("calendarDiv").hide();
 		$("calendarDivMask").hide();
 
-	}, this.DateConstrainCal,true);
-	this.DateConstrainCal.clear();
+	}, dateConstrainCal,true);
+	dateConstrainCal.clear();
 	// process click
 	var apos = Position.positionedOffset($(dateInputId));
 	var cx = apos[0] - $("calendarDiv").getWidth() + $(dateInputId).width + 3;
@@ -995,8 +1005,8 @@ i2b2.GIRIXPlugin.doShowCalendar = function(dateInputId) {
 	var rxDate = /^\d{1,2}(\-|\/|\.)\d{1,2}\1\d{4}$/
 	if (rxDate.test(sDateValue)) {
 		var aDate = sDateValue.split(/\//);
-		this.DateConstrainCal.setMonth(aDate[0]-1);
-		this.DateConstrainCal.setYear(aDate[2]);
+		dateConstrainCal.setMonth(aDate[0]-1);
+		dateConstrainCal.setYear(aDate[2]);
 	} else {
 		alert("Invalid Date Format, please use mm/dd/yyyy or select a date using the calendar.");
 	}
@@ -1008,7 +1018,7 @@ i2b2.GIRIXPlugin.doShowCalendar = function(dateInputId) {
 	$("calendarDivMask").style.width = (viewdim.width - 10) + "px";
 	$("calendarDivMask").style.height = (viewdim.height - 10) + "px";
 	$("calendarDivMask").show();
-	this.DateConstrainCal.render(document.body);
+	dateConstrainCal.render(document.body);
 
 };
 

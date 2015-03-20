@@ -44,7 +44,7 @@ progPid=$!
     cd $I2B2_HOME
     sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base
     sudo /etc/init.d/apache2 restart
-    sudo R CMD ./install_giri_packages.r
+    sudo R CMD ./install_girix_packages.r
 }  >> $LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
 

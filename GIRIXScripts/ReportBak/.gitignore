@@ -1,6 +1,0 @@
-plots/*
-node_modules/*
-cache/*
-tmp*
-*.pid
-.Rhistory

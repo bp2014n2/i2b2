@@ -71,11 +71,14 @@ hist_age_extended <- function(ages) {
 }
 
 age_histogram_main <- function() {
-  if(!is.null(params$limit)){
-    patients <- executeCRCQuery(paste("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY patient_num LIMIT ", params$limit))
-  } else {
-    patients <- executeCRCQuery("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY patient_num LIMIT 500")
-  } 
+  model.patient_set <- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
+  patients <- i2b2$crc$getPatients(model.patient_set)
+# 
+#   if(!is.null(params$limit)){
+#     patients <- executeCRCQuery(paste("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY patient_num LIMIT ", params$limit))
+#   } else {
+#     patients <- executeCRCQuery("SELECT birth_date FROM i2b2demodata.patient_dimension ORDER BY patient_num LIMIT 500")
+#   } 
   # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
   hist_age_extended(age(as.Date(patients$birth_date), Sys.Date()))
 }

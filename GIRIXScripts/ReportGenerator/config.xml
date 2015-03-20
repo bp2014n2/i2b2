@@ -7,10 +7,14 @@
 		<passROutput>false</passROutput>
 		<passRErrors>false</passRErrors>
 		<resultDescription>Your generated girix:</resultDescription>
-		<numberOfPatientSets>1</numberOfPatientSets>
+		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>
         </settings>
         <additionalInputs>
+                <input>
+                        <name>Patient Set</name>
+                        <type>patient_set</type>
+                </input>
 	        <input>
 			<name>requestDiagram</name>
 			<type>hidden</type>

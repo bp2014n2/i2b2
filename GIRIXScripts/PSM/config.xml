@@ -25,7 +25,11 @@
 	<customOutputs>
 		<output>
 			<name>Matched patients</name>
-			<description>Matched patients:</description>
+			<description>Control group on the left, treatment group on the right:</description>
+		</output>
+		<output>
+			<name>Matching description</name>
+			<description></description>
 		</output>
 	</customOutputs>
 </girixconf:Rscriptlet>

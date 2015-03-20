@@ -4,6 +4,7 @@ require(Matching)
 
 source("PSM/logic.r")
 source("lib/i2b2.r")
+#source("PSM/Utils.r")
 
 if(!exists('girix.input')) {
   source("PSM/girix_input.r")
@@ -38,4 +39,9 @@ matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FA
 print("outputting")
 output <- cbind(rownames(to.match[matched$index.control,]), to.match[matched$index.control,"Probability"], rownames(to.match[matched$index.treated,]), to.match[matched$index.treated, "Probability"])
 colnames(output) <- c("Control group patient number", "Score", "Treatment group patient number", "Score")
+
+matching.description <- paste("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
+                              "</b>.\nEvaluated treatment is ", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), ".")
+
 girix.output[["Matched patients"]] <- output
+girix.output[["Matching description"]] <- matching.description

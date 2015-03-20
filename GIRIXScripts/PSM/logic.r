@@ -57,7 +57,7 @@ ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept, signed.m
     featureMatrix <- featureMatrix[,-excl.ALL]
   }
   
-  if signed.matrix {
+  if (signed.matrix) {
     print("signing matrix")
     for (i in 1:ncol(featureMatrix)) {
       print(i)

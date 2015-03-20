@@ -1,9 +1,5 @@
 i2b2ConceptToHuman <- function(i2b2concept) {
-# to do: to implement concept ranges: return list if path is a node (query)
-  print("entered i2b2ConceptToHuman, i2b2concept:")
-  print(i2b2concept)
-  #print("substring:")
-  #print(substr(i2b2concept, start=2, stop=4))
+# to do: to implement concept ranges: return list if path is a node (query)/ range
 
 # transforms e.g. "\\ICD\\M00-M99\\M50-M54\\M54\\" to "ICD:M54"
   if (substr(i2b2concept, start=2, stop=4) == "ICD" ) {

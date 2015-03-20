@@ -16,8 +16,8 @@ generateFeatureMatrix <- function(interval, patients_limit, features, filter, le
 }
 
 generateObservationMatrix <- function(observations, features, patients) {
-  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
-  
+  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd, features)), 
+                                       x=as.numeric(count), dims=c(length(patients), length(features)), dimnames=list(patients, features)))  
   return(m)
 }
 

@@ -10,4 +10,4 @@ girix.events <- c()
 girix.observers <- c()
 
 girix.input['Evaluated treatment'] <- "\\ATC\\N\\06\\"
-girix.input['Observed patient concept'] <- "\\ICD\\M00-M99\\M00-M03\\M54\\"
+girix.input['Observed patient concept'] <- "\\ICD\\M00-M99\\M50-M54\\M54\\"

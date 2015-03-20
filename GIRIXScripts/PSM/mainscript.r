@@ -4,7 +4,6 @@ require(Matching)
 
 source("PSM/logic.r")
 source("lib/i2b2.r")
-#source("PSM/Utils.r")
 
 if(!exists('girix.input')) {
   source("PSM/girix_input.r")

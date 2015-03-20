@@ -11,9 +11,10 @@
 
 <script>
   reload1 = function() {
-    setParameter("requestDiagram", "age-histo")
-    setParameter("params", '{"headline": "Sample"}')
-    i2b2.GIRIXPlugin.requestResults("age-histo", '{"headline": "Sample"}', function(result) {
+    params = {
+      "headline" : "Sampler"
+    }
+    i2b2.GIRIXPlugin.requestResults("age-histo", JSON.stringify(params), function(result) {
         document.getElementById("age-histogram-output").innerHTML = result
       })
   }

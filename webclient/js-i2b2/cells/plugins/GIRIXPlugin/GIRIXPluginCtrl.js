@@ -399,10 +399,18 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 		i2b2.GIRIXPlugin.createNewCONCDDField();
 	}
 };
-
+    
+setParameter = function(parameter, value){
+  document.getElementsByClassName("input-"+parameter)[0].value = value
+}
+ 
 // This function is used for asyncronous calls
-i2b2.GIRIXPlugin.requestResults = function(callback) {
-	// Get handles
+i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
+
+        setParameter("requestDiagram", diagram)
+        setParameter("params", params)
+
+        // Get handles
 	var piList = $("girix-pilist");
 	var errorDivNoPI = $("girix-error-emptyPI");
 	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
@@ -549,7 +557,7 @@ i2b2.GIRIXPlugin.requestResults = function(callback) {
         // Send message (see above)
 	var scoped_callback = new i2b2_scopedCallback;
 	scoped_callback.scope = this;
-	scoped_callback.callback = callback;
+	scoped_callback.callback = function(result) { result.parse(); callback(result.model[0].value) };
 	var commObjRef = eval("(i2b2.GIRIX.ajax)");
 	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
 };

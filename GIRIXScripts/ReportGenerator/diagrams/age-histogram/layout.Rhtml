@@ -13,9 +13,8 @@
   reload1 = function() {
     setParameter("requestDiagram", "age-histo")
     setParameter("params", '{"headline": "Sample"}')
-    i2b2.GIRIXPlugin.requestResults(function(result) {
-        result.parse()
-        document.getElementById("age-histogram-output").innerHTML = result.model[0].value
+    i2b2.GIRIXPlugin.requestResults("age-histo", '{"headline": "Sample"}', function(result) {
+        document.getElementById("age-histogram-output").innerHTML = result
       })
   }
 </script>

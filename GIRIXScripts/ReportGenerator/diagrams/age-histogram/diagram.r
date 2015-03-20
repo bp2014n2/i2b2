@@ -1,4 +1,5 @@
 # ---- code ----
+setwd("../../../")
 hist_age_extended <- function(ages) {
   histogram <- hist(ages, plot=FALSE, breaks=c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,200), right=F)
 
@@ -69,8 +70,10 @@ hist_age_extended <- function(ages) {
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
 }
 
-loaded_data <- executeCRCQuery("SELECT * FROM i2b2demodata.patient_dimension")
+age_histogram_main <- function() {
+  patients <- executeCRCQuery("SELECT birth_date FROM i2b2demodata.patient_dimension LIMIT 100")
+  # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
+  hist_age_extended(age(as.Date(patients$birth_date), Sys.Date()))
+}
 
-age <- loaded_data$age_in_years_num
-print(age)
-hist_age_extended(age)
+age_histogram_main()

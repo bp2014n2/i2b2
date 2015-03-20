@@ -8,21 +8,24 @@
 </style>
 
 <div id="age-histogram-output">
-  <h2>External Diagram</h2>
-  <button id="clickMe" onclick="reload1()">clickMe</button>
-  <pre id="rescontent"></pre>
-
+  <h2>Age Histogram</h2>
   <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
       end.rcode-->
-</div>
+   
+  <span>Patient Limit: <input id="limitInput" value="1000"></input>
+  <button id="clickMe" onclick="reload()">Reload</button></span>
+ </div>
 
 <script>
-  reload1 = function() {
+alert("Exec")
+  reload = function() {
     params = {
-      "headline" : "Sampler"
+      "limit": $("limitInput").value
     }
+
     i2b2.GIRIXPlugin.requestResults("age-histo", JSON.stringify(params), function(result) {
-        document.getElementById("age-histogram-output").innerHTML = result
-      })
+        //Beware! This is not jQuery!
+        $("age-histogram-output").innerHTML = result
+    })
   }
 </script>

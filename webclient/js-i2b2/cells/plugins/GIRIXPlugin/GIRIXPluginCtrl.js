@@ -557,7 +557,13 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
         // Send message (see above)
 	var scoped_callback = new i2b2_scopedCallback;
 	scoped_callback.scope = this;
-	scoped_callback.callback = function(result) { result.parse(); callback(result.model[0].value) };
+	scoped_callback.callback = function(result) { 
+          result.parse(); 
+          callback(result.model[0].value); 
+          var arr = document.getElementsByClassName("girix-result-element")[0].getElementsByTagName('script')
+          for (var n = 0; n < arr.length; n++)
+            eval(arr[n].innerHTML)
+        };
 	var commObjRef = eval("(i2b2.GIRIX.ajax)");
 	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
 

@@ -24,16 +24,15 @@ frequence_of_visits <- function() {
           lwd.ticks=0.5,tck=-0.025)
   lines(X1,X11,type="l",col=farbe1_150,lwd=3,xpd=T)
   lines(X1,X12,type="l",col=farbe2_150,lwd=3)
-  text(1910,35,"Mit Rückenschmerzen",adj=0,cex=0.85,col=farbe1_150)
-  text(1850,22,"Ohne Rückenschmerzen",adj=0,cex=0.85,col=farbe2_150)
+  text(1910,35,"Mit \nRückenschmerzen",adj=0,cex=1,col=farbe1_150)
+  text(1850,22,"Ohne \nRückenschmerzen",adj=0,cex=1,col=farbe2_150)
   beginn<-c(1817,1915,1919,1972); ende<-c(1914,1918,1971,2000)
   farbe<-c(farbe1_50,farbe2_50,farbe1_50,farbe2_50)
-  for (i in 1:length(beginn))
-  {
-  mysubset<-subset(rs,X1 >= beginn[i] & X1 <= ende[i])
-  attach(mysubset)
-  xx<-c(mysubset$X1,rev(mysubset$X1)); yy<-c(mysubset$X11,rev(mysubset$X12))
-  polygon(xx,yy,col=farbe[i],border=F)
+  for(i in 1:length(beginn)) {
+    mysubset<-subset(rs,X1 >= beginn[i] & X1 <= ende[i])
+    attach(mysubset)
+    xx<-c(mysubset$X1,rev(mysubset$X1)); yy<-c(mysubset$X11,rev(mysubset$X12))
+    polygon(xx,yy,col=farbe[i],border=F)
   }
   
   # Betitelung

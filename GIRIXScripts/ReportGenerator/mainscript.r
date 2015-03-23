@@ -36,7 +36,7 @@ if(input["requestDiagram"] == "all"){
 } else if(input["requestDiagram"] == "age_histogram") {
   knit('ReportGenerator/diagrams/age_histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
 } else if(input["requestDiagram"] == "frequence_of_visits_chart") {
-  # knit('ReportGenerator/diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+  knit('ReportGenerator/diagrams/frequence_of_visits_chart/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
 }
 
 # Output

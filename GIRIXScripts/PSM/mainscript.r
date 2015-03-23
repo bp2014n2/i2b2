@@ -14,7 +14,7 @@ girix.input['Feature level'] <- 3
 
 # for debugging: limits database queries to decrease waiting times
 patients.limit <- 10000
-interval.limit <- list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01"))
+#interval.limit <- list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01"))
 
 # input preparation to be done by GIRI
 features.filter <- c("ATC:", "ICD:")
@@ -24,7 +24,7 @@ features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
 
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
-featureMatrix <- generateFeatureMatrix(interval=interval.limit, patients_limit= patients.limit, level=features.level, features=features, filter=features.filter)
+featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level, features=features, filter=features.filter)
 
 print("calculating probabilities")
 patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])
@@ -33,14 +33,14 @@ to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, p
                                                  concept=girix.input['Observed patient concept'])
 
 print("matching")
-matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FALSE, ties=F, version="fast")
+matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], M=1, exact=TRUE, ties=TRUE, version="fast")
 
 print("outputting")
-output <- cbind(rownames(to.match[matched$index.control,]), to.match[matched$index.control,"Probability"], rownames(to.match[matched$index.treated,]), to.match[matched$index.treated, "Probability"])
-colnames(output) <- c("Control group patient number", "Score", "Treatment group patient number", "Score")
+output <- cbind(rownames(to.match[matched$index.treated,]), to.match[matched$index.treated,"Probability"], rownames(to.match[matched$index.control,]), to.match[matched$index.control, "Probability"])
+colnames(output) <- c("Treatment group patient number", "Score", "Control group patient number", "Score")
 
-matching.description <- paste("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
-                              "</b>.\nEvaluated treatment is ", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), ".")
+matching.description <- paste0("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
+                              "</b>. <nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
 
 girix.output[["Matched patients"]] <- output
 girix.output[["Matching description"]] <- matching.description

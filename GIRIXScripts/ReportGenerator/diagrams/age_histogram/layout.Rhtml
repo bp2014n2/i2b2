@@ -1,0 +1,35 @@
+<!--rinline knitr::read_chunk('diagram.r')-->
+
+<style>
+  #age-histogram-output img {
+    width: 100%;
+    max-width: 800px;
+  }
+</style>
+
+<div id="age-histogram-output">
+  <h2>Age Histogram</h2>
+  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
+      end.rcode-->
+  <br> 
+  <span>Patient Limit: <input id="limitInput" value="1000"></input>
+  <button id="clickMe" onclick="reload()">Reload</button></span>
+  <div id="age-histogram-loading" class="loading" style="display: none">Loading&#8230;</div>
+</div>
+
+<script>
+  reload = function() {
+    limit = $("limitInput").value
+    params = {
+      "limit": limit
+    }
+
+    $("age-histogram-loading").style.display = 'block'
+
+    i2b2.GIRIXPlugin.requestResults("age_histogram", JSON.stringify(params), function(result) {
+        //Beware! This is not jQuery!
+        $("age-histogram-output").innerHTML = result
+        $("limitInput").value = limit
+    })
+  }
+</script>

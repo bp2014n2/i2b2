@@ -33,9 +33,13 @@ knit_hooks$set(plot = function(x, options) {
 fileName <- 'main.html'
 if(input["requestDiagram"] == "all"){
   knit('ReportGenerator/layout/main.Rhtml', output=paste(tmpFolder, fileName, sep=""))
-} else {
-  knit('ReportGenerator/diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+} else if(input["requestDiagram"] == "age_histogram") {
+  knit('ReportGenerator/diagrams/age_histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
+} else if(input["requestDiagram"] == "frequence_of_visits_chart") {
+  # knit('ReportGenerator/diagrams/age-histogram/layout.Rhtml', output=paste(tmpFolder, fileName, sep=""))
 }
 
 # Output
 girix.output[["Report"]] <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size)
+
+unlink(tmpFolder, recursive=T)

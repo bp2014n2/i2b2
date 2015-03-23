@@ -6,7 +6,7 @@
 
 	<!-- ========== Executable Targets ======================================== -->
 	<property name="Name" value="GIRIX" />
-	<import file="../edu.harvard.i2b2.common/common_build.xml" />
+	<import file="../edu.harvard.i2b2.server-common/common_build.xml" />
 
 	<!-- =================================================================== -->
 	<!-- 								INIT 								 -->

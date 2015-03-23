@@ -1,7 +1,7 @@
 <project name="GIRIX server build">
 	
 	<property environment="env"/>
-	<import file="../edu.harvard.i2b2.common/common_build.xml"/>
+	<import file="../edu.harvard.i2b2.server-common/common_build.xml"/>
 	
     <property name="Project" value="de.hpi.i2b2.girix"/>
 	<target name="build-all" depends="common_clean" description="Build this and all its dependent projects">

@@ -33,14 +33,14 @@ to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, p
                                                  concept=girix.input['Observed patient concept'])
 
 print("matching")
-matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], exact=FALSE, ties=TRUE, version="fast")
+matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], M=1, exact=TRUE, ties=TRUE, version="fast")
 
 print("outputting")
 output <- cbind(rownames(to.match[matched$index.treated,]), to.match[matched$index.treated,"Probability"], rownames(to.match[matched$index.control,]), to.match[matched$index.control, "Probability"])
 colnames(output) <- c("Treatment group patient number", "Score", "Control group patient number", "Score")
 
-matching.description <- paste("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
-                              "</b>.<nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
+matching.description <- paste0("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
+                              "</b>. <nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
 
 girix.output[["Matched patients"]] <- output
 girix.output[["Matching description"]] <- matching.description

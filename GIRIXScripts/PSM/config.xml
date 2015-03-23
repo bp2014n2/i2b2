@@ -4,8 +4,8 @@
 	<settings>
         <title>Propensity Score Matching</title>
 		<description>Propensity score matching using logistic regression as scoring algorithm. Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
-		<passROutput>true</passROutput>
-		<passRErrors>true</passRErrors>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
 		<resultDescription>Matching results</resultDescription>
 		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>

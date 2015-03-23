@@ -7,9 +7,9 @@ source("PSM/utils.r")
 
 # to do: parallelization!!
 
-generateFeatureMatrix <- function(interval, patients_limit, features, filter, level=3) {
+generateFeatureMatrix <- function(patients_limit, features, filter, level=3) {
   patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
-  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, interval=interval, patients_limit=patients_limit, level=level)
+  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, patients_limit=patients_limit, level=level)
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
   feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(feature_matrix)

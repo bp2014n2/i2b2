@@ -25,7 +25,7 @@
 	<customOutputs>
 		<output>
 			<name>Matched patients</name>
-			<description>Control group on the left, treatment group on the right:</description>
+			<description>Treatment group on the left, control group on the right:</description>
 		</output>
 		<output>
 			<name>Matching description</name>

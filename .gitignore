@@ -13,3 +13,6 @@ hs_err_pid*
 */genlib
 */classes
 */$*
+
+# hpcc server credentials
+./i2b2/GIRIXScripts/lib/i2b2.crc.config_hpcc.r

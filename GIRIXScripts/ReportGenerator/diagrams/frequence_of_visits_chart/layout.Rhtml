@@ -1,20 +1,20 @@
 <!--rinline knitr::read_chunk('diagram.r')-->
 
 <style>
-  #age-histogram-output img {
+  #frequence_of_visits_output img {
     width: 100%;
     max-width: 800px;
   }
 </style>
 
-<div id="age-histogram-output">
-  <h2>Age Histogram</h2>
+<div id="frequence_of_visits_output">
+  <h2>Frequence of Visits</h2>
   <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
       end.rcode-->
   <br> 
   <span>Patient Limit: <input id="limitInput" value="1000"></input>
   <button id="clickMe" onclick="reload()">Reload</button></span>
-  <div id="age-histogram-loading" class="loading" style="display: none">Loading&#8230;</div>
+  <div id="frequence_of_visits-loading" class="loading" style="display: none">Loading&#8230;</div>
 </div>
 
 <script>
@@ -25,11 +25,11 @@
       "limit": limit
     }
 
-    $("age-histogram-loading").style.display = 'block'
+    $("frequence_of_visits-loading").style.display = 'block'
 
-    i2b2.GIRIXPlugin.requestResults("age-histo", JSON.stringify(params), function(result) {
+    i2b2.GIRIXPlugin.requestResults("frequence_of_visits", JSON.stringify(params), function(result) {
         //Beware! This is not jQuery!
-        $("age-histogram-output").innerHTML = result
+        $("frequence_of_visits_output").innerHTML = result
         $("limitInput").value = limit
     })
   }

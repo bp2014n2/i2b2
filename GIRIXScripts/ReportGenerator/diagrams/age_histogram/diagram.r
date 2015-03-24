@@ -71,11 +71,13 @@ hist_age_extended <- function(ages) {
 }
 
 age_histogram_main <- function() {
-     if(!is.null(params$limit)){
-     patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
-   } else {
-     patients <- i2b2$crc$getPatients(model.patient_set)
-   } 
+  patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, 100)
+   
+  # if(!is.null(params$limit)){
+  #   patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
+  # } else {
+  #   patients <- i2b2$crc$getPatients(model.patient_set)
+  # } 
   # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
   hist_age_extended(age(as.Date(patients$birth_date), Sys.Date()))
 }

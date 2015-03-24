@@ -76,6 +76,18 @@ i2b2$crc$getPatientSetDescription <- function(patient_set) {
   return(executeCRCQuery(queries.patient_set, patient_set)$description)
 }
 
+i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
+  queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
+    FROM i2b2demodata.patient_dimension
+    WHERE %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d)
+    LIMIT ", limit)
+  
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+}
 
 i2b2$crc$getPatientsLimitable <- function(patients_limit) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
@@ -99,4 +111,24 @@ i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, p
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
   #interval <- lapply(interval, posixltToPSQLDate)
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
+}
+
+i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54')) {
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
+  FROM i2b2demodata.visit_dimension
+  WHERE visit_dimension.patient_num IN
+   (SELECT patient_num
+     FROM (
+       SELECT patient_num
+       FROM i2b2demodata.observation_fact
+       WHERE concept_cd IN (
+         SELECT concept_cd
+         FROM i2b2demodata.concept_dimension
+         WHERE %s)
+     GROUP BY patient_num) patients)
+  GROUP BY visit_dimension.start_date
+  ORDER BY visit_dimension.start_date"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.visitcount, concept_condition))
 }

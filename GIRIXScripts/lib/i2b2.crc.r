@@ -113,6 +113,26 @@ i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, p
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
 }
 
+i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('ICD:M54')) {
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
+  FROM i2b2demodata.visit_dimension
+  WHERE visit_dimension.patient_num NOT IN
+   (SELECT patient_num
+     FROM (
+       SELECT patient_num
+       FROM i2b2demodata.observation_fact
+       WHERE concept_cd IN (
+         SELECT concept_cd
+         FROM i2b2demodata.concept_dimension
+         WHERE %s)
+     GROUP BY patient_num) patients)
+  GROUP BY visit_dimension.start_date
+  ORDER BY visit_dimension.start_date"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.visitcount, concept_condition))
+}
+
 i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54')) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
   FROM i2b2demodata.visit_dimension

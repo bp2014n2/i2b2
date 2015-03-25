@@ -1,6 +1,6 @@
 i2b2$crc <- list()
 
-source("lib/i2b2.crc.config_hpcc.r")
+source("lib/i2b2.crc.config.r")
 
 executeCRCQuery <- function(query, ...) {
   return(executeQuery(i2b2$crc$db, query, ...))
@@ -132,6 +132,33 @@ i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('ICD:
   concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
   return(executeCRCQuery(queries.visitcount, concept_condition))
 }
+
+i2b2$crc$getPatientsCountWithoutObservation <- function(concepts=c('ICD:M51')) {
+  queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) 
+  FROM i2b2demodata.patient_dimension
+  WHERE patient_num NOT IN (
+  SELECT DISTINCT patient_num
+    FROM i2b2demodata.observation_fact
+    WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE %s))"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.patientcount, concept_condition))
+} 
+
+i2b2$crc$getPatientsCountWithObservation <- function(concepts=c('ICD:M51')) {
+  queries.patientcount <- "SELECT count(DISTINCT patient_num)
+    FROM i2b2demodata.observation_fact
+    WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE %s)"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.patientcount, concept_condition))
+} 
 
 i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54')) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count

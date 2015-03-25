@@ -98,7 +98,7 @@ i2b2$crc$getPatientsLimitable <- function(patients_limit) {
 }
 
 i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, patients_limit) {
-  queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
+  queries.observations <- "SELECT patient_num, concept_cd, count(*) AS counts
   FROM (
     SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd
     FROM i2b2demodata.observation_fact
@@ -114,7 +114,7 @@ i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, p
 }
 
 i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('ICD:M54')) {
-  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num NOT IN
    (SELECT patient_num
@@ -134,7 +134,7 @@ i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('ICD:
 }
 
 i2b2$crc$getPatientsCountWithoutObservation <- function(concepts=c('ICD:M51')) {
-  queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) 
+  queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) as counts 
   FROM i2b2demodata.patient_dimension
   WHERE patient_num NOT IN (
   SELECT DISTINCT patient_num
@@ -149,7 +149,7 @@ i2b2$crc$getPatientsCountWithoutObservation <- function(concepts=c('ICD:M51')) {
 } 
 
 i2b2$crc$getPatientsCountWithObservation <- function(concepts=c('ICD:M51')) {
-  queries.patientcount <- "SELECT count(DISTINCT patient_num)
+  queries.patientcount <- "SELECT count(DISTINCT patient_num) as counts
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
       SELECT concept_cd
@@ -161,7 +161,7 @@ i2b2$crc$getPatientsCountWithObservation <- function(concepts=c('ICD:M51')) {
 } 
 
 i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54')) {
-  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num IN
    (SELECT patient_num

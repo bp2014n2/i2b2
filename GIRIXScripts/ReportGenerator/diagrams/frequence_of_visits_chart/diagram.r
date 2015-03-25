@@ -63,8 +63,8 @@ frequence_of_visits <- function(patientsWithObservation, patientsWithoutObservat
 }  
 
 frequence_of_visits_main <- function() {
-  patientsWithObservation <- i2b2$crc$getVisitCountForPatientsWithObservation(c(params$icd))
-  patientsWithoutObservation <- i2b2$crc$getVisitCountForPatientsWithoutObservation(c(params$icd))
+  patientsWithObservation <- i2b2$crc$getVisitCountForPatientsWithObservation()
+  patientsWithoutObservation <- i2b2$crc$getVisitCountForPatientsWithoutObservation()
   # if(!is.null(params$limit)){
   #   patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
   # } else {

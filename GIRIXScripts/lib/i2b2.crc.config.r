@@ -1,8 +1,8 @@
-i2b2$crc$db['host'] <- 'localhost'
-i2b2$crc$db['port'] <- '5432'
-i2b2$crc$db['username'] <- 'i2b2demodata'
-i2b2$crc$db['password'] <- 'demouser'
-i2b2$crc$db['name'] <- 'i2b2'
-i2b2$crc$db['class'] <- 'org.postgresql.Driver'
-i2b2$crc$db['jar'] <- paste(getwd(), 'lib/postgresql-9.2-1002.jdbc4.jar', sep="/")
-i2b2$crc$db['type'] <- 'postgresql'
+i2b2$crc$db['host'] <- '54.93.130.121'
+i2b2$crc$db['port'] <- '8010'
+i2b2$crc$db['username'] <- ''  #add HPCC username here (& execute "git update-index --assume-unchanged ./GIRIXScripts/lib/i2b2.crc.config_hpcc.r")
+i2b2$crc$db['password'] <- ''  #add HPCC password here
+i2b2$crc$db['name'] <- ''
+i2b2$crc$db['class'] <- 'de.hpi.hpcc.main.HPCCDriver'
+i2b2$crc$db['jar'] <- paste(getwd(), 'lib/jdbc-hpcc.jar', sep="/")
+i2b2$crc$db['type'] <- 'hpcc'

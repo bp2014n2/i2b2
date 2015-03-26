@@ -12,13 +12,13 @@ i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   WHERE (%s)"
   
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
-  return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd)
+  return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
 }
 
 i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_set=-1) {
-  queries.observations <- "SELECT patient_num, concept_cd, count(*) AS count
+  queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
-    SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd
+    SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
       SELECT concept_cd
@@ -30,14 +30,14 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d))) observations
-  GROUP BY patient_num, concept_cd"
+  GROUP BY patient_num, concept_cd_sub"
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
   interval <- lapply(interval, posixltToPSQLDate)
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
 i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1) {
-  queries.observations <- "SELECT patient_num, 'target' as concept_cd, count(*) AS count
+  queries.observations <- "SELECT patient_num, 'target' as concept_cd_sub, count(*) AS counts
   FROM (
     SELECT patient_num
     FROM i2b2demodata.observation_fact
@@ -112,8 +112,55 @@ i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, p
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
 }
 
+i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('ICD:M54')) {
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
+  FROM i2b2demodata.visit_dimension
+  WHERE visit_dimension.patient_num NOT IN
+   (SELECT patient_num
+     FROM (
+       SELECT patient_num
+       FROM i2b2demodata.observation_fact
+       WHERE concept_cd IN (
+         SELECT concept_cd
+         FROM i2b2demodata.concept_dimension
+         WHERE %s)
+     GROUP BY patient_num) patients)
+  GROUP BY visit_dimension.start_date
+  ORDER BY visit_dimension.start_date"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.visitcount, concept_condition))
+}
+
+i2b2$crc$getPatientsCountWithoutObservation <- function(concepts=c('ICD:M51')) {
+  queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) as counts 
+  FROM i2b2demodata.patient_dimension
+  WHERE patient_num NOT IN (
+  SELECT DISTINCT patient_num
+    FROM i2b2demodata.observation_fact
+    WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE %s))"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.patientcount, concept_condition))
+} 
+
+i2b2$crc$getPatientsCountWithObservation <- function(concepts=c('ICD:M51')) {
+  queries.patientcount <- "SELECT count(DISTINCT patient_num) as counts
+    FROM i2b2demodata.observation_fact
+    WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE %s)"
+  
+  concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
+  return(executeCRCQuery(queries.patientcount, concept_condition))
+} 
+
 i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54')) {
-  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as count
+  queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num IN
    (SELECT patient_num

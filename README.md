@@ -17,4 +17,5 @@ git update-index --assume-unchanged */etc/spring/*LoaderApplicationContext.xml;
 git update-index --assume-unchanged */etc/jboss/*-ds.xml;
 git update-index --assume-unchanged */build.properties;
 git update-index --assume-unchanged */etc/spring/*_application_directory.properties;
+git update-index --assume-unchanged ./GIRIXScripts/lib/i2b2.crc.config_hpcc.r
 ~~~

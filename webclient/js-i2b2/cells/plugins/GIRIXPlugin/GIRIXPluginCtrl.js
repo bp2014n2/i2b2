@@ -241,7 +241,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 // This function is called when a patient set is dropped
 i2b2.GIRIXPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
-	var fieldIndex = parseInt(droppedOnID.slice(15,18));
+	var fieldIndex = parseInt(droppedOnID.slice(14,17));
 	// [DISABLED] Creation of new field
 	if (false && i2b2.GIRIXPlugin.model.highestPSDDIndex == fieldIndex) {
 		i2b2.GIRIXPlugin.createNewPSDDField();
@@ -376,8 +376,8 @@ i2b2.GIRIXPlugin.clearDDFields = function() {
 
 // Helper function: Initializes drag&drop fields
 i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
-	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".SDX-CONCPT").length;
-	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".SDX-PRS").length;
+	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".girix-droptrgt.SDX-CONCPT").length;
+	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".girix-droptrgt.SDX-PRS").length;
 
 	// Remove all drag&drop fields
 	var allOldDDFields = $$(".girix-droptrgt");

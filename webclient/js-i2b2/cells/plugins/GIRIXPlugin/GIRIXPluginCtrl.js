@@ -83,26 +83,11 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	
 	// Set global variable
 	i2b2.GIRIXPlugin.model.currentScriptlet = value;
+	scriptlet = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet];
 
 	// Get handles
 	var title = $("girix-scriptlet-title");
 	var description = $("girix-scriptlet-description");
-	// Additional input textfield prototype
-	var aiTextProt = $$("DIV#girixplugin-mainDiv .girix-text-prototype")[0];
-	// Additional input dropdown prototype
-	var aiDropProt = $$("DIV#girixplugin-mainDiv .girix-dropdown-prototype")[0];
-	// Additional input concept prototype
-	var aiConcProt = $$("DIV#girixplugin-mainDiv .girix-concept-prototype")[0];
-	// Additional input concept prototype
-	var aiPatientSetProt = $$("DIV#girixplugin-mainDiv .girix-patient-set-prototype")[0];
-	// Additional input date prototype
-	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];
-	// Additional input hidden prototype
-	var aiHiddenProt = $$("DIV#girixplugin-mainDiv .girix-hidden-prototype")[0];
-	// All non-prototype input fields
-	var allNPInput = $$("DIV#girixplugin-mainDiv .girix-input");
-	// Container div for additional inputs
-	var addInCont = $("girix-scriptlets-inputs");
 	// Container div for drag/drop fields
 	var ddCont = $("girix-droptrgt-cont");
 	// Clear fields button
@@ -116,6 +101,29 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	clearFieldsButton.hide();
 	ddCont.hide();
 	piInputsDiv.hide();
+
+	// If empty scriptlet is chosen -> return now
+	if (i2b2.GIRIXPlugin.model.currentScriptlet == '') { return; }
+
+	// Display new scriptlet title and description
+	title.innerHTML = i2b2.h.Escape(scriptlet.title);
+	description.innerHTML = i2b2.h.Escape(scriptlet.descr);
+	
+	// Clear old and register new drag/drop fields
+	i2b2.GIRIXPlugin.initDDFields(scriptlet);
+	clearFieldsButton.show();
+	ddCont.show();
+
+	
+	if (scriptlet.addInputs.length > 0) piInputsDiv.show();
+	i2b2.GIRIXPlugin.loadAI();
+};
+
+i2b2.GIRIXPlugin.loadAI = function() {
+	// Container div for additional inputs
+	var addInCont = $("girix-scriptlets-inputs");
+	// All non-prototype input fields
+	var allNPInput = $$("DIV#girixplugin-mainDiv .girix-input");
 	for (var i = 0; i < allNPInput.length; i++) {
 		allNPInput[i].parentElement.removeChild(allNPInput[i]);
 	}
@@ -125,123 +133,148 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	// Clear old additional patient sets
 	i2b2.GIRIXPlugin.model.aiPatientSets = {};
 
-	// If empty scriptlet is chosen -> return now
-	if (value == '') { return; }
-
-	// Display new scriptlet title and description
-	title.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[value].title);
-	description.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[value].descr);
-	
-	// Clear old and register new drag/drop fields
-	i2b2.GIRIXPlugin.initDDFields(i2b2.GIRIXPlugin.scriptlets[value]);
-	clearFieldsButton.show();
-	ddCont.show();
-	
 	// Display additional input parameters
-	var addIns = i2b2.GIRIXPlugin.scriptlets[value].addInputs;
-	if (addIns.length > 0) piInputsDiv.show();
-	var numberAIConceptFields = 0;
-	var numberAIPatientSetFields = 0;
-	var numberAIDateFields = 0;
-	var numberAIHiddenFields = 0;
+	var addIns = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].addInputs;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
 		if (addIns[i].type == "text") {
-			newNode = aiTextProt.cloneNode(true);
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var parDescr = Element.select(newNode, 'p')[0];
-			var parTextfield = Element.select(newNode, 'textarea')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
-			parTextfield.setAttribute("rows", addIns[i].lines);
-			newNode.className = "girix-input girix-input-textfield";
+			newNode = i2b2.GIRIXPlugin.createNewAITextField(addIns[i]);
 		} else if (addIns[i].type == "dropdown") {
-			newNode = aiDropProt.cloneNode(true);
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var parDescr = Element.select(newNode, 'p')[0];
-			var parSelect = Element.select(newNode, 'select')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
-			for (var j = 0; j < addIns[i].options.length; j++) {
-				var t = addIns[i].options[j];
-				var n = new Option(i2b2.h.Escape(t), i2b2.h.Escape(t));
-				n.selected = (t == i2b2.h.Escape(addIns[i].default));
-				parSelect.options[parSelect.length] = n;
-			}
-			newNode.className = "girix-input girix-input-dropdown";
+			newNode = i2b2.GIRIXPlugin.createNewAIDropdownField(addIns[i]);
 		} else if (addIns[i].type == "hidden") {
-			newNode = aiHiddenProt.cloneNode(true);
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
-			var parTextfield = Element.select(newNode, 'input')[0];		
-			var parLink = Element.select(newNode, 'a')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parTextfield.id = newID;
-                        parTextfield.className = "input-" + i2b2.h.Escape(addIns[i].name);
-			if (i2b2.h.Escape(addIns[i].default) != "") {
-				parTextfield.value = i2b2.h.Escape(addIns[i].default);
-			}
-			numberAIHiddenFields++;
-			newNode.className = "girix-input girix-input-hidden"
+			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i]);
 		} else if (addIns[i].type == "date") {
-			newNode = aiDateProt.cloneNode(true);
-			var newID = "girix-AIDATE-" + numberAIDateFields;
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var parDescr = Element.select(newNode, 'p')[0];
-			var parTextfield = Element.select(newNode, 'input')[0];		
-			var parLink = Element.select(newNode, 'a')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
-			parTextfield.id = newID;
-			if (i2b2.h.Escape(addIns[i].default) != "") {
-				parTextfield.value = i2b2.h.Escape(addIns[i].default);
-			}
-			parLink.href = "Javascript:i2b2.GIRIXPlugin.doShowCalendar('" + parTextfield.id + "')"
-			numberAIDateFields++;
-			newNode.className = "girix-input girix-input-date-select";
+			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i]);
 		} else if (addIns[i].type == "concept") {
-			newNode = aiConcProt.cloneNode(true);
-			var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var parDescr = Element.select(newNode, 'p')[0];
-			var parDragField = Element.select(newNode, 'div')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parTitle.id = newID + "-title";
-			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
-			parDragField.id = newID;
-			var op_trgt = {dropTarget:true};
-			i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
-			i2b2.sdx.Master.AttachType(newID, "CONCPT", op_trgt);
-			i2b2.sdx.Master.setHandlerCustom(newID, "CONCPT", "DropHandler", i2b2.GIRIXPlugin.aiconceptDropped);
-			numberAIConceptFields++;
-			newNode.className = "girix-input girix-input-concept";
+			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i]);
 		} else if (addIns[i].type == "patient_set") {
-			newNode = aiPatientSetProt.cloneNode(true);
-			var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
-			var parTitle = Element.select(newNode, 'h3')[0];
-			var parDescr = Element.select(newNode, 'p')[0];
-			var parDragField = Element.select(newNode, 'div')[0];
-			parTitle.innerHTML = i2b2.h.Escape(addIns[i].name);
-			parTitle.id = newID + "-title";
-			parDescr.innerHTML = i2b2.h.Escape(addIns[i].descr);
-			parDragField.id = newID;
-			var op_trgt = {dropTarget:true};
-			i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
-			i2b2.sdx.Master.AttachType(newID, "PRS", op_trgt);
-			i2b2.sdx.Master.setHandlerCustom(newID, "PRS", "DropHandler", i2b2.GIRIXPlugin.aipatientsetDropped);
-			numberAIPatientSetFields++;
-			newNode.className = "girix-input girix-input-patient-set";
+			newNode = i2b2.GIRIXPlugin.createNewAIPatientSetField(addIns[i]);
 		}
 		addInCont.appendChild(newNode);
 		Element.show(newNode);
 	}
+}
+
+i2b2.GIRIXPlugin.createNewAITextField = function(config) {
+	// Additional input textfield prototype
+	var aiTextProt = $$("DIV#girixplugin-mainDiv .girix-text-prototype")[0];	
+	newNode = aiTextProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parTextfield = Element.select(newNode, 'textarea')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	parTextfield.setAttribute("rows", config.lines);
+	newNode.className = "girix-input girix-input-textfield";
+	return newNode;
+};
+
+i2b2.GIRIXPlugin.createNewAIDateField = function(config) {
+	// Additional input date prototype
+	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];	
+	numberAIDateFields = $$(".girix-input-date-select").length;
+	newNode = aiDateProt.cloneNode(true);
+	var newID = "girix-AIDATE-" + numberAIDateFields;
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parTextfield = Element.select(newNode, 'input')[0];		
+	var parLink = Element.select(newNode, 'a')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	parTextfield.id = newID;
+	if (i2b2.h.Escape(config.default) != "") {
+		parTextfield.value = i2b2.h.Escape(config.default);
+	}
+	parLink.href = "Javascript:i2b2.GIRIXPlugin.doShowCalendar('" + parTextfield.id + "')"
+	newNode.className = "girix-input girix-input-date-select";
+	return newNode;
+};
+
+i2b2.GIRIXPlugin.createNewAIDropdownField = function(config) {
+	// Additional input dropdown prototype
+	var aiDropProt = $$("DIV#girixplugin-mainDiv .girix-dropdown-prototype")[0];
+	newNode = aiDropProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parSelect = Element.select(newNode, 'select')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	for (var j = 0; j < config.options.length; j++) {
+		var t = config.options[j];
+		var n = new Option(i2b2.h.Escape(t), i2b2.h.Escape(t));
+		n.selected = (t == i2b2.h.Escape(config.default));
+		parSelect.options[parSelect.length] = n;
+	}
+	newNode.className = "girix-input girix-input-dropdown";
+	return newNode;
+};
+
+i2b2.GIRIXPlugin.createNewAIHiddenField = function(config) {
+	// Additional input hidden prototype
+	var aiHiddenProt = $$("DIV#girixplugin-mainDiv .girix-hidden-prototype")[0];	
+	numberAIHiddenFields = $$(".girix-input-hidden").length;
+	newNode = aiHiddenProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
+	var parTextfield = Element.select(newNode, 'input')[0];		
+	var parLink = Element.select(newNode, 'a')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parTextfield.id = newID;
+    parTextfield.className = "input-" + i2b2.h.Escape(config.name);
+	if (i2b2.h.Escape(config.default) != "") {
+		parTextfield.value = i2b2.h.Escape(config.default);
+	}
+	newNode.className = "girix-input girix-input-hidden";
+	return newNode;
+};
+
+i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config) {
+	// Additional input concept prototype
+	var aiPatientSetProt = $$("DIV#girixplugin-mainDiv .girix-patient-set-prototype")[0];
+    numberAIPatientSetFields = $$(".girix-input-patient-set").length;
+	newNode = aiPatientSetProt.cloneNode(true);
+	var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parDragField = Element.select(newNode, 'div')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parTitle.id = newID + "-title";
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	parDragField.id = newID;
+	var op_trgt = {dropTarget:true};
+	i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
+	i2b2.sdx.Master.AttachType(newID, "PRS", op_trgt);
+	i2b2.sdx.Master.setHandlerCustom(newID, "PRS", "DropHandler", i2b2.GIRIXPlugin.aipatientsetDropped);
+	newNode.className = "girix-input girix-input-patient-set";
+	return newNode;
+};
+
+i2b2.GIRIXPlugin.createNewAIConceptField = function(config) {	
+	// Additional input concept prototype
+	var aiConcProt = $$("DIV#girixplugin-mainDiv .girix-concept-prototype")[0];
+    numberAIConceptFields = $$(".girix-input-concept").length;
+	newNode = aiConcProt.cloneNode(true);
+	var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parDragField = Element.select(newNode, 'div')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parTitle.id = newID + "-title";
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	parDragField.id = newID;
+	var op_trgt = {dropTarget:true};
+	i2b2.sdx.Master._sysData[newID] = {}; // hack to get old dd fields (from previously selected scriptlet) unregistered as there's no function for it...
+	i2b2.sdx.Master.AttachType(newID, "CONCPT", op_trgt);
+	i2b2.sdx.Master.setHandlerCustom(newID, "CONCPT", "DropHandler", i2b2.GIRIXPlugin.aiconceptDropped);
+	newNode.className = "girix-input girix-input-concept";
+	return newNode;
 };
 
 // This function is called when a patient set is dropped
 i2b2.GIRIXPlugin.prsDropped = function(sdxData, droppedOnID) {
 	// Check if something was dropped on the lowest field (=field with highest id). If yes create a new field under it
-	var fieldIndex = parseInt(droppedOnID.slice(15,18));
+	var fieldIndex = parseInt(droppedOnID.slice(14,17));
 	// [DISABLED] Creation of new field
 	if (false && i2b2.GIRIXPlugin.model.highestPSDDIndex == fieldIndex) {
 		i2b2.GIRIXPlugin.createNewPSDDField();
@@ -376,8 +409,8 @@ i2b2.GIRIXPlugin.clearDDFields = function() {
 
 // Helper function: Initializes drag&drop fields
 i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
-	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".SDX-CONCPT").length;
-	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".SDX-PRS").length;
+	var numberOfConcepts = typeof scriptlet !== 'undefined' ? scriptlet.numberOfConcepts : $$(".girix-droptrgt.SDX-CONCPT").length;
+	var numberOfPatientSets = typeof scriptlet !== 'undefined' ? scriptlet.numberOfPatientSets : $$(".girix-droptrgt.SDX-PRS").length;
 
 	// Remove all drag&drop fields
 	var allOldDDFields = $$(".girix-droptrgt");
@@ -392,6 +425,7 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 	i2b2.GIRIXPlugin.model.conceptRecords = [];
 	i2b2.GIRIXPlugin.model.prsRecords = [];
 
+	/*
 	// Create patient set fields
 	for(var i = 0; i < numberOfPatientSets; i++) {
 		i2b2.GIRIXPlugin.createNewPSDDField();
@@ -400,6 +434,7 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 	for(var i = 0; i < numberOfConcepts; i++) {
 		i2b2.GIRIXPlugin.createNewCONCDDField();
 	}
+	*/
 };
     
 setParameter = function(parameter, value){

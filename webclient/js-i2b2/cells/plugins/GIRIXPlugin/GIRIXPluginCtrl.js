@@ -83,14 +83,11 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	
 	// Set global variable
 	i2b2.GIRIXPlugin.model.currentScriptlet = value;
+	scriptlet = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet];
 
 	// Get handles
 	var title = $("girix-scriptlet-title");
 	var description = $("girix-scriptlet-description");
-	// All non-prototype input fields
-	var allNPInput = $$("DIV#girixplugin-mainDiv .girix-input");
-	// Container div for additional inputs
-	var addInCont = $("girix-scriptlets-inputs");
 	// Container div for drag/drop fields
 	var ddCont = $("girix-droptrgt-cont");
 	// Clear fields button
@@ -104,6 +101,29 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	clearFieldsButton.hide();
 	ddCont.hide();
 	piInputsDiv.hide();
+
+	// If empty scriptlet is chosen -> return now
+	if (i2b2.GIRIXPlugin.model.currentScriptlet == '') { return; }
+
+	// Display new scriptlet title and description
+	title.innerHTML = i2b2.h.Escape(scriptlet.title);
+	description.innerHTML = i2b2.h.Escape(scriptlet.descr);
+	
+	// Clear old and register new drag/drop fields
+	i2b2.GIRIXPlugin.initDDFields(scriptlet);
+	clearFieldsButton.show();
+	ddCont.show();
+
+	
+	if (scriptlet.addInputs.length > 0) piInputsDiv.show();
+	i2b2.GIRIXPlugin.loadAI();
+};
+
+i2b2.GIRIXPlugin.loadAI = function() {
+	// Container div for additional inputs
+	var addInCont = $("girix-scriptlets-inputs");
+	// All non-prototype input fields
+	var allNPInput = $$("DIV#girixplugin-mainDiv .girix-input");
 	for (var i = 0; i < allNPInput.length; i++) {
 		allNPInput[i].parentElement.removeChild(allNPInput[i]);
 	}
@@ -113,21 +133,8 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	// Clear old additional patient sets
 	i2b2.GIRIXPlugin.model.aiPatientSets = {};
 
-	// If empty scriptlet is chosen -> return now
-	if (value == '') { return; }
-
-	// Display new scriptlet title and description
-	title.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[value].title);
-	description.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[value].descr);
-	
-	// Clear old and register new drag/drop fields
-	i2b2.GIRIXPlugin.initDDFields(i2b2.GIRIXPlugin.scriptlets[value]);
-	clearFieldsButton.show();
-	ddCont.show();
-	
 	// Display additional input parameters
-	var addIns = i2b2.GIRIXPlugin.scriptlets[value].addInputs;
-	if (addIns.length > 0) piInputsDiv.show();
+	var addIns = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].addInputs;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
@@ -147,7 +154,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 		addInCont.appendChild(newNode);
 		Element.show(newNode);
 	}
-};
+}
 
 i2b2.GIRIXPlugin.createNewAITextField = function(config) {
 	// Additional input textfield prototype
@@ -418,6 +425,7 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 	i2b2.GIRIXPlugin.model.conceptRecords = [];
 	i2b2.GIRIXPlugin.model.prsRecords = [];
 
+	/*
 	// Create patient set fields
 	for(var i = 0; i < numberOfPatientSets; i++) {
 		i2b2.GIRIXPlugin.createNewPSDDField();
@@ -426,6 +434,7 @@ i2b2.GIRIXPlugin.initDDFields = function(scriptlet) {
 	for(var i = 0; i < numberOfConcepts; i++) {
 		i2b2.GIRIXPlugin.createNewCONCDDField();
 	}
+	*/
 };
     
 setParameter = function(parameter, value){

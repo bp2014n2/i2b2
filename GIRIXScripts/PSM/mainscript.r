@@ -21,7 +21,6 @@ features.filter <- c("ATC:", "ICD:")
 features.level <- strtoi(girix.input['Feature level'])
 features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level) # to adapt feature set
 
-
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
 featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level, features=features, filter=features.filter)

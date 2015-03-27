@@ -98,18 +98,17 @@ i2b2$crc$getPatientsLimitable <- function(patients_limit) {
 }
 
 i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, patients_limit) {
-  queries.observations <- "SELECT patient_num, concept_cd, count(*) AS counts
+  queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
-    SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd
+    SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
       SELECT concept_cd
       FROM i2b2demodata.concept_dimension
       WHERE (%s))
     AND patient_num < %d) observations
-  GROUP BY patient_num, concept_cd"
+  GROUP BY patient_num, concept_cd_sub"
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
-  #interval <- lapply(interval, posixltToPSQLDate)
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
 }
 

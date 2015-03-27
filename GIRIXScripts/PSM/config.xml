@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
+	<settings>
+        <title>Propensity Score Matching with User-Defined Groups</title>
+		<description>Propensity score matching using logistic regression as scoring algorithm. The patient groups Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
+		<passROutput>true</passROutput>
+		<passRErrors>true</passRErrors>
+		<resultDescription>Matching results</resultDescription>
+		<numberOfPatientSets>0</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>Treatment group</name>
+			<description>Drag the patient set you want to select as treatment group in here.</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Control group</name>
+			<description>Drag the patient set you want to select as control group in here</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Treatment date</name>
+			<description>Select the date of the treatment you want to evaluate</description>
+			<type>date</type>
+			<default>01/01/2010</default>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Matched patients</name>
+			<description>Treatment group on the left, control group on the right:</description>
+		</output>
+		<output>
+			<name>Matching description</name>
+			<description></description>
+		</output>
+	</customOutputs>
+</girixconf:Rscriptlet>

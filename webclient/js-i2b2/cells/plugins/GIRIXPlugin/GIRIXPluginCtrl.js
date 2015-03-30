@@ -70,12 +70,26 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	// Manage YUI tabs
 	var cfgObj = {activeIndex : 0};
 	this.yuiTabs = new YAHOO.widget.TabView("girix-TABS", cfgObj);
+	/*
 	this.yuiTabs.on('activeTabChange', function(ev) {
 		// If tab is changed to 'View results' -> Call function buildAndSendMsg()
 		if (ev.newValue.get('id')=="girix-TAB1") {
 			i2b2.GIRIXPlugin.buildAndSendMsg();
 		}
 	});
+	*/
+};
+
+i2b2.GIRIXPlugin.runScript = function() {
+	this.yuiTabs.selectTab(1);
+	$("girix-start-button").hide();
+	$("girix-stop-button").show();
+	i2b2.GIRIXPlugin.buildAndSendMsg();
+};
+
+i2b2.GIRIXPlugin.stopScript = function() {
+	$("girix-stop-button").hide();
+	$("girix-start-button").show();
 };
 
 // This function is called when a user selected a scriptlet from drop down list

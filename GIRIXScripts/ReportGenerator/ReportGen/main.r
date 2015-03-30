@@ -5,6 +5,7 @@ if(length(new.packages)) install.packages(new.packages)
 
 # Load necessary libraries
 library(knitr); 
+library(jsonlite)
 library(extrafont)
 source("lib/i2b2.r")
 source("lib/utils.r")

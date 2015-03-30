@@ -55,7 +55,7 @@ frequence_of_visits <- function(patientsWithObservation, patientsWithoutObservat
   # Betitelung
   mtext("Frequenz der Besuche bei 'Orthopäde'",3,line=1.3,adj=0,family="Lato Black",cex=1.2,outer=T)
   if(!is.null(input.params$icd)) {
-     mtext(input.params$icd,3,line=0,adj=0,cex=0.9,outer=t)
+     mtext(paste0("Analyzed ICD: ", input.params$icd),3,line=0,adj=0,cex=0.9,outer=t)
   } else {
      mtext("ICD:54",3,line=0,adj=0,cex=0.9,outer=t)
   }

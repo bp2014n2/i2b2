@@ -1,24 +1,17 @@
 <!--rinline knitr::read_chunk('diagram.r')-->
 
-<style>
-  #age-histogram-output img {
-    width: 100%;
-    max-width: 800px;
-  }
-</style>
-
 <div id="age-histogram-output">
   <h2>Age Histogram</h2>
-  <!--x begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
+  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
       end.rcode-->
   <br> 
   <span>Patient Limit: <input id="limitInput" value="1000"></input>
-  <button id="clickMe" onclick="reload()">Reload</button></span>
+  <button id="clickMe" onclick="reload_age_histogram()">Reload</button></span>
   <div id="age-histogram-loading" class="loading" style="display: none">Loading&#8230;</div>
 </div>
 
 <script>
-  reload = function() {
+  reload_age_histogram = function() {
     limit = $("limitInput").value
     params = {
       "limit": limit

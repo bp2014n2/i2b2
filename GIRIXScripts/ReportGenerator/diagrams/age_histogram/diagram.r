@@ -5,7 +5,7 @@ hist_age_extended <- function(ages) {
 
   attach(histogram)
   mean_count <- mean(counts)
-  maxVal <- roundUp(max(counts))
+  maxVal <- utils.roundUp(max(counts))
 
   # Setting the layout
   # omi: Outer border
@@ -62,8 +62,8 @@ hist_age_extended <- function(ages) {
   # Titles
   mtext("Age Distribution",3,line=1.3,adj=0,cex=1.2,family="Lato Black",outer=T)
   
-  if(!is.null(params$limit)) {
-    mtext(paste0("Histogram for first ", params$limit, " patients"),3,line=0,adj=0,cex=0.9,outer=T)
+  if(!is.null(input.params$limit)) {
+    mtext(paste0("Histogram for first ", input.params$limit, " patients"),3,line=0,adj=0,cex=0.9,outer=T)
   } else {
     mtext(paste0("Histogram for all patients"),3,line=0,adj=0,cex=0.9,outer=T)
   }
@@ -71,14 +71,12 @@ hist_age_extended <- function(ages) {
 }
 
 age_histogram_main <- function() {
-  patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, 100)
-   
-  # if(!is.null(params$limit)){
-  #   patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
-  # } else {
-  #   patients <- i2b2$crc$getPatients(model.patient_set)
-  # } 
-  # patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
+  if(!is.null(params$limit)){
+    patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
+  } else {
+    patients <- i2b2$crc$getPatients(model.patient_set)
+  } 
+  patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
   hist_age_extended(age(as.Date(patients$birth_date), Sys.Date()))
 }
 

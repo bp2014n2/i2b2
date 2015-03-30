@@ -36,6 +36,8 @@
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.server-common/lib/axis2-1.6.1/xml-resolver-1.2.jar"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.server-common/lib/axis2-1.6.1/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.server-common/lib/axis2-1.6.1/XmlSchema-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/RserveEngine.jar"/>
+	<classpathentry kind="lib" path="lib/REngine.jar"/>
 	<classpathentry kind="lib" path="lib/JRI.jar"/>
 	<classpathentry kind="lib" path="lib/jna-4.0.0.jar"/>
 	<classpathentry kind="output" path="classes"/>

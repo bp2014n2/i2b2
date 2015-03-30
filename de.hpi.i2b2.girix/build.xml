@@ -15,6 +15,8 @@
 		<path id="classpath">
 			<path refid="common-classpath" />
 			<pathelement location="${classes}" />
+			<pathelement location="${lib}/REngine.jar" />
+			<pathelement location="${lib}/RserveEngine.jar" />
 			<pathelement location="${lib}/JRI.jar" />
 			<pathelement location="${lib}/rJava.jar" />
 			<pathelement location="${lib}/jna-4.0.0.jar" />

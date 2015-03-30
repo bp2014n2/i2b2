@@ -15,6 +15,8 @@ import org.rosuda.JRI.RMainLoopCallbacks;
 import org.rosuda.JRI.Rengine;
 import org.rosuda.JRI.REXP;
 
+import org.rosuda.REngine.JRI.JRIEngine;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import de.hpi.i2b2.girix.GIRIXUtil;
 

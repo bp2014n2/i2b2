@@ -58,3 +58,20 @@ smoothedLine <- function(x, y) {
   ynna <- y[!is.na(y)]
   lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), col="red", lwd=2)
 }
+
+utils.random_dates <- function(N, st="2011/01/01", et="2014/12/31") {
+    st <- as.POSIXct(as.Date(st))
+    et <- as.POSIXct(as.Date(et))
+    dt <- as.numeric(difftime(et,st,unit="sec"))
+    ev <- sort(runif(N, 0, dt))
+    rt <- st + ev
+    return(rt)
+}
+
+utils.random_mortality <- function(patient_set){
+  death_dates <- random_dates(nrow(patient_set))
+  patient_set$death_date <- death_dates
+  return(patient_set)
+}
+
+utils.roundUp <- function(x) 10^ceiling(log10(x))

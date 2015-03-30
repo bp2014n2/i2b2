@@ -7,8 +7,12 @@ if(length(new.packages)) install.packages(new.packages)
 library(knitr); 
 library(extrafont)
 source("lib/i2b2.r")
+source("lib/utils.r")
 
 generateOutput <- function() {
+  params <<- fromJSON(input[["params"]])
+  model.patient_set <<- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
+
   #Working Directory is top folder of all scriptlets, so get current scriptlet directory
   scriptlet.fulldir <- dirname(sys.frame(1)$ofile)
   scriptlet.dir <- sub(".*/(.*)/ReportGen/.*", "\\1", scriptlet.fulldir,perl=TRUE)

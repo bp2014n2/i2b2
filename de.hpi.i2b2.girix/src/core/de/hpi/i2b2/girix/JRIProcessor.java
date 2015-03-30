@@ -13,16 +13,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngineCallbacks;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.JRI.JRIEngine;
-//import org.rosuda.JRI.RMainLoopCallbacks;
-//import org.rosuda.JRI.Rengine;
-// import org.rosuda.JRI.REXP;
-
-
-
-
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import de.hpi.i2b2.girix.GIRIXUtil;
@@ -52,15 +44,16 @@ public class JRIProcessor {
     log.info("Starting R...");
 
     // Look if there's an existing R engine...
-    re = (JRIEngine) JRIEngine.createEngine();
+    JRIEngine.getLastEngine();
+    re = (JRIEngine) JRIEngine.getLastEngine();
     // If not create a new one
-//    if (re == null) {
-//      log.info("Creating new R engine");
-//      // Create new R engine but don't start main loop immediately (second argument)
-//      re = new Rengine(args, false, new ScriptExecutorCallbackClass());
-//    } else {
-//      log.info("R engine already exists");
-//    }
+    if (re == null) {
+      log.info("Creating new R engine");
+      // Create new R engine but don't start main loop immediately (second argument)
+      re = (JRIEngine) JRIEngine.createEngine(args, new ScriptExecutorCallbackClass(), false);
+    } else {
+      log.info("R engine already exists");
+    }
 
     // Load required R package 'xtable'
     re.eval(re.parse("library(xtable)", false), null, true);
@@ -206,7 +199,7 @@ public class JRIProcessor {
     List<String[]> l = new LinkedList<String[]>();
 
     // Get default output variables
-    REXP ret = re.eval(re.parse("girix.output.1", false), null, true);
+    REXP ret = re.get("girix.output.1", null, true);
     for (int i = 2; ret != null; i++) {
       String name = "girix.output." + (i-1); // Default name
       String[] array = new String[4];
@@ -215,7 +208,7 @@ public class JRIProcessor {
       array[2] = getType(name);
       array[3] = extractResult(array[2], name, webPath + "/csv", name);
       l.add(array);
-      ret = re.eval(re.parse("girix.output." + i, false), null, true);
+      ret = re.get("girix.output." + i, null, true);
     }
 
     // Get custom (user defined) output variables
@@ -224,7 +217,7 @@ public class JRIProcessor {
       String oName = oElement[0].replace("\\", "\\\\");
       oName = oName.replace("\"", "\\\"");
       String Rname = "girix.output[[\"" + oName + "\"]]"; // Name to access output variable in R
-      REXP retVal = re.eval(re.parse(Rname, false), null, true);
+      REXP retVal = re.get(Rname, null, true);
       if (retVal != null) {
         String[] array = new String[4];
         array[0] = oElement[0];
@@ -247,9 +240,9 @@ public class JRIProcessor {
       throw new I2B2Exception("Error delivered from server: Determining data type of output variable");
     }
     // If it is a data.frame...
-    if (!df.isNull()) {
+    if (df.asInteger() == 1) {
       return "data.frame";
-    } else if(!mat.isNull()) {
+    } else if(mat.asInteger() == 1) {
       return "matrix";
     } else {
       return "other";
@@ -311,9 +304,10 @@ public class JRIProcessor {
 
     // Write plot files, write R workspace image and clear workspace
     REXP ret = re.eval(re.parse("dev.off()", false), null, true);
-    REXP ret2 = re.eval(re.parse("save.image(file=\"" + webPath + "/RImage/RImage" + "\")", false), null, true);
-    REXP ret3 = re.eval(re.parse("rm(list = ls())", false), null, true);
-    if (ret == null || ret2 == null || ret3 == null) {
+    String cmd = "save.image(file=\"" + webPath + "/RImage/RImage" + "\")";
+    re.eval(re.parse(cmd, false), null, true);
+    re.get("rm(list = ls())", null, true);
+    if (ret == null) {
       log.error("Error while doing final tasks");
       throw new I2B2Exception("Error delivered from server: Doing final R tasks");
     }
@@ -338,71 +332,4 @@ public class JRIProcessor {
     return Rerrors.toString();
   }
 
-}
-
-//This class defines callback methods that are called by the main loop of R if a certain event occurs
-class ScriptExecutorCallbackClass implements REngineCallbacks {	
-
-  private static Log log = LogFactory.getLog(ScriptExecutorCallbackClass.class);
-
-  // If R writes something to the console this method will be called
-  public void rWriteConsole(JRIEngine re, String text, int oType) {
-    // Normal output
-    if (oType == 0) {
-      log.info("Output from R (normal): " + text);
-      JRIProcessor.appendROutput(text);
-      // Error output
-    } else {
-      log.info("Output from R (error): " + text);
-      // Do not send back the error 'Error: object 'girix.output.x' not found' because this 'error' appears every time
-      // when looking for the last set output variable (see method getOutputVariables). So it's not an error but the normal case.
-      // To prevent confusion, this error output is omitted
-      if ( !(text.contains("Error: object 'girix.output.") && text.contains("not found")) ) {
-        JRIProcessor.appendRErrors(text);
-        // Give a hint to the possible cause of this common error
-        if (text.contains("data length exceeds size of matrix")) {
-          JRIProcessor.appendRErrors("Possible cause: Trying to access an empty data.frame\n");
-        }
-      }
-    }
-  }
-
-  // Following events have no influence at all. So they're just logged
-  public void rBusy(JRIEngine re, int which) {
-    log.info("rBusy called");
-  }
-
-  public void rFlushConsole (JRIEngine re) {
-    log.info("rFlushConsole called");
-  }
-
-  // An R "message" is counted as normal R output
-  public void rShowMessage(JRIEngine re, String message) {
-    log.info("Message from R: " + message);
-    JRIProcessor.appendROutput("R message: " + message);
-  }
-
-  // Some R methods cause events, that aren't supported by this program like choosing a file interactively via a GUI window
-  // Hence the R script could be buggy -> The user is warned by a message
-  public String rChooseFile(JRIEngine re, int newFile) {
-    log.error("rChooseFile called");
-    JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (choose file) called. Please check your R script");
-    return "";
-  }
-
-  public String rReadConsole(JRIEngine re, String prompt, int addToHistory) {
-    log.info("rReadConsole called");
-    JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (read from console) called. Please check your R script");
-    return null;
-  }
-
-  public void rLoadHistory (JRIEngine re, String filename) {
-    log.error("rLoadHistory called");
-    JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (load history) called. Please check your R script");
-  }			
-
-  public void rSaveHistory (JRIEngine re, String filename) {
-    log.error("rSaveHistory called");
-    JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (save history) called. Please check your R script");
-  }			
 }

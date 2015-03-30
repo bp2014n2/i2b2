@@ -11,9 +11,17 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.rosuda.JRI.RMainLoopCallbacks;
-import org.rosuda.JRI.Rengine;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REngineCallbacks;
+import org.rosuda.REngine.REngineException;
+import org.rosuda.REngine.JRI.JRIEngine;
+//import org.rosuda.JRI.RMainLoopCallbacks;
+//import org.rosuda.JRI.Rengine;
 // import org.rosuda.JRI.REXP;
+
+
+
 
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
@@ -23,44 +31,44 @@ import de.hpi.i2b2.girix.GIRIXUtil;
 public class JRIProcessor {
 
   private static Log log = LogFactory.getLog(JRIProcessor.class);
-  private static org.rosuda.REngine.JRI.JRIEngine re = null;
+  private static JRIEngine re = null;
   private static StringBuffer Routput;
   private static StringBuffer Rerrors;
 
-  public static void initializeR() throws I2B2Exception {
+  public static void initializeR() throws I2B2Exception, REngineException, REXPMismatchException {
 
     // Set some system settings that are required for running R
     GIRIXUtil.setUpREnvironment();
 
     // Make sure we have the right version of everything
-    boolean versionOK = Rengine.versionCheck();
-    if (!versionOK) {
-      log.error("R version error");
-      throw new I2B2Exception("Error delivered from server: R version error");
-    }
+//    boolean versionOK = Rengine.versionCheck();
+//    if (!versionOK) {
+//      log.error("R version error");
+//      throw new I2B2Exception("Error delivered from server: R version error");
+//    }
 
     // Don't do/show unnecessary things (save/restore workspace etc.)
     String[] args = {"--vanilla", "-q"};
     log.info("Starting R...");
 
     // Look if there's an existing R engine...
-    re = org.rosuda.REngine.JRI.JRIEngine.createEngine();
+    re = (JRIEngine) JRIEngine.createEngine();
     // If not create a new one
-    if (re == null) {
-      log.info("Creating new R engine");
-      // Create new R engine but don't start main loop immediately (second argument)
-      re = new Rengine(args, false, new ScriptExecutorCallbackClass());
-    } else {
-      log.info("R engine already exists");
-    }
+//    if (re == null) {
+//      log.info("Creating new R engine");
+//      // Create new R engine but don't start main loop immediately (second argument)
+//      re = new Rengine(args, false, new ScriptExecutorCallbackClass());
+//    } else {
+//      log.info("R engine already exists");
+//    }
 
     // Load required R package 'xtable'
-    re.eval(org.rosuda.REngine.REngine.parse("library(xtable)", false), null, true);
-    re.eval(org.rosuda.REngine.REngine.parse("setwd('" + GIRIXUtil.getRSCRIPTLETPATH() + "')", false), null, true);
+    re.eval(re.parse("library(xtable)", false), null, true);
+    re.eval(re.parse("setwd('" + GIRIXUtil.getRSCRIPTLETPATH() + "')", false), null, true);
   }
 
   // Do some preparation inside the R session for later output (plots, csvs, variables)
-  public static File prepare(String webDirPath) throws I2B2Exception {
+  public static File prepare(String webDirPath) throws I2B2Exception, REngineException, REXPMismatchException {
 
     String plotDirPath = webDirPath + "/plots";
     String csvDirPath = webDirPath + "/csv";
@@ -92,7 +100,7 @@ public class JRIProcessor {
     }
 
     // Set up R to save plots as svg files in the given plot directory
-    REXP ret = re.eval(org.rosuda.REngine.REngine.parse("svg(\"" + plotDirPath + "/plot%03d.svg\")", false), null, true);
+    REXP ret = re.eval(re.parse("svg(\"" + plotDirPath + "/plot%03d.svg\")", false), null, true);
     if (ret == null) {
       log.error("Error while setting plot dir path in R");
       throw new I2B2Exception("Error delivered from server: Setting plot directory path in R");
@@ -119,14 +127,14 @@ public class JRIProcessor {
     }
 
     // ========= Create data structures (vectors) =========
-    REXP ret2 = re.eval(org.rosuda.REngine.REngine.parse("girix.patients <- c()", false), null, true);
-    REXP ret3 = re.eval(org.rosuda.REngine.REngine.parse("girix.observations <- c()", false), null, true);
-    REXP ret4 = re.eval(org.rosuda.REngine.REngine.parse("girix.input <- c()", false), null, true);
-    REXP ret5 = re.eval(org.rosuda.REngine.REngine.parse("girix.output <- list()", false), null, true);
-    REXP ret6 = re.eval(org.rosuda.REngine.REngine.parse("girix.concept.names <- c()", false), null, true);
-    REXP ret7 = re.eval(org.rosuda.REngine.REngine.parse("girix.modifiers <- c()", false), null, true);
-    REXP ret8 = re.eval(org.rosuda.REngine.REngine.parse("girix.events <- c()", false), null, true);
-    REXP ret9 = re.eval(org.rosuda.REngine.REngine.parse("girix.observers <- c()", false), null, true);
+    REXP ret2 = re.eval(re.parse("girix.patients <- c()", false), null, true);
+    REXP ret3 = re.eval(re.parse("girix.observations <- c()", false), null, true);
+    REXP ret4 = re.eval(re.parse("girix.input <- c()", false), null, true);
+    REXP ret5 = re.eval(re.parse("girix.output <- list()", false), null, true);
+    REXP ret6 = re.eval(re.parse("girix.concept.names <- c()", false), null, true);
+    REXP ret7 = re.eval(re.parse("girix.modifiers <- c()", false), null, true);
+    REXP ret8 = re.eval(re.parse("girix.events <- c()", false), null, true);
+    REXP ret9 = re.eval(re.parse("girix.observers <- c()", false), null, true);
     if (ret2 == null || ret3 == null || ret4 == null || ret5 == null || ret6 == null || ret7 == null || ret8 == null || ret9 == null) {
       log.error("Error with setting up new vectors in R");
       throw new I2B2Exception("Error delivered from server: Creating vectors");
@@ -135,14 +143,14 @@ public class JRIProcessor {
     // ========= Handling dates and times =========
     // Define an i2b2 DateTime Class, a helper function and a conversion function for the database DateTime string
     // -> Time is also considered
-    re.eval(org.rosuda.REngine.REngine.parse("setClass(\"i2b2DateTime\")", false), null, true);
-    re.eval(org.rosuda.REngine.REngine.parse("girix.swapPlusMinus <- function(x) if (!is.na(x)){if(x==\"-\") {\"+\"} else {\"-\"}}", false), null, true);
-    re.eval(org.rosuda.REngine.REngine.parse("setAs(\"character\",\"i2b2DateTime\", function(from){do.call(c,lapply(from, function(x) {as.POSIXlt(x, tz = paste(\"GMT\", girix.swapPlusMinus(substr(x,24,24)), substr(x,26,26), sep=\"\"), format=\"%Y-%m-%dT%H:%M:%S\")}))})", false), null, true);
+    re.eval(re.parse("setClass(\"i2b2DateTime\")", false), null, true);
+    re.eval(re.parse("girix.swapPlusMinus <- function(x) if (!is.na(x)){if(x==\"-\") {\"+\"} else {\"-\"}}", false), null, true);
+    re.eval(re.parse("setAs(\"character\",\"i2b2DateTime\", function(from){do.call(c,lapply(from, function(x) {as.POSIXlt(x, tz = paste(\"GMT\", girix.swapPlusMinus(substr(x,24,24)), substr(x,26,26), sep=\"\"), format=\"%Y-%m-%dT%H:%M:%S\")}))})", false), null, true);
     return f;
   }
 
   // Read in patient data
-  public static void readDataFrameFromString(String name, GIRIXCSVContainer s, String colClasses) throws I2B2Exception {
+  public static void readDataFrameFromString(String name, GIRIXCSVContainer s, String colClasses) throws I2B2Exception, REngineException, REXPMismatchException {
     // Uncomment for debugging purposes
     // log.info(name + "\n\n" + s.getString());
 
@@ -150,21 +158,21 @@ public class JRIProcessor {
     if (!s.hasData()) {
       String initStr = s.getString().replace(GIRIXUtil.SEP, "=character(),");
       initStr = initStr.concat("=character()");
-      re.eval(org.rosuda.REngine.REngine.parse(name + " <- data.frame(" + initStr +  ")", false), null, true);
+      re.eval(re.parse(name + " <- data.frame(" + initStr +  ")", false), null, true);
       return;
     }
     re.assign("tmp", s.getString());
-    REXP ret = re.eval(name + " <- read.table(textConnection(tmp), sep=\"" + GIRIXUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
-        "colClasses = " + colClasses + ", na.string=c(\"\"))");
+    REXP ret = re.eval(re.parse(name + " <- read.table(textConnection(tmp), sep=\"" + GIRIXUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
+        "colClasses = " + colClasses + ", na.string=c(\"\"))", false), null, true);
     if (ret == null) {
       log.error("Error reading in patient data into data.frame " + name);
       throw new I2B2Exception("Error delivered from server: Reading in patient data");
     } 
-    re.eval(org.rosuda.REngine.REngine.parse("rm(tmp)", false), null, true);
+    re.eval(re.parse("rm(tmp)", false), null, true);
   }
 
   // Assign additional input parameters in R
-  public static void assignAdditionalInput(Map<String, String> m) throws I2B2Exception {
+  public static void assignAdditionalInput(Map<String, String> m) throws I2B2Exception, REngineException, REXPMismatchException {
     // Assign additional input variables as strings
     for (Map.Entry<String, String> entry : m.entrySet()) {
       // Do some replacements in order to prevent errors and security flaws
@@ -172,7 +180,7 @@ public class JRIProcessor {
       key = key.replace("\"", "\\\"");
       String value = entry.getValue().replace("\\", "\\\\");
       value = value.replace("\"", "\\\"");
-      REXP ret = re.eval(org.rosuda.REngine.REngine.parse("girix.input[\"" + key + "\"] = \"" + value + "\"", false), null, true);
+      REXP ret = re.eval(re.parse("girix.input[\"" + key + "\"] = \"" + value + "\"", false), null, true);
       if (ret == null) {
         log.error("Error assigning additional inputs");
         throw new I2B2Exception("Error delivered from server: Reading in additional input values");	
@@ -181,24 +189,24 @@ public class JRIProcessor {
   }
 
   // Make the names of the chosen concepts visible in R
-  public static void assignConceptNames(String[] names) {
+  public static void assignConceptNames(String[] names) throws REngineException, REXPMismatchException {
     for (int i = 0; i < names.length; i++) {
       String sanitized = names[i].replace("\\", "\\\\");
       sanitized = sanitized.replace("\"", "\\\"");
-      re.eval(org.rosuda.REngine.REngine.parse("girix.concept.names[" + (i+1) + "] <- \"" + sanitized + "\"", false), null, true);
+      re.eval(re.parse("girix.concept.names[" + (i+1) + "] <- \"" + sanitized + "\"", false), null, true);
     }
   }
 
-  public static void executeRScript(String scriptPath) throws I2B2Exception {
-    re.eval(org.rosuda.REngine.REngine.parse("source(\"" + scriptPath + "\")", false), null, true);
+  public static void executeRScript(String scriptPath) throws I2B2Exception, REngineException, REXPMismatchException {
+    re.eval(re.parse("source(\"" + scriptPath + "\")", false), null, true);
   }
 
-  public static List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception {
+  public static List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
     // Array has 4 elements: Name, description, type, value
     List<String[]> l = new LinkedList<String[]>();
 
     // Get default output variables
-    REXP ret = re.eval(org.rosuda.REngine.REngine.parse("girix.output.1", false), null, true);
+    REXP ret = re.eval(re.parse("girix.output.1", false), null, true);
     for (int i = 2; ret != null; i++) {
       String name = "girix.output." + (i-1); // Default name
       String[] array = new String[4];
@@ -207,7 +215,7 @@ public class JRIProcessor {
       array[2] = getType(name);
       array[3] = extractResult(array[2], name, webPath + "/csv", name);
       l.add(array);
-      ret = re.eval(org.rosuda.REngine.REngine.parse("girix.output." + i, false), null, true);
+      ret = re.eval(re.parse("girix.output." + i, false), null, true);
     }
 
     // Get custom (user defined) output variables
@@ -216,7 +224,7 @@ public class JRIProcessor {
       String oName = oElement[0].replace("\\", "\\\\");
       oName = oName.replace("\"", "\\\"");
       String Rname = "girix.output[[\"" + oName + "\"]]"; // Name to access output variable in R
-      REXP retVal = re.eval(org.rosuda.REngine.REngine.parse(Rname, false), null, true);
+      REXP retVal = re.eval(re.parse(Rname, false), null, true);
       if (retVal != null) {
         String[] array = new String[4];
         array[0] = oElement[0];
@@ -231,17 +239,17 @@ public class JRIProcessor {
   }
 
   // Check if output is table-like
-  private static String getType(String name) throws I2B2Exception {
-    REXP df = re.eval(org.rosuda.REngine.REngine.parse("is.data.frame(" + name + ")", false), null, true);
-    REXP mat = re.eval(org.rosuda.REngine.REngine.parse("is.matrix(" + name + ")", false), null, true);
+  private static String getType(String name) throws I2B2Exception, REngineException, REXPMismatchException {
+    REXP df = re.eval(re.parse("is.data.frame(" + name + ")", false), null, true);
+    REXP mat = re.eval(re.parse("is.matrix(" + name + ")", false), null, true);
     if (df == null || mat == null) {
       log.error("Error while getting type of output variable");
       throw new I2B2Exception("Error delivered from server: Determining data type of output variable");
     }
     // If it is a data.frame...
-    if (df.asBool().isTRUE()) {
+    if (!df.isNull()) {
       return "data.frame";
-    } else if(mat.asBool().isTRUE()) {
+    } else if(!mat.isNull()) {
       return "matrix";
     } else {
       return "other";
@@ -250,13 +258,13 @@ public class JRIProcessor {
 
   // Create HTML table code and a csv file if it is a table-like R type
   // Otherwise just return the result value as a string
-  private static String extractResult(String type, String name, String csvPath, String filename) throws I2B2Exception{
+  private static String extractResult(String type, String name, String csvPath, String filename) throws I2B2Exception, REngineException, REXPMismatchException{
     if (type.equals("data.frame") || type.equals("matrix")) {
       // This is a workaround for a bug in xtable library (Date columns produce an error)
       // See http://stackoverflow.com/questions/8652674/r-xtable-and-dates for details
-      REXP newFuncRet = re.eval("xtable <- function(x, ...) {\n" +
+      REXP newFuncRet = re.eval(re.parse("xtable <- function(x, ...) {\n" +
           "for (i in which(sapply(x, function(y) !all(is.na(match(c(\"POSIXt\",\"Date\"),class(y))))))) x[[i]] <- as.character(format(x[[i]], format=\"%Y-%m-%d %H:%M:%S\"))\n" +
-          "xtable::xtable(x, ...)\n}\n");
+          "xtable::xtable(x, ...)\n}\n", false), null, true);
       if (newFuncRet == null) {
         log.error("Error while creating function as xtable workaround.");
         throw new I2B2Exception("Error delivered from server: xtable workaround");
@@ -264,23 +272,23 @@ public class JRIProcessor {
       // Write csv file into the web directory
       // This workaround ensures that every DateTime has the same representation in the .csv file
       // (without this the time would be ommited if it is midnight)
-      REXP transformRet = re.eval(org.rosuda.REngine.REngine.parse("girix.tmptable <- as.data.frame(lapply(" + name + ", function(x) if (is(x, \"POSIXt\")) format(x, \"%Y-%m-%d %H:%M:%S\") else x))", false), null, true);
-      REXP csvRet = re.eval("write.table(girix.tmptable, file = \"" + csvPath + "/" + filename + ".csv\", append = FALSE, quote=which(sapply(" + name + ", function(x) !is.numeric(x) & !is(x, \"POSIXt\")))," +
-          " sep = \",\", eol = \"\\r\\n\", na = \"NULL\", dec = \".\", row.names = FALSE, col.names = TRUE, qmethod=\"double\", fileEncoding = \"UTF-8\")");
-      REXP rmTab = re.eval(org.rosuda.REngine.REngine.parse("rm(girix.tmptable)", false), null, true);
+      REXP transformRet = re.eval(re.parse("girix.tmptable <- as.data.frame(lapply(" + name + ", function(x) if (is(x, \"POSIXt\")) format(x, \"%Y-%m-%d %H:%M:%S\") else x))", false), null, true);
+      REXP csvRet = re.eval(re.parse("write.table(girix.tmptable, file = \"" + csvPath + "/" + filename + ".csv\", append = FALSE, quote=which(sapply(" + name + ", function(x) !is.numeric(x) & !is(x, \"POSIXt\")))," +
+          " sep = \",\", eol = \"\\r\\n\", na = \"NULL\", dec = \".\", row.names = FALSE, col.names = TRUE, qmethod=\"double\", fileEncoding = \"UTF-8\")", false), null, true);
+      REXP rmTab = re.eval(re.parse("rm(girix.tmptable)", false), null, true);
       if (transformRet == null || csvRet == null || rmTab == null) {
         log.error("Error while writing csv file for table " + name);
         throw new I2B2Exception("Error delivered from server: Writing csv file");
       }
       // Now create the HTML code of the table structure
-      REXP ret = re.eval(org.rosuda.REngine.REngine.parse("paste(capture.output(print(xtable(" + name + "), type = \"html\")), collapse=\"\")", false), null, true);
+      REXP ret = re.eval(re.parse("paste(capture.output(print(xtable(" + name + "), type = \"html\")), collapse=\"\")", false), null, true);
       if (ret == null) {
-        re.eval(org.rosuda.REngine.REngine.parse("write(\"Error while trying to create HTML code out of table " + name + " \n\", stderr())", false), null, true);
+        re.eval(re.parse("write(\"Error while trying to create HTML code out of table " + name + " \n\", stderr())", false), null, true);
         return "undefined";
       }  
       return ret.asString();
     } else {
-      REXP ret = re.eval(org.rosuda.REngine.REngine.parse("toString(" + name + ")", false), null, true);
+      REXP ret = re.eval(re.parse("toString(" + name + ")", false), null, true);
       if (ret == null) {
         log.error("Error while extracting results (other)");
         throw new I2B2Exception("Error delivered from server: Extracting result value as string");
@@ -290,7 +298,7 @@ public class JRIProcessor {
 
   }
 
-  public static void doFinalRTasks(String webPath) throws I2B2Exception {
+  public static void doFinalRTasks(String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
 
     // Create RImage directory if not existing
     File f = new File(webPath + "/RImage/");
@@ -302,15 +310,15 @@ public class JRIProcessor {
     }
 
     // Write plot files, write R workspace image and clear workspace
-    REXP ret = re.eval(org.rosuda.REngine.REngine.parse("dev.off()", false), null, true);
-    REXP ret2 = re.eval(org.rosuda.REngine.REngine.parse("save.image(file=\"" + webPath + "/RImage/RImage" + "\")", false), null, true);
-    REXP ret3 = re.eval(org.rosuda.REngine.REngine.parse("rm(list = ls())", false), null, true);
+    REXP ret = re.eval(re.parse("dev.off()", false), null, true);
+    REXP ret2 = re.eval(re.parse("save.image(file=\"" + webPath + "/RImage/RImage" + "\")", false), null, true);
+    REXP ret3 = re.eval(re.parse("rm(list = ls())", false), null, true);
     if (ret == null || ret2 == null || ret3 == null) {
       log.error("Error while doing final tasks");
       throw new I2B2Exception("Error delivered from server: Doing final R tasks");
     }
     // End R thread
-    re.end();
+    re.close();
   }
 
   // Following methods are used to access the strings saving R output / error stream
@@ -333,12 +341,12 @@ public class JRIProcessor {
 }
 
 //This class defines callback methods that are called by the main loop of R if a certain event occurs
-class ScriptExecutorCallbackClass implements RMainLoopCallbacks {	
+class ScriptExecutorCallbackClass implements REngineCallbacks {	
 
   private static Log log = LogFactory.getLog(ScriptExecutorCallbackClass.class);
 
   // If R writes something to the console this method will be called
-  public void rWriteConsole(Rengine re, String text, int oType) {
+  public void rWriteConsole(JRIEngine re, String text, int oType) {
     // Normal output
     if (oType == 0) {
       log.info("Output from R (normal): " + text);
@@ -360,40 +368,40 @@ class ScriptExecutorCallbackClass implements RMainLoopCallbacks {
   }
 
   // Following events have no influence at all. So they're just logged
-  public void rBusy(Rengine re, int which) {
+  public void rBusy(JRIEngine re, int which) {
     log.info("rBusy called");
   }
 
-  public void rFlushConsole (Rengine re) {
+  public void rFlushConsole (JRIEngine re) {
     log.info("rFlushConsole called");
   }
 
   // An R "message" is counted as normal R output
-  public void rShowMessage(Rengine re, String message) {
+  public void rShowMessage(JRIEngine re, String message) {
     log.info("Message from R: " + message);
     JRIProcessor.appendROutput("R message: " + message);
   }
 
   // Some R methods cause events, that aren't supported by this program like choosing a file interactively via a GUI window
   // Hence the R script could be buggy -> The user is warned by a message
-  public String rChooseFile(Rengine re, int newFile) {
+  public String rChooseFile(JRIEngine re, int newFile) {
     log.error("rChooseFile called");
     JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (choose file) called. Please check your R script");
     return "";
   }
 
-  public String rReadConsole(Rengine re, String prompt, int addToHistory) {
+  public String rReadConsole(JRIEngine re, String prompt, int addToHistory) {
     log.info("rReadConsole called");
     JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (read from console) called. Please check your R script");
     return null;
   }
 
-  public void rLoadHistory (Rengine re, String filename) {
+  public void rLoadHistory (JRIEngine re, String filename) {
     log.error("rLoadHistory called");
     JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (load history) called. Please check your R script");
   }			
 
-  public void rSaveHistory (Rengine re, String filename) {
+  public void rSaveHistory (JRIEngine re, String filename) {
     log.error("rSaveHistory called");
     JRIProcessor.appendRErrors("GIRIX-Warning: Forbidden R method (save history) called. Please check your R script");
   }			

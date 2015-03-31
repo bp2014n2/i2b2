@@ -133,14 +133,12 @@ performance <- validateModel(fit, model.test, model.target.test)
 quality <- data.frame(c(performance$auc, performance$ppv))
 dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
 
-print("Setting variables")
 girix.output[['Information']] <- info
 girix.output[['Summary']] <- summary
 girix.output[['Top coefficients']] <- coefficients.top
 girix.output[['Statistics']] <- statistics
 girix.output[['Prediction']] <- prediction.top
 girix.output[['Quality']] <- quality
-print("Finished variables")
 
 smooth_lines <- TRUE
 options(scipen=10)

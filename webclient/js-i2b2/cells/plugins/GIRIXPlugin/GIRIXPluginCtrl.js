@@ -821,6 +821,9 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 
 // This function processes and displays the results coming from the answer message
 i2b2.GIRIXPlugin.displayResults = function(cbResults) {
+	$("girix-stop-button").hide();
+	$("girix-start-button").show();
+
 	// Hide waiting screen
 	var waitingDiv = $("girix-waiting");
 	waitingDiv.hide();

@@ -5,6 +5,7 @@
 package de.hpi.i2b2.girix;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,18 @@ public class JRIProcessor {
 
   private static Log log = LogFactory.getLog(JRIProcessor.class);
   private static JRIEngine re = null;
+  private static HashMap<String, REXP> environments = new HashMap<String, REXP>();
   private static StringBuffer Routput;
   private static StringBuffer Rerrors;
+  private String sessionKey;
+  
+  public JRIProcessor(String sessionKey) throws REXPMismatchException, REngineException, I2B2Exception {
+	  log.info(sessionKey);
+	  if (environments.get(sessionKey) == null) {
+	    environments.put(sessionKey, re.newEnvironment(null, false));
+	  }
+	  re.parseAndEval("setwd('" + GIRIXUtil.getRSCRIPTLETPATH() + "')", getEnv(), true);
+  }
 
   public static void initializeR() throws I2B2Exception, REngineException, REXPMismatchException {
 
@@ -56,15 +67,14 @@ public class JRIProcessor {
       re = (JRIEngine) JRIEngine.createEngine(args, new ScriptExecutorCallbackClass(), false);
     } else {
       log.info("R engine already exists");
-    }
+    }    
 
     // Load required R package 'xtable'
-    re.parseAndEval("library(xtable)", getEnv(), true);
-    re.parseAndEval("setwd('" + GIRIXUtil.getRSCRIPTLETPATH() + "')", getEnv(), true);
+    re.parseAndEval("library(xtable)", null, true);
   }
 
   // Do some preparation inside the R session for later output (plots, csvs, variables)
-  public static File prepare(String webDirPath) throws I2B2Exception, REngineException, REXPMismatchException {
+  public File prepare(String webDirPath) throws I2B2Exception, REngineException, REXPMismatchException {
 
     String plotDirPath = webDirPath + "/plots";
     String csvDirPath = webDirPath + "/csv";
@@ -146,7 +156,7 @@ public class JRIProcessor {
   }
 
   // Read in patient data
-  public static void readDataFrameFromString(String name, GIRIXCSVContainer s, String colClasses) throws I2B2Exception, REngineException, REXPMismatchException {
+  public void readDataFrameFromString(String name, GIRIXCSVContainer s, String colClasses) throws I2B2Exception, REngineException, REXPMismatchException {
     // Uncomment for debugging purposes
     // log.info(name + "\n\n" + s.getString());
 
@@ -168,7 +178,7 @@ public class JRIProcessor {
   }
 
   // Assign additional input parameters in R
-  public static void assignAdditionalInput(Map<String, String> m) throws I2B2Exception, REngineException, REXPMismatchException {
+  public void assignAdditionalInput(Map<String, String> m) throws I2B2Exception, REngineException, REXPMismatchException {
     // Assign additional input variables as strings
     for (Map.Entry<String, String> entry : m.entrySet()) {
       // Do some replacements in order to prevent errors and security flaws
@@ -185,7 +195,7 @@ public class JRIProcessor {
   }
 
   // Make the names of the chosen concepts visible in R
-  public static void assignConceptNames(String[] names) throws REngineException, REXPMismatchException {
+  public void assignConceptNames(String[] names) throws REngineException, REXPMismatchException {
     for (int i = 0; i < names.length; i++) {
       String sanitized = names[i].replace("\\", "\\\\");
       sanitized = sanitized.replace("\"", "\\\"");
@@ -193,11 +203,11 @@ public class JRIProcessor {
     }
   }
 
-  public static void executeRScript(String scriptPath) throws I2B2Exception, REngineException, REXPMismatchException {
+  public void executeRScript(String scriptPath) throws I2B2Exception, REngineException, REXPMismatchException {
     re.parseAndEval("source(\"" + scriptPath + "\")", getEnv(), true);
   }
 
-  public static List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
+  public List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
     // Array has 4 elements: Name, description, type, value
     List<String[]> l = new LinkedList<String[]>();
 
@@ -239,7 +249,7 @@ public class JRIProcessor {
   }
 
   // Check if output is table-like
-  private static String getType(String name) throws I2B2Exception, REngineException, REXPMismatchException {
+  private String getType(String name) throws I2B2Exception, REngineException, REXPMismatchException {
     REXPLogical df = (REXPLogical) re.parseAndEval("is.data.frame(" + name + ")", getEnv(), true);
     REXPLogical mat = (REXPLogical) re.parseAndEval("is.matrix(" + name + ")", getEnv(), true);
     if (df == null || mat == null) {
@@ -258,7 +268,7 @@ public class JRIProcessor {
 
   // Create HTML table code and a csv file if it is a table-like R type
   // Otherwise just return the result value as a string
-  private static String extractResult(String type, String name, String csvPath, String filename) throws I2B2Exception, REngineException, REXPMismatchException{
+  private String extractResult(String type, String name, String csvPath, String filename) throws I2B2Exception, REngineException, REXPMismatchException{
     if (type.equals("data.frame") || type.equals("matrix")) {
       // This is a workaround for a bug in xtable library (Date columns produce an error)
       // See http://stackoverflow.com/questions/8652674/r-xtable-and-dates for details
@@ -298,7 +308,7 @@ public class JRIProcessor {
 
   }
 
-  public static void doFinalRTasks(String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
+  public void doFinalRTasks(String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
 
     // Create RImage directory if not existing
     File f = new File(webPath + "/RImage/");
@@ -331,8 +341,8 @@ public class JRIProcessor {
 	  return ret;
   }
   
-  private static REXP getEnv() {
-	  return null;
+  private REXP getEnv() {
+	  return environments.get(sessionKey);
   }
 
   // Following methods are used to access the strings saving R output / error stream

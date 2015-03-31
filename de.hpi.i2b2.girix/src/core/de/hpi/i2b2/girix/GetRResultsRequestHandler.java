@@ -162,8 +162,10 @@ public class GetRResultsRequestHandler implements RequestHandler {
     }
 
     // Start R
+    JRIProcessor jriProcessor = null;
     try {
 		JRIProcessor.initializeR();
+		jriProcessor = new JRIProcessor(password);
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
@@ -185,7 +187,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
     // Do some preparations in the R environment. Returns File handle to the plot directory (later needed)
     File plotDir = null;
 	try {
-		plotDir = JRIProcessor.prepare(extendedWebdirPath);
+		plotDir = jriProcessor.prepare(extendedWebdirPath);
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
@@ -302,13 +304,13 @@ public class GetRResultsRequestHandler implements RequestHandler {
 
       // Let R read in strings as data.frame after parsing them
       try {
-	  JRIProcessor.readDataFrameFromString("girix.patients[[" + i + "]]", CRCResponseParser.parsePatientSet(crcPS), CRCResponseParser.patientsColClasses);
+	  jriProcessor.readDataFrameFromString("girix.patients[[" + i + "]]", CRCResponseParser.parsePatientSet(crcPS), CRCResponseParser.patientsColClasses);
 	
       if (conceptAvailable) {
-        JRIProcessor.readDataFrameFromString("girix.observations[[" + i + "]]", CRCResponseParser.parseObservationSet(crcOS, crcCS), CRCResponseParser.conceptsColClasses);
-        JRIProcessor.readDataFrameFromString("girix.events[[" + i + "]]", CRCResponseParser.parseEventSet(crcES), CRCResponseParser.eventsColClasses);
-        JRIProcessor.readDataFrameFromString("girix.modifiers[[" + i + "]]", CRCResponseParser.parseModifierSet(crcMS), CRCResponseParser.modifierColClasses);
-        JRIProcessor.readDataFrameFromString("girix.observers[[" + i + "]]", CRCResponseParser.parseObserverSet(crcObS), CRCResponseParser.observersColClasses);
+    	jriProcessor.readDataFrameFromString("girix.observations[[" + i + "]]", CRCResponseParser.parseObservationSet(crcOS, crcCS), CRCResponseParser.conceptsColClasses);
+        jriProcessor.readDataFrameFromString("girix.events[[" + i + "]]", CRCResponseParser.parseEventSet(crcES), CRCResponseParser.eventsColClasses);
+        jriProcessor.readDataFrameFromString("girix.modifiers[[" + i + "]]", CRCResponseParser.parseModifierSet(crcMS), CRCResponseParser.modifierColClasses);
+        jriProcessor.readDataFrameFromString("girix.observers[[" + i + "]]", CRCResponseParser.parseObserverSet(crcObS), CRCResponseParser.observersColClasses);
       }
       } catch (REngineException e) {
   		// TODO Auto-generated catch block
@@ -331,22 +333,22 @@ public class GetRResultsRequestHandler implements RequestHandler {
     List<String[]> oV = null;
     // Initialize additional input variables in R
     try {
-		JRIProcessor.assignAdditionalInput(inputParametersMap);
+    	jriProcessor.assignAdditionalInput(inputParametersMap);
 
-    // Initialize names of the chosen in R
-    JRIProcessor.assignConceptNames(conceptNames);
+    	// Initialize names of the chosen in R
+    	jriProcessor.assignConceptNames(conceptNames);
 
-    // Run script in R
-    JRIProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
+    	// Run script in R
+    	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
 
-    // Read out output variables from R
-    oV = JRIProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
+    	// Read out output variables from R
+    	oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
 
-    // Get number of plots
-    plotNumber = (short) plotDir.listFiles().length;
+    	// Get number of plots
+    	plotNumber = (short) plotDir.listFiles().length;
 
-    // Flush R workspace
-    JRIProcessor.doFinalRTasks(extendedWebdirPath);
+    	// Flush R workspace
+    	jriProcessor.doFinalRTasks(extendedWebdirPath);
     
 	} catch (REngineException e) {
 		// TODO Auto-generated catch block

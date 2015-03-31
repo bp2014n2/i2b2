@@ -1,3 +1,5 @@
+setwd('Risk Prediction')
+
 girix.input['Model data start'] <- '01/01/2007'
 girix.input['Model data end'] <- '01/01/2008'
 girix.input['Target data start'] <- '01/01/2008'

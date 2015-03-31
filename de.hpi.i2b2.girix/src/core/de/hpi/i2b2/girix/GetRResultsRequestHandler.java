@@ -166,7 +166,6 @@ public class GetRResultsRequestHandler implements RequestHandler {
     // Start R
     JRIProcessor jriProcessor = null;
     try {
-		JRIProcessor.initializeR();
 		jriProcessor = new JRIProcessor(sessionKey);
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
@@ -340,6 +339,9 @@ public class GetRResultsRequestHandler implements RequestHandler {
     	// Initialize names of the chosen in R
     	jriProcessor.assignConceptNames(conceptNames);
 
+    	// Set working directory
+    	jriProcessor.setWorkingDirectory(scriptletDirectoryPath);
+    	
     	// Run script in R
     	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
 

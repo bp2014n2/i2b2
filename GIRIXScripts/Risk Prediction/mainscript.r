@@ -5,8 +5,8 @@ if(!exists('girix.input')) {
 
 risk.type <- girix.input['Method']
 
-source("lib/i2b2.r")
-source("Risk Prediction/risk.r")
+source("../lib/i2b2.r", chdir=TRUE)
+source("risk.r")
 
 require(Matrix)
 

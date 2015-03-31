@@ -635,6 +635,7 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
 i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	// Get handles
 	var piList = $("girix-pilist");
+	var noResultsDiv = $("girix-no-results");
 	var errorDivNoPI = $("girix-error-emptyPI");
 	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
 	var allAIText = $$("DIV#girixplugin-mainDiv .girix-input-textfield");
@@ -644,7 +645,9 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
 	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
 
+	noResultsDiv.hide()
 	// Hide possibly visible error messages from the past
+	noResultsDiv.hide()
 	errorDivNoPI.hide();
 	errorDivNoPSCC.hide();
 

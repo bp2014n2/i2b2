@@ -371,9 +371,9 @@ public class GetRResultsRequestHandler implements RequestHandler {
       uploader.uploadFile(file, file.getName(), "csv");
     }
     File rImages = new File(rImageDirPath);
-//    for (File file : rImages.listFiles()) {
-//      uploader.uploadFile(file, file.getName(), "RImage");
-//    }
+    for (File file : rImages.listFiles()) {
+      uploader.uploadFile(file, file.getName(), "RImage");
+    }
 
     // ============== Build and send answer message ==============
 

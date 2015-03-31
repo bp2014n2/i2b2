@@ -34,7 +34,8 @@ public class JRIProcessor {
   private String sessionKey;
   
   public JRIProcessor(String sessionKey) throws REXPMismatchException, REngineException, I2B2Exception {
-	  log.info(sessionKey);
+	  log.info("Creating new Environment for session: " + sessionKey);
+	  this.sessionKey = sessionKey;
 	  if (environments.get(sessionKey) == null) {
 	    environments.put(sessionKey, re.newEnvironment(null, false));
 	  }
@@ -58,7 +59,6 @@ public class JRIProcessor {
     log.info("Starting R...");
 
     // Look if there's an existing R engine...
-    JRIEngine.getLastEngine();
     re = (JRIEngine) JRIEngine.getLastEngine();
     // If not create a new one
     if (re == null) {
@@ -136,6 +136,7 @@ public class JRIProcessor {
     REXP ret2 = re.parseAndEval("girix.patients <- c()", getEnv(), true);
     REXP ret3 = re.parseAndEval("girix.observations <- c()", getEnv(), true);
     REXP ret4 = re.parseAndEval("girix.input <- c()", getEnv(), true);
+    log.info("Clearing output in Session: " + sessionKey);
     REXP ret5 = re.parseAndEval("girix.output <- list()", getEnv(), true);
     REXP ret6 = re.parseAndEval("girix.concept.names <- c()", getEnv(), true);
     REXP ret7 = re.parseAndEval("girix.modifiers <- c()", getEnv(), true);
@@ -204,7 +205,7 @@ public class JRIProcessor {
   }
 
   public void executeRScript(String scriptPath) throws I2B2Exception, REngineException, REXPMismatchException {
-    re.parseAndEval("source(\"" + scriptPath + "\")", getEnv(), true);
+	  re.parseAndEval("source(\"" + scriptPath + "\", local=TRUE)", getEnv(), true);
   }
 
   public List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception, REngineException, REXPMismatchException {
@@ -213,6 +214,8 @@ public class JRIProcessor {
 
     // Get default output variables
     int i = 1;
+    
+    REXP retr = getOrEval(re, "girix.output", getEnv(), true);
     while(true) {
       REXP ret = getOrEval(re, "girix.output." + i, getEnv(), true);
       if (ret == null) {

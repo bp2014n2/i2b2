@@ -27,7 +27,7 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	// Set some paths dynamically (see injected_screens.html)
 	$("girix-loading-scriptlets-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
 	$("girix-loading-results-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
-	$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
+	$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/RImage/RImage";
 
 	// Specify necessary message parameters for getRScriptlets request (No special parameters needed here)
 	var parameters = {};
@@ -819,6 +819,10 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 
 };
 
+i2b2.GIRIXPlugin.getSessionKey = function() {
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "");
+}
+
 // This function processes and displays the results coming from the answer message
 i2b2.GIRIXPlugin.displayResults = function(cbResults) {
 	$("girix-stop-button").hide();
@@ -875,7 +879,7 @@ i2b2.GIRIXPlugin.displayResults = function(cbResults) {
 			// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
 			parValue.innerHTML = cbResults.model[i].value;
 			// Add a link to download csv
-			parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
+			parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/csv/" + cbResults.model[i].title + ".csv";
 			Element.show(parCSVDiv);
 		}
 		resultCont.appendChild(newNode);
@@ -899,8 +903,8 @@ i2b2.GIRIXPlugin.displayResults = function(cbResults) {
 		var plotIMG = Element.select(newNode, 'img')[0];
 		var plotA = Element.select(newNode, 'a')[0];
 		var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
-		plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+		plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
 		newNode.className = "girix-plot";
 		plotsDiv.appendChild(newNode);
 		Element.show(newNode);

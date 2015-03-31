@@ -160,12 +160,14 @@ public class GetRResultsRequestHandler implements RequestHandler {
         outputParametersList.add(sa);
       }
     }
+    
+    String sessionKey = password.replaceAll("SessionKey:", "");
 
     // Start R
     JRIProcessor jriProcessor = null;
     try {
 		JRIProcessor.initializeR();
-		jriProcessor = new JRIProcessor(password);
+		jriProcessor = new JRIProcessor(sessionKey);
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
@@ -175,7 +177,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 	}
 
     // Add username suffix to webdir path and create folder
-    String extendedWebdirPath = GIRIXUtil.getWEBDIRPATH() + "/userfiles/" + username + "/";
+    String extendedWebdirPath = GIRIXUtil.getWEBDIRPATH() + "/userfiles/" + sessionKey + "/";
     File extendedWebdirFile = new File(extendedWebdirPath);
     if (! extendedWebdirFile.exists()) {
       if (! extendedWebdirFile.mkdirs()) {
@@ -363,7 +365,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
     String rImageDirPath = extendedWebdirPath + "/RImage";
 
     String uploadURL = GIRIXUtil.getUPLOADURL();
-    GIRIXFileUploader uploader = new GIRIXFileUploader(uploadURL, username);
+    GIRIXFileUploader uploader = new GIRIXFileUploader(uploadURL, sessionKey);
     File plots = new File(plotDirPath);
     for (File file : plots.listFiles()) {
       uploader.uploadFile(file, file.getName(), "plots");

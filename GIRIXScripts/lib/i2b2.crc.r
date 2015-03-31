@@ -9,7 +9,8 @@ executeCRCQuery <- function(query, ...) {
 i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   queries.features <- "SELECT DISTINCT substring(concept_cd from 1 for %d) AS concept_cd_sub
   FROM i2b2demodata.concept_dimension
-  WHERE (%s)"
+  WHERE (%s)
+  ORDER BY concept_cd_sub"
   
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
   return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
@@ -25,7 +26,7 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
       FROM i2b2demodata.concept_dimension
       WHERE (%s))
     AND (start_date >= '%s' AND start_date <= '%s')
-    AND (%s
+    AND (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
@@ -46,7 +47,7 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
       FROM i2b2demodata.concept_dimension
       WHERE concept_path LIKE '%s%%')
     AND (start_date >= '%s' AND start_date <= '%s')
-    AND (%s
+    AND (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
@@ -59,11 +60,12 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
 i2b2$crc$getPatients <- function(patient_set=-1) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
-    WHERE %s
+    WHERE (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
-      WHERE result_instance_id = %d)"
+      WHERE result_instance_id = %d))
+    ORDER BY patient_num"
   
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }

@@ -18,7 +18,13 @@ generateObservationMatrix <- function(observations, features, patients) {
 
 generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3) {
   
+  time.start <- proc.time()
+  
   observations <- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
+  
+  time.end <- proc.time()
+  
+  time.query <<- time.query + sum(c(time.end-time.start)[3])
   
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
   feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
@@ -27,7 +33,13 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
 
 generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
   
+  time.start <- proc.time()
+  
   observations <- i2b2$crc$getObservationsForConcept(concept.path=concept.path, interval=interval, patient_set=patient_set)
+  
+  time.end <- proc.time()
+  
+  time.query <<- time.query + sum(c(time.end-time.start)[3])
   
   target_matrix <- generateObservationMatrix(observations, c('target'), patients$patient_num)
   return(sign(target_matrix[,1]))
@@ -49,11 +61,16 @@ validateModel <- function(fit, model, target) {
   #target.positive <- sort.data.frame(prediction[target == 1,],'probability')
   #ppv.cutoff <- target.positive[round(nrow(target.positive)*0.1),'probability']
   prediction.sorted <- sort.data.frame(prediction, 'probability')
-  ppv.cutoff <- prediction.sorted[round(nrow(prediction.sorted)*0.1), 'probability']
   ppv.perf <- performance(pred, 'ppv')
   ppv.x <- ppv.perf@x.values[[1]]
   ppv.y <- ppv.perf@y.values[[1]]
-  ppv <- ppv.y[which.min(abs(ppv.x-ppv.cutoff))]
+  ppv.cutoff.05 <- prediction.sorted[round(nrow(prediction.sorted)*0.05), 'probability']
+  ppv.cutoff.10 <- prediction.sorted[round(nrow(prediction.sorted)*0.1), 'probability']
+  ppv.cutoff.20 <- prediction.sorted[round(nrow(prediction.sorted)*0.2), 'probability']
+  ppv <- c()
+  ppv[1] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.05))]
+  ppv[2] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.10))]
+  ppv[3] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.20))]
 
   return(list(auc=auc, ppv=ppv, roc=roc, precrec=precrec))
 
@@ -72,7 +89,7 @@ newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi
 features.filter <- c("ATC:", "ICD:")
 features.level <- strtoi(girix.input['Feature level'])
 
-time.query.0 <- proc.time()
+time.query <- 0
 
 features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
 model.patients <- i2b2$crc$getPatients(patient_set=model.patient_set)
@@ -81,9 +98,6 @@ newdata.patients <- i2b2$crc$getPatients(patient_set=newdata.patient_set)
 model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
 newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
 model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
-
-time.query.1 <- proc.time()
-time.query <- sum(c(time.query.1-time.query.0)[3])
 
 model.split <- 0.6
 model.split.row <- round(nrow(model)*model.split)
@@ -131,7 +145,7 @@ colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
 
 performance <- validateModel(fit, model.test, model.target.test)
 quality <- data.frame(c(performance$auc, performance$ppv))
-dimnames(quality) <- list(c('AUC', 'PPV'), 'Value')
+dimnames(quality) <- list(c('AUC', 'PPV 5%', 'PPV 10%', 'PPV 20%'), 'Value')
 
 girix.output[['Information']] <- info
 girix.output[['Summary']] <- summary

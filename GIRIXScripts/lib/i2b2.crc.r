@@ -9,8 +9,7 @@ executeCRCQuery <- function(query, ...) {
 i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   queries.features <- "SELECT DISTINCT substring(concept_cd from 1 for %d) AS concept_cd_sub
   FROM i2b2demodata.concept_dimension
-  WHERE (%s)
-  ORDER BY concept_cd_sub"
+  WHERE (%s)"
   
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
   return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
@@ -64,8 +63,7 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
-      WHERE result_instance_id = %d))
-    ORDER BY patient_num"
+      WHERE result_instance_id = %d))"
   
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }

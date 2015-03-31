@@ -128,6 +128,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		allNPInput[i].parentElement.removeChild(allNPInput[i]);
 	}
 	
+	numberAIDateFields = 0;
+	numberAIHiddenFields = 0;
+	numberAIConceptFields = 0;
+	numberAIPatientSetFields = 0;
 	// Clear old additional concepts
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
 	// Clear old additional patient sets
@@ -143,13 +147,21 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		} else if (addIns[i].type == "dropdown") {
 			newNode = i2b2.GIRIXPlugin.createNewAIDropdownField(addIns[i]);
 		} else if (addIns[i].type == "hidden") {
-			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i]);
+			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i], newID);
+			numberAIHiddenFields++;
 		} else if (addIns[i].type == "date") {
-			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i]);
+			var newID = "girix-AIDATE-" + numberAIDateFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i], newID);
+			numberAIDateFields++;
 		} else if (addIns[i].type == "concept") {
-			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i]);
+			var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i], newID);
+			numberAIConceptFields++;
 		} else if (addIns[i].type == "patient_set") {
-			newNode = i2b2.GIRIXPlugin.createNewAIPatientSetField(addIns[i]);
+			var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIPatientSetField(addIns[i], newID);
+			numberAIPatientSetFields++;
 		}
 		addInCont.appendChild(newNode);
 		Element.show(newNode);
@@ -170,12 +182,11 @@ i2b2.GIRIXPlugin.createNewAITextField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIDateField = function(config) {
+i2b2.GIRIXPlugin.createNewAIDateField = function(config, newID) {
 	// Additional input date prototype
 	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];	
 	numberAIDateFields = $$(".girix-input-date-select").length;
 	newNode = aiDateProt.cloneNode(true);
-	var newID = "girix-AIDATE-" + numberAIDateFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parTextfield = Element.select(newNode, 'input')[0];		
@@ -210,13 +221,12 @@ i2b2.GIRIXPlugin.createNewAIDropdownField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIHiddenField = function(config) {
+i2b2.GIRIXPlugin.createNewAIHiddenField = function(config, newID) {
 	// Additional input hidden prototype
 	var aiHiddenProt = $$("DIV#girixplugin-mainDiv .girix-hidden-prototype")[0];	
 	numberAIHiddenFields = $$(".girix-input-hidden").length;
 	newNode = aiHiddenProt.cloneNode(true);
 	var parTitle = Element.select(newNode, 'h3')[0];
-	var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
 	var parTextfield = Element.select(newNode, 'input')[0];		
 	var parLink = Element.select(newNode, 'a')[0];
 	parTitle.innerHTML = i2b2.h.Escape(config.name);
@@ -229,12 +239,10 @@ i2b2.GIRIXPlugin.createNewAIHiddenField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config) {
+i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config, newID) {
 	// Additional input concept prototype
 	var aiPatientSetProt = $$("DIV#girixplugin-mainDiv .girix-patient-set-prototype")[0];
-    numberAIPatientSetFields = $$(".girix-input-patient-set").length;
 	newNode = aiPatientSetProt.cloneNode(true);
-	var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parDragField = Element.select(newNode, 'div')[0];
@@ -250,12 +258,11 @@ i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIConceptField = function(config) {	
+i2b2.GIRIXPlugin.createNewAIConceptField = function(config, newID) {	
 	// Additional input concept prototype
 	var aiConcProt = $$("DIV#girixplugin-mainDiv .girix-concept-prototype")[0];
     numberAIConceptFields = $$(".girix-input-concept").length;
 	newNode = aiConcProt.cloneNode(true);
-	var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parDragField = Element.select(newNode, 'div')[0];

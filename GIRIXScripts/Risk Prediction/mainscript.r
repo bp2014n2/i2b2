@@ -161,11 +161,18 @@ abline(v=mean(probabilities))
 text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4)
 plot(performance$roc, main='ROC curve', lty="dotted")
 if(smooth_lines) {
-  smoothedLine(performance$roc@x.values[[1]], performance$roc@y.values[[1]])
+  #smoothedLine(performance$roc@x.values[[1]], performance$roc@y.values[[1]])
 }
 plot(performance$precrec, main='Precision/Recall curve', lty="dotted")
 if(smooth_lines) {
-  smoothedLine(performance$precrec@x.values[[1]], performance$precrec@y.values[[1]])
+  
+  y <- performance$precrec@y.values[[1]]
+  
+  for(i in rev(seq_along(y))) {
+    y[i] <- max(y[i:length(y)])
+  }
+  performance$precrec@y.values[[1]] <- y
+  lines(performance$precrec@x.values[[1]], performance$precrec@y.values[[1]], col="red", lwd=2)
 }
 
 rm(girix.input, girix.concept.names, girix.events, girix.modifiers, girix.observations, girix.observers, girix.patients); gc()

@@ -2,11 +2,11 @@
 require(Matrix)
 require(Matching)
 
-source("PSM/logic.r")
+source("AutoPSM/logic.r")
 source("lib/i2b2.r")
 
 if(!exists('girix.input')) {
-  source("PSM/girix_input.r")
+  source("AutoPSM/girix_input.r")
 }
 
 # to do: to be set in configuration tab
@@ -37,9 +37,10 @@ matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], M=1, exa
 print("outputting")
 output <- cbind(rownames(to.match[matched$index.treated,]), to.match[matched$index.treated,"Probability"], rownames(to.match[matched$index.control,]), to.match[matched$index.control, "Probability"])
 colnames(output) <- c("Treatment group patient number", "Score", "Control group patient number", "Score")
+rownames(output) <- c()
 
 matching.description <- paste0("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
                               "</b>. <nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
 
-girix.output[["Matched patients"]] <- output
+girix.output[["Matched patients"]] <- output[1:20,]
 girix.output[["Matching description"]] <- matching.description

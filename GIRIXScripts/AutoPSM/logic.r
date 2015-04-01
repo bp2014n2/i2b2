@@ -3,7 +3,7 @@ require(speedglm)
 require(Matching)
 
 source("lib/i2b2.r")
-source("PSM/utils.r")
+source("AutoPSM/utils.r")
 
 # to do: parallelization!!
 

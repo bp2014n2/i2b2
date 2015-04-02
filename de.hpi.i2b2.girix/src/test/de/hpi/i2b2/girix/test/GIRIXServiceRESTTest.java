@@ -86,6 +86,11 @@ public class GIRIXServiceRESTTest {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+        try {
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         String queryStr = queryStrBuffer.toString();
     	
         // Create OMElement from XML string

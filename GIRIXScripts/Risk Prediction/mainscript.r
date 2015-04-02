@@ -67,10 +67,16 @@ validateModel <- function(fit, model, target) {
   ppv.cutoff.05 <- prediction.sorted[round(nrow(prediction.sorted)*0.05), 'probability']
   ppv.cutoff.10 <- prediction.sorted[round(nrow(prediction.sorted)*0.1), 'probability']
   ppv.cutoff.20 <- prediction.sorted[round(nrow(prediction.sorted)*0.2), 'probability']
-  ppv <- c()
-  ppv[1] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.05))]
-  ppv[2] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.10))]
-  ppv[3] <- ppv.y[which.min(abs(ppv.x-ppv.cutoff.20))]
+  values <- c()
+  cutoffs <- c()
+  percentages <- c(5, 10, 20)
+  cutoffs <- append(cutoffs, ppv.cutoff.05)
+  values <- append(values, ppv.y[which.min(abs(ppv.x-ppv.cutoff.05))])
+  cutoffs <- append(cutoffs, ppv.cutoff.10)
+  values <- append(values, ppv.y[which.min(abs(ppv.x-ppv.cutoff.10))])
+  cutoffs <- append(cutoffs, ppv.cutoff.20)
+  values <- append(values, ppv.y[which.min(abs(ppv.x-ppv.cutoff.20))])
+  ppv <- data.frame(value=values, cutoff=cutoffs, percentage=percentages)
 
   return(list(auc=auc, ppv=ppv, roc=roc, precrec=precrec))
 
@@ -144,8 +150,8 @@ prediction.top <- head(prediction.sorted, 100)
 colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
 
 performance <- validateModel(fit, model.test, model.target.test)
-quality <- data.frame(c(performance$auc, performance$ppv))
-dimnames(quality) <- list(c('AUC', 'PPV 5%', 'PPV 10%', 'PPV 20%'), 'Value')
+quality <- data.frame(c(performance$auc, performance$ppv$value))
+dimnames(quality) <- list(c('AUC', paste0("PPV ", performance$ppv$percentage, "% (Cutoff: ", performance$ppv$cutoff*100, ")")), 'Value')
 
 girix.output[['Information']] <- info
 girix.output[['Summary']] <- summary

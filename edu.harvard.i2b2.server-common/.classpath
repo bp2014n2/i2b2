@@ -69,6 +69,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdom/jdom-contrib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring/spring-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring/spring-2.0.jar" sourcepath="/home/ubuntu/spring-2.5.6-sources.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

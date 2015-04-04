@@ -171,6 +171,7 @@ i2b2.GIRIX.cfg.msgs.getRResults = '<?xml version="1.0" encoding="UTF-8" standalo
 '	<message_body>\n'+
 '		<ns2:RScriptletResult>\n'+
 '			<RScriptletName>{{{r_scriptlet_name}}}</RScriptletName>\n'+
+'			<sessionKey>{{{session_key}}}</sessionKey>\n'+
 '			<QTSUrl>{{{qts_url}}}</QTSUrl>\n'+
 '			<patientSets>\n{{{patient_sets}}}			</patientSets>\n'+
 '			<concepts>\n{{{concepts}}}			</concepts>\n'+
@@ -195,6 +196,8 @@ i2b2.GIRIX.cfg.parsers.getRResults = function(){
 		}
 		var tmpNode = i2b2.h.XPath(this.refXML, "//plotNumber/text()");
 		this.plotNumber = tmpNode[0].nodeValue;
+		var tmpNode = i2b2.h.XPath(this.refXML, "//sessionKey/text()");
+		this.sessionKey = tmpNode[0].nodeValue;
 		tmpNode = i2b2.h.XPath(this.refXML, "//Routput/text()");
 		if (tmpNode[0] == undefined) { this.Routput = ""; }
 		else { this.Routput = tmpNode[0].nodeValue; }

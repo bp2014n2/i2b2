@@ -80,12 +80,14 @@ public class GetRResultsRequestHandler implements RequestHandler {
     JAXBUnWrapHelper unwrapHelper = new JAXBUnWrapHelper();
     RScriptletResultType girixResType = null;
     String scriptletDirectoryName = null;
+    String sessionKey = null;
     String QTSUrl = null;
     PatientSetsType patSetType = null;
     ConceptsType conceptsType = null; 
     try {
       girixResType = (RScriptletResultType) unwrapHelper.getObjectByClass(input.getMessageBody().getAny(), RScriptletResultType.class);
       scriptletDirectoryName = girixResType.getRScriptletName();
+      sessionKey = girixResType.getSessionKey();
       QTSUrl = girixResType.getQTSUrl();
       patSetType = girixResType.getPatientSets();
       conceptsType = girixResType.getConcepts();
@@ -160,8 +162,6 @@ public class GetRResultsRequestHandler implements RequestHandler {
         outputParametersList.add(sa);
       }
     }
-    
-    String sessionKey = password.replaceAll("SessionKey:", "");
 
     // Start R
     JRIProcessor jriProcessor = null;
@@ -396,6 +396,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
       resultList.add(rT);
     }
     rrt.setPlotNumber(plotNumber);
+    rrt.setSessionKey(sessionKey);
 
     // Add R output stream text if desired in config file (if not set: passing output is default behaviour)
     if (girixType.getSettings().isPassROutput() == null || girixType.getSettings().isPassROutput()) {

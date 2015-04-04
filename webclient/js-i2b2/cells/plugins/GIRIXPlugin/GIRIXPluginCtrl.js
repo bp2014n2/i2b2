@@ -27,7 +27,6 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	// Set some paths dynamically (see injected_screens.html)
 	$("girix-loading-scriptlets-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
 	$("girix-loading-results-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
-	$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/RImage/RImage";
 
 	// Specify necessary message parameters for getRScriptlets request (No special parameters needed here)
 	var parameters = {};
@@ -87,9 +86,12 @@ i2b2.GIRIXPlugin.runScript = function() {
 	i2b2.GIRIXPlugin.buildAndSendMsg();
 };
 
-i2b2.GIRIXPlugin.stopScript = function() {
+i2b2.GIRIXPlugin.stopScript = function() {	
+	$("girix-no-results").show();
+	$("girix-waiting").hide();
 	$("girix-stop-button").hide();
 	$("girix-start-button").show();
+	i2b2.GIRIXPlugin.currentSessionKey = null;
 };
 
 // This function is called when a user selected a scriptlet from drop down list
@@ -799,7 +801,9 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	}
 	// Build object holding message parameters
 	var messParams = {};
+	i2b2.GIRIXPlugin.currentSessionKey = i2b2.GIRIXPlugin.generateSessionKey();
 	messParams['r_scriptlet_name'] = i2b2.h.Escape(piDirName);
+	messParams['session_key'] = i2b2.GIRIXPlugin.currentSessionKey;
 	messParams['qts_url'] = i2b2.h.Escape(qtsUrl);
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
@@ -822,129 +826,137 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 
 };
 
+i2b2.GIRIXPlugin.generateSessionKey = function() {
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "") + Date.now();
+}
+
 i2b2.GIRIXPlugin.getSessionKey = function() {
 	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "");
 }
 
 // This function processes and displays the results coming from the answer message
 i2b2.GIRIXPlugin.displayResults = function(cbResults) {
-	$("girix-stop-button").hide();
-	$("girix-start-button").show();
-
-	// Hide waiting screen
-	var waitingDiv = $("girix-waiting");
-	waitingDiv.hide();
-
-	// Check for server side errors
-	var tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/@type");
-	if(tmpNode[0].nodeValue == "ERROR") {
-		tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/text()");
-		alert(tmpNode[0].nodeValue);
-		return;
-	}
-	
-	// Show result divs
-	var plotsDiv = $("girix-plots");
-	plotsDiv.show();
-	var resultsDiv = $("girix-result");
-	resultsDiv.show();
-
-	// Show custom heading
-	var heading = Element.select(resultsDiv, 'h1')[0];
-	heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].title) + "'"
-
-	// Show results descriptions
-	var resDescr = Element.select(resultsDiv, 'p')[0];
-	resDescr.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].resDescr);
-
 	// Parse message
 	cbResults.parse();
 
-	// Show result values
-	var resultProt = $$("DIV#girixplugin-mainDiv .girix-result-prot")[0];
-	var resultCont = $("girix-results-list");
-	for (var i = 0; i < cbResults.model.length; i++) {
-		var newNode = resultProt.cloneNode(true);
-		var parName = Element.select(newNode, 'h3')[0];
-		var parDescr = Element.select(newNode, '.girix-result-descr')[0];
-		var parValue = Element.select(newNode, '.girix-result-value')[0];
-		var parCSVLink = Element.select(newNode, 'a')[0];
-		var parCSVDiv = Element.select(newNode, 'div')[0];
-		parName.innerHTML = i2b2.h.Escape(cbResults.model[i].title);
-		parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
-		// For security reasons the result values are escaped -> No HTML tags will be interpreted
-		//parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
-		parValue.innerHTML = cbResults.model[i].value;
-                exec_body_scripts(parValue)
-		newNode.className = "girix-result-element";
-		if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
-			// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed
-			// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
+	if(cbResults.sessionKey == i2b2.GIRIXPlugin.currentSessionKey) {
+		$("girix-stop-button").hide();
+		$("girix-start-button").show();
+
+		// Hide waiting screen
+		var waitingDiv = $("girix-waiting");
+		waitingDiv.hide();
+
+		// Check for server side errors
+		var tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/@type");
+		if(tmpNode[0].nodeValue == "ERROR") {
+			tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/text()");
+			alert(tmpNode[0].nodeValue);
+			return;
+		}
+		
+		// Show result divs
+		var plotsDiv = $("girix-plots");
+		plotsDiv.show();
+		var resultsDiv = $("girix-result");
+		resultsDiv.show();
+
+		// Show custom heading
+		var heading = Element.select(resultsDiv, 'h1')[0];
+		heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].title) + "'"
+
+		// Show results descriptions
+		var resDescr = Element.select(resultsDiv, 'p')[0];
+		resDescr.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].resDescr);
+
+		// Show result values
+		var resultProt = $$("DIV#girixplugin-mainDiv .girix-result-prot")[0];
+		var resultCont = $("girix-results-list");
+		for (var i = 0; i < cbResults.model.length; i++) {
+			var newNode = resultProt.cloneNode(true);
+			var parName = Element.select(newNode, 'h3')[0];
+			var parDescr = Element.select(newNode, '.girix-result-descr')[0];
+			var parValue = Element.select(newNode, '.girix-result-value')[0];
+			var parCSVLink = Element.select(newNode, 'a')[0];
+			var parCSVDiv = Element.select(newNode, 'div')[0];
+			parName.innerHTML = i2b2.h.Escape(cbResults.model[i].title);
+			parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
+			// For security reasons the result values are escaped -> No HTML tags will be interpreted
+			//parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
 			parValue.innerHTML = cbResults.model[i].value;
-			// Add a link to download csv
-			parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/csv/" + cbResults.model[i].title + ".csv";
-			Element.show(parCSVDiv);
+	                exec_body_scripts(parValue)
+			newNode.className = "girix-result-element";
+			if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
+				// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed
+				// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
+				parValue.innerHTML = cbResults.model[i].value;
+				// Add a link to download csv
+				parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/csv/" + cbResults.model[i].title + ".csv";
+				Element.show(parCSVDiv);
+			}
+			resultCont.appendChild(newNode);
+			Element.show(newNode);
 		}
-		resultCont.appendChild(newNode);
-		Element.show(newNode);
-	}
-	
-	// Delete old plots
-	var allOldPlots = $$("DIV#girixplugin-mainDiv .girix-plot");
-	for (var i = 0; i < allOldPlots.length; i++) {
-		allOldPlots[i].parentElement.removeChild(allOldPlots[i]);
-	}
-
-	// Show plot description
-	var plotHeading = Element.select(plotsDiv, 'p')[0];
-	plotHeading.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].plotDescr);	
-
-	// Show plots if available
-	var plotProt = $$("DIV#girixplugin-mainDiv .girix-plot-prot")[0];
-	for (var i = 1; i <= cbResults.plotNumber; i++) {
-		var newNode = plotProt.cloneNode(true);
-		var plotIMG = Element.select(newNode, 'img')[0];
-		var plotA = Element.select(newNode, 'a')[0];
-		var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
-		plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.getSessionKey() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		newNode.className = "girix-plot";
-		plotsDiv.appendChild(newNode);
-		Element.show(newNode);
-	}
-	
-	// Don't show plot area if no plots are available
-	if (cbResults.plotNumber == 0) Element.hide(plotsDiv);
-	
-	// Show R output area if desired
-	var oStreamDiv = $("girix-ostream");
-	if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].ostream == "true") {
-		Element.show(oStreamDiv);
-		var outputText = Element.select(oStreamDiv, 'p')[0];
-		if (cbResults.Routput == "") {
-			outputText.innerHTML = "(R didn't produce any output)";
-		} else {
-			outputText.innerHTML = i2b2.h.Escape(cbResults.Routput).replace("\n", "<br>");
+		
+		// Delete old plots
+		var allOldPlots = $$("DIV#girixplugin-mainDiv .girix-plot");
+		for (var i = 0; i < allOldPlots.length; i++) {
+			allOldPlots[i].parentElement.removeChild(allOldPlots[i]);
 		}
-	}
-	
-	// Show R error area if desired
-	var eStreamDiv = $("girix-estream");
-	if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].estream == "true") {
-		Element.show(eStreamDiv);
-		var errorsText = Element.select(eStreamDiv, 'p')[0];
-		if (cbResults.Rerrors == "") {
-			errorsText.innerHTML = "(R didn't produce any errors)";
-			errorsText.style.color = 'black';
-		} else {
-			errorsText.innerHTML = i2b2.h.Escape(cbResults.Rerrors).replace("\n", "<br>");
-			errorsText.style.color = 'red';
-		}
-	}
 
-	// Show 'Download environment'
-	var envLink = $("girix-envionment-div");
-	envLink.show();
+		// Show plot description
+		var plotHeading = Element.select(plotsDiv, 'p')[0];
+		plotHeading.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].plotDescr);	
+
+		// Show plots if available
+		var plotProt = $$("DIV#girixplugin-mainDiv .girix-plot-prot")[0];
+		for (var i = 1; i <= cbResults.plotNumber; i++) {
+			var newNode = plotProt.cloneNode(true);
+			var plotIMG = Element.select(newNode, 'img')[0];
+			var plotA = Element.select(newNode, 'a')[0];
+			var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
+			plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+			plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+			newNode.className = "girix-plot";
+			plotsDiv.appendChild(newNode);
+			Element.show(newNode);
+		}
+		
+		// Don't show plot area if no plots are available
+		if (cbResults.plotNumber == 0) Element.hide(plotsDiv);
+		
+		// Show R output area if desired
+		var oStreamDiv = $("girix-ostream");
+		if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].ostream == "true") {
+			Element.show(oStreamDiv);
+			var outputText = Element.select(oStreamDiv, 'p')[0];
+			if (cbResults.Routput == "") {
+				outputText.innerHTML = "(R didn't produce any output)";
+			} else {
+				outputText.innerHTML = i2b2.h.Escape(cbResults.Routput).replace("\n", "<br>");
+			}
+		}
+		
+		// Show R error area if desired
+		var eStreamDiv = $("girix-estream");
+		if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].estream == "true") {
+			Element.show(eStreamDiv);
+			var errorsText = Element.select(eStreamDiv, 'p')[0];
+			if (cbResults.Rerrors == "") {
+				errorsText.innerHTML = "(R didn't produce any errors)";
+				errorsText.style.color = 'black';
+			} else {
+				errorsText.innerHTML = i2b2.h.Escape(cbResults.Rerrors).replace("\n", "<br>");
+				errorsText.style.color = 'red';
+			}
+		}
+
+		// Show 'Download environment'
+		$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/RImage/RImage";
+		var envLink = $("girix-envionment-div");
+		envLink.show();
+
+	}
 
 };
 

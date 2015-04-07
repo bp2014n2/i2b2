@@ -16,14 +16,11 @@ girix.input['Feature level'] <- 3
 patients.limit <- 10000
 #interval.limit <- list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01"))
 
-# input preparation to be done by GIRI
-features.filter <- c("ATC:", "ICD:")
 features.level <- strtoi(girix.input['Feature level'])
-features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level) # to adapt feature set
 
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
-featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level, features=features, filter=features.filter)
+featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
 
 print("calculating probabilities")
 patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])

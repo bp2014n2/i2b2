@@ -7,11 +7,10 @@ if(length(new.packages)) install.packages(new.packages)
 library(knitr); 
 library(jsonlite)
 library(extrafont)
-source("../lib/i2b2.r")
-source("../lib/utils.r")
+source("../lib/i2b2.r", chdir=TRUE)
 
 generateOutput <- function() {
-  params <<- fromJSON(input[["params"]])
+  params <<- fromJSON(girix.input["params"])
   model.patient_set <<- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
 
   #Don't print warnings

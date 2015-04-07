@@ -7,16 +7,12 @@ if(length(new.packages)) install.packages(new.packages)
 library(knitr); 
 library(jsonlite)
 library(extrafont)
-source("lib/i2b2.r")
-source("lib/utils.r")
+source("../lib/i2b2.r")
+source("../lib/utils.r")
 
 generateOutput <- function() {
   params <<- fromJSON(input[["params"]])
   model.patient_set <<- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
-
-  #Working Directory is top folder of all scriptlets, so get current scriptlet directory
-  scriptlet.fulldir <- dirname(sys.frame(1)$ofile)
-  scriptlet.dir <- sub(".*/(.*)/ReportGen/.*", "\\1", scriptlet.fulldir,perl=TRUE)
 
   #Don't print warnings
   options(warn=-1)
@@ -24,7 +20,7 @@ generateOutput <- function() {
   # Generate unique information for temporary files
   randomNumber <- floor(runif(1, 10000000, 99999999))
   currentTimestamp <- print(as.numeric(Sys.time()))
-  tmpFolder <- paste(scriptlet.dir, '/ReportGen/tmp/', randomNumber, currentTimestamp, "/", sep='')
+  tmpFolder <- paste('ReportGen/tmp/', randomNumber, currentTimestamp, "/", sep='')
 
   # Create temporary folder
   dir.create(tmpFolder, mode="0777", recursive=T)
@@ -47,9 +43,9 @@ generateOutput <- function() {
   # Generate File
   fileName <- 'main.html'
   if(girix.input["requestDiagram"] == "all"){
-    knit(paste0(scriptlet.dir, '/layout/main.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
+    knit(paste0('layout/main.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   } else {
-    knit(paste0(scriptlet.dir, '/diagrams/', girix.input["requestDiagram"], '/layout.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
+    knit(paste0('diagrams/', girix.input["requestDiagram"], '/layout.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   }
 
   output <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size) 

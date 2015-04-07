@@ -25,7 +25,7 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
       FROM i2b2demodata.concept_dimension
       WHERE (%s))
     AND (start_date >= '%s' AND start_date <= '%s')
-    AND (%s
+    AND (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
@@ -46,7 +46,7 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
       FROM i2b2demodata.concept_dimension
       WHERE concept_path LIKE '%s%%')
     AND (start_date >= '%s' AND start_date <= '%s')
-    AND (%s
+    AND (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
@@ -59,11 +59,11 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
 i2b2$crc$getPatients <- function(patient_set=-1) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
-    WHERE %s
+    WHERE (TRUE = %s
     OR patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
-      WHERE result_instance_id = %d)"
+      WHERE result_instance_id = %d))"
   
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
@@ -177,4 +177,21 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('ICD:M54
   
   concept_condition <- paste("concept_cd LIKE '", concepts, "%'", sep="")
   return(executeCRCQuery(queries.visitcount, concept_condition))
+}
+
+
+i2b2$crc$generateFeatureMatrix <- function(patients_limit, filter=c("ATC:", "ICD:"), level=3) {
+  features <- i2b2$crc$getConcepts(concepts=filter, level=level)
+
+  patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
+  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, patients_limit=patients_limit, level=level)
+  feature_matrix <- i2b2$crc$generateObservationMatrix(observations, features, patients$patient_num)
+  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
+  return(feature_matrix)
+}
+
+i2b2$crc$generateObservationMatrix <- function(observations, features, patients) {
+  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd_sub, features)), 
+                                       x=as.numeric(counts), dims=c(length(patients), length(features)), dimnames=list(patients, features)))  
+  return(m)
 }

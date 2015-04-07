@@ -7,23 +7,6 @@ source("AutoPSM/utils.r")
 
 # to do: parallelization!!
 
-generateFeatureMatrix <- function(patients_limit, filter=c("ATC:", "ICD:"), level=3) {
-  features <- i2b2$crc$getConcepts(concepts=filter, level=level)
-
-  patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
-  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, patients_limit=patients_limit, level=level)
-  feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
-  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
-  return(feature_matrix)
-}
-
-generateObservationMatrix <- function(observations, features, patients) {
-  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd_sub, features)), 
-                                       x=as.numeric(counts), dims=c(length(patients), length(features)), dimnames=list(patients, features)))  
-  return(m)
-}
-
-
 #to do: usable for all sorts of concepts
 #returns scores and treatments for patients of given concept
 Scores.TreatmentsForMonitoredConcept <- function(all.patients, patients.probabilities, concept) {

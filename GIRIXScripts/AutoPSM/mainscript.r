@@ -20,7 +20,7 @@ features.level <- strtoi(girix.input['Feature level'])
 
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
-featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
+featureMatrix <- i2b2$crc$generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
 
 print("calculating probabilities")
 patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])

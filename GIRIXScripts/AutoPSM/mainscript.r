@@ -7,7 +7,7 @@ source("../lib/i2b2.r", chdir=TRUE)
 source("../lib/dataPrep.r", chdir=TRUE)
 
 if(!exists('girix.input')) {
-  source("AutoPSM/girix_input.r")
+  source("girix_input.r")
 }
 
 # to do: to be set in configuration tab

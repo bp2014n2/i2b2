@@ -2,9 +2,9 @@
 require(Matrix)
 require(Matching)
 
-source("AutoPSM/logic.r")
-source("lib/i2b2.r")
-source("lib/dataPrep.r")
+source("logic.r")
+source("../lib/i2b2.r", chdir=TRUE)
+source("../lib/dataPrep.r", chdir=TRUE)
 
 if(!exists('girix.input')) {
   source("AutoPSM/girix_input.r")
@@ -13,7 +13,7 @@ if(!exists('girix.input')) {
 # to do: to be set in configuration tab
 girix.input['Feature level'] <- 3
 
-# for debugging: limits database queries to decrease waiting times
+# for debugging: limits database queries to decrease waisting times
 patients.limit <- 10000
 #interval.limit <- list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01"))
 
@@ -21,7 +21,7 @@ features.level <- strtoi(girix.input['Feature level'])
 
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
-featureMatrix <- dataPrep.generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
+featureMatrix <- DataPrep.generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
 
 print("calculating probabilities")
 patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])
@@ -41,4 +41,4 @@ matching.description <- paste0("Matching on patients that have diagnose(s) <b>",
                               "</b>. <nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
 
 girix.output[["Matched patients"]] <- output[1:20,]
-girix.output[["Matching description"]] <- matching.description
+girix.output[["Matching description"]] <- matching.description	

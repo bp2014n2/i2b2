@@ -1,7 +1,6 @@
 i2b2$crc <- list()
 
-source("i2b2.crc.config_postgres.r")
-
+source("i2b2.crc.config.r")
 
 executeCRCQuery <- function(query, ...) {
   return(executeQuery(i2b2$crc$db, query, ...))

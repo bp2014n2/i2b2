@@ -2,8 +2,8 @@ require(Matrix)
 require(speedglm)
 require(Matching)
 
-source("lib/i2b2.r")
-source("AutoPSM/utils.r")
+source("../lib/i2b2.r", chdir=TRUE)
+source("utils.r")
 
 # to do: parallelization!!
 

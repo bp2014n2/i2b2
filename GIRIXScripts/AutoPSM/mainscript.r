@@ -4,6 +4,7 @@ require(Matching)
 
 source("AutoPSM/logic.r")
 source("lib/i2b2.r")
+source("lib/dataPrep.r")
 
 if(!exists('girix.input')) {
   source("AutoPSM/girix_input.r")
@@ -20,7 +21,7 @@ features.level <- strtoi(girix.input['Feature level'])
 
 # get feature set including all ATC/ICDs out of database
 print("getting featureMatrix")
-featureMatrix <- i2b2$crc$generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
+featureMatrix <- dataPrep.generateFeatureMatrix(patients_limit= patients.limit, level=features.level)
 
 print("calculating probabilities")
 patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])

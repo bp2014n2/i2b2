@@ -1,21 +1,14 @@
 <!--rinline knitr::read_chunk('diagram.r')-->
 
-<style>
-  #frequence_of_visits_chart-output img {
-    width: 100%;
-    max-width: 800px;
-  }
-</style>
-
 <div id="frequence_of_visits_chart-output">
   <h2>Frequence of Visits Chart</h2>
-  <!--x begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
+  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
       end.rcode-->
   <br> 
   <div id="frequence_of_visits_output_conceptbox"></div>
 <br>
 
-  <button id="clickMe" onclick="reload()">Reload</button></span>
+  <button id="clickMe" onclick="reload_frequence_of_visits_chart()">Reload</button></span>
   <div id="frequence_of_visits_chart-loading" class="loading" style="display: none">Loading&#8230;</div>
 </div>
 
@@ -23,7 +16,7 @@
 
   setTimeout(function(){ i2b2.GIRIXPlugin.createNewCONCDDField("frequence_of_visits_output_conceptbox")}, 1);
 
-  reload = function() {
+  reload_frequence_of_visits_chart = function() {
 
     var icd = $("frequence_of_visits_output_conceptbox").firstChild.innerHTML
     icd = icd.substr(0,7)

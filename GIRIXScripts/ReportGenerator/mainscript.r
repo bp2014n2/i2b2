@@ -1,6 +1,6 @@
-source("ReportGenerator/ReportGen/main.r")
+source("ReportGen/main.r", local=T)
 
 input <- girix.input
-params <<- fromJSON(input[["params"]])
+input.params <- fromJSON(girix.input["params"])
 girix.output[["Report"]] <- generateOutput()
 

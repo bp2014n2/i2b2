@@ -7,8 +7,14 @@
 		<passROutput>false</passROutput>
 		<passRErrors>true</passRErrors>
 		<resultDescription>Your generated girix:</resultDescription>
-		<numberOfPatientSets>1</numberOfPatientSets>
+		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>
 	</settings>
+	<customOutputs>
+		<output>
+			<name>foo</name>
+			<description></description>
+		</output>
+	</customOutputs>
 </girixconf:Rscriptlet>
 

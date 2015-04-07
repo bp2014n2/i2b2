@@ -27,7 +27,6 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	// Set some paths dynamically (see injected_screens.html)
 	$("girix-loading-scriptlets-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
 	$("girix-loading-results-gif").src = i2b2.GIRIXPlugin.cfg.config.assetDir + "loading.gif";
-	$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/RImage/RImage";
 
 	// Specify necessary message parameters for getRScriptlets request (No special parameters needed here)
 	var parameters = {};
@@ -70,12 +69,29 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	// Manage YUI tabs
 	var cfgObj = {activeIndex : 0};
 	this.yuiTabs = new YAHOO.widget.TabView("girix-TABS", cfgObj);
+	/*
 	this.yuiTabs.on('activeTabChange', function(ev) {
 		// If tab is changed to 'View results' -> Call function buildAndSendMsg()
 		if (ev.newValue.get('id')=="girix-TAB1") {
 			i2b2.GIRIXPlugin.buildAndSendMsg();
 		}
 	});
+	*/
+};
+
+i2b2.GIRIXPlugin.runScript = function() {
+	this.yuiTabs.selectTab(1);
+	$("girix-start-button").hide();
+	$("girix-stop-button").show();
+	i2b2.GIRIXPlugin.buildAndSendMsg();
+};
+
+i2b2.GIRIXPlugin.stopScript = function() {	
+	$("girix-no-results").show();
+	$("girix-waiting").hide();
+	$("girix-stop-button").hide();
+	$("girix-start-button").show();
+	i2b2.GIRIXPlugin.currentSessionKey = null;
 };
 
 // This function is called when a user selected a scriptlet from drop down list
@@ -128,6 +144,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		allNPInput[i].parentElement.removeChild(allNPInput[i]);
 	}
 	
+	numberAIDateFields = 0;
+	numberAIHiddenFields = 0;
+	numberAIConceptFields = 0;
+	numberAIPatientSetFields = 0;
 	// Clear old additional concepts
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
 	// Clear old additional patient sets
@@ -143,13 +163,21 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		} else if (addIns[i].type == "dropdown") {
 			newNode = i2b2.GIRIXPlugin.createNewAIDropdownField(addIns[i]);
 		} else if (addIns[i].type == "hidden") {
-			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i]);
+			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i], newID);
+			numberAIHiddenFields++;
 		} else if (addIns[i].type == "date") {
-			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i]);
+			var newID = "girix-AIDATE-" + numberAIDateFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i], newID);
+			numberAIDateFields++;
 		} else if (addIns[i].type == "concept") {
-			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i]);
+			var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i], newID);
+			numberAIConceptFields++;
 		} else if (addIns[i].type == "patient_set") {
-			newNode = i2b2.GIRIXPlugin.createNewAIPatientSetField(addIns[i]);
+			var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIPatientSetField(addIns[i], newID);
+			numberAIPatientSetFields++;
 		}
 		addInCont.appendChild(newNode);
 		Element.show(newNode);
@@ -170,12 +198,11 @@ i2b2.GIRIXPlugin.createNewAITextField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIDateField = function(config) {
+i2b2.GIRIXPlugin.createNewAIDateField = function(config, newID) {
 	// Additional input date prototype
 	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];	
 	numberAIDateFields = $$(".girix-input-date-select").length;
 	newNode = aiDateProt.cloneNode(true);
-	var newID = "girix-AIDATE-" + numberAIDateFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parTextfield = Element.select(newNode, 'input')[0];		
@@ -210,13 +237,12 @@ i2b2.GIRIXPlugin.createNewAIDropdownField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIHiddenField = function(config) {
+i2b2.GIRIXPlugin.createNewAIHiddenField = function(config, newID) {
 	// Additional input hidden prototype
 	var aiHiddenProt = $$("DIV#girixplugin-mainDiv .girix-hidden-prototype")[0];	
 	numberAIHiddenFields = $$(".girix-input-hidden").length;
 	newNode = aiHiddenProt.cloneNode(true);
 	var parTitle = Element.select(newNode, 'h3')[0];
-	var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
 	var parTextfield = Element.select(newNode, 'input')[0];		
 	var parLink = Element.select(newNode, 'a')[0];
 	parTitle.innerHTML = i2b2.h.Escape(config.name);
@@ -229,12 +255,10 @@ i2b2.GIRIXPlugin.createNewAIHiddenField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config) {
+i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config, newID) {
 	// Additional input concept prototype
 	var aiPatientSetProt = $$("DIV#girixplugin-mainDiv .girix-patient-set-prototype")[0];
-    numberAIPatientSetFields = $$(".girix-input-patient-set").length;
 	newNode = aiPatientSetProt.cloneNode(true);
-	var newID = "girix-AIPATIENTSETDROP-" + numberAIPatientSetFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parDragField = Element.select(newNode, 'div')[0];
@@ -250,12 +274,11 @@ i2b2.GIRIXPlugin.createNewAIPatientSetField = function(config) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAIConceptField = function(config) {	
+i2b2.GIRIXPlugin.createNewAIConceptField = function(config, newID) {	
 	// Additional input concept prototype
 	var aiConcProt = $$("DIV#girixplugin-mainDiv .girix-concept-prototype")[0];
     numberAIConceptFields = $$(".girix-input-concept").length;
 	newNode = aiConcProt.cloneNode(true);
-	var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
 	var parDragField = Element.select(newNode, 'div')[0];
@@ -447,32 +470,39 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
         setParameter("requestDiagram", diagram)
         setParameter("params", params)
 
+        callbackFunction = function(result) { 
+            result.parse(); 
+            callback(result.model[0].value); 
+            var arr = document.getElementsByClassName("girix-result-element")[0].getElementsByTagName('script')
+            for (var n = 0; n < arr.length; n++)
+              eval(arr[n].innerHTML)
+          };
+ 
+        i2b2.GIRIXPlugin.sendMessage(callbackFunction)
+        
+        setParameter("requestDiagram", "all")
+        setParameter("params", "{}")
+
+};
+
+i2b2.GIRIXPlugin.sendMessage = function(callback) {
+
         // Get handles
 	var piList = $("girix-pilist");
+	var noResultsDiv = $("girix-no-results");
 	var errorDivNoPI = $("girix-error-emptyPI");
 	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
 	var allAIText = $$("DIV#girixplugin-mainDiv .girix-input-textfield");
-	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
 	var allAIDate = $$("DIV#girixplugin-mainDiv .girix-input-date-select");
 	var allAIDD = $$("DIV#girixplugin-mainDiv .girix-input-dropdown");
 	var allAICO = $$("DIV#girixplugin-mainDiv .girix-input-concept");
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
+	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
 
-        // Read out selected scriptlet
+	// Read out selected scriptlet
 	var piTitle = piList.options[piList.selectedIndex].value;
-	// Error case: "Empty scriptlet" chosen
-	if (piTitle == '') {
-		errorDivNoPI.show();
-		return;
-	}
 	// Get subdirectory name
 	var piDirName = i2b2.GIRIXPlugin.scriptlets[piTitle].subdir;
-
-	// Error case: No patient set selected [DEACTIVATED]
-	if ( false && ! i2b2.GIRIXPlugin.model.prsDirty ) {
-		errorDivNoPSCC.show();
-		return;
-	}
 
 	// Get URL of the Query Tool Service
 	var qtsUrl = i2b2["CRC"].cfg.cellURL;
@@ -584,7 +614,9 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
 	}
 	// Build object holding message parameters
 	var messParams = {};
+	i2b2.GIRIXPlugin.currentSessionKey = i2b2.GIRIXPlugin.generateSessionKey();
 	messParams['r_scriptlet_name'] = i2b2.h.Escape(piDirName);
+	messParams['session_key'] = i2b2.GIRIXPlugin.currentSessionKey;
 	messParams['qts_url'] = i2b2.h.Escape(qtsUrl);
 	messParams['patient_sets'] = psMessPart;
 	messParams['concepts'] = conceptsMessPart;
@@ -592,28 +624,22 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
 	messParams['result_wait_time'] = i2b2.GIRIX.cfg.params.queryTimeout;
 
         // Send message (see above)
-	var scoped_callback = new i2b2_scopedCallback;
-	scoped_callback.scope = this;
-	scoped_callback.callback = function(result) { 
-          result.parse(); 
-          callback(result.model[0].value); 
-          var arr = document.getElementsByClassName("girix-result-element")[0].getElementsByTagName('script')
-          for (var n = 0; n < arr.length; n++)
-            eval(arr[n].innerHTML)
-        };
-	var commObjRef = eval("(i2b2.GIRIX.ajax)");
-	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
+        var scoped_callback = new i2b2_scopedCallback;
+        scoped_callback.scope = this;
 
-        setParameter("requestDiagram", "all")
-        setParameter("params", "{}")
+        scoped_callback.callback = callback
 
-};
+        var commObjRef = eval("(i2b2.GIRIX.ajax)");
+        commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
+ 
 
+}
 
 // This function is called when a user clicks on the tab "View Results"
 i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	// Get handles
 	var piList = $("girix-pilist");
+	var noResultsDiv = $("girix-no-results");
 	var errorDivNoPI = $("girix-error-emptyPI");
 	var errorDivNoPSCC = $("girix-error-emptyPSorCC");
 	var allAIText = $$("DIV#girixplugin-mainDiv .girix-input-textfield");
@@ -623,7 +649,9 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
 	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
 
+	noResultsDiv.hide()
 	// Hide possibly visible error messages from the past
+	noResultsDiv.hide()
 	errorDivNoPI.hide();
 	errorDivNoPSCC.hide();
 
@@ -649,139 +677,7 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	// Hide old plots
 	Element.hide($("girix-plots"));
 
-	// Read out selected scriptlet
-	var piTitle = piList.options[piList.selectedIndex].value;
-	// Error case: "Empty scriptlet" chosen
-	if (piTitle == '') {
-		errorDivNoPI.show();
-		return;
-	}
-	// Get subdirectory name
-	var piDirName = i2b2.GIRIXPlugin.scriptlets[piTitle].subdir;
-
-	// Error case: No patient set selected [DEACTIVATED]
-	if ( false && ! i2b2.GIRIXPlugin.model.prsDirty ) {
-		errorDivNoPSCC.show();
-		return;
-	}
-
-	// Get URL of the Query Tool Service
-	var qtsUrl = i2b2["CRC"].cfg.cellURL;
-	
-	// Get patient set and concept information
-	var patientSets = [];
-	for (var i = 0; i < i2b2.GIRIXPlugin.model.prsRecords.length; i++) {
-		patientSets[i] = i2b2.GIRIXPlugin.model.prsRecords[i].sdxInfo.sdxKeyValue;
-	}
-
-	var concepts = [];
-	for (var i = 0; i < i2b2.GIRIXPlugin.model.conceptRecords.length; i++) {
-		var t;
-		var cdata;
-		t = i2b2.GIRIXPlugin.model.conceptRecords[i].origData.xmlOrig;
-		cdata = {};
-		cdata.level = i2b2.h.getXNodeVal(t, "level");
-		cdata.key = i2b2.h.getXNodeVal(t, "key");
-		cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
-		cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
-		cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
-		cdata.constrainString = i2b2.GIRIXPlugin.buildConstrainString(i);
-		concepts[i] = cdata;
-	}
-	
-	// Get additional inputs: Text fields
-	var addIns = [];
-	var j = 0;
-	for (var i = 0; i < allAIText.length; i++) {
-		var name = Element.select(allAIText[i], 'h3')[0].innerHTML;
-		var value = Element.select(allAIText[i], 'textarea')[0].value;
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Get additional inputs: Drop down lists
-	for (var i = 0; i < allAIDD.length; i++) {
-		var name = Element.select(allAIDD[i], 'h3')[0].innerHTML;
-		var list = Element.select(allAIDD[i], 'select')[0];
-		var value = "";
-		if (list.options.length != 0) {
-			value = list.options[list.selectedIndex].value;
-		}
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Get additional Inputs: Hidden
-	for (var i = 0; i < allHiddenText.length; i++) {
-		var name = Element.select(allHiddenText[i], 'h3')[0].innerHTML;
-		var value = Element.select(allHiddenText[i], 'input')[0].value;
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Get additional Inputs: Date
-	for (var i = 0; i < allAIDate.length; i++) {
-		var name = Element.select(allAIDate[i], 'h3')[0].innerHTML;
-		var value = Element.select(allAIDate[i], 'input')[0].value;
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Get additional inputs: Concept drag and drop fields
-	for (var i = 0; i < allAICO.length; i++) {
-		var name = Element.select(allAICO[i], 'h3')[0].innerHTML;
-		var value = i2b2.GIRIXPlugin.model.aiConcpts[name];
-		if (value == undefined) value = "";
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Get additional inputs: Concept drag and drop fields
-	for (var i = 0; i < allAIPS.length; i++) {
-		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
-		var value = i2b2.GIRIXPlugin.model.aiPatientSets[name];
-		if (value == undefined) value = "";
-		addIns[j] = [name, value];
-		j++;
-	}
-
-	// Build patient set message part
-	var psMessPart = '';
-	for (var i = 0; i < patientSets.length; i++) {
-		psMessPart += '					<patient_set_coll_id>' + i2b2.h.Escape(patientSets[i]) + '</patient_set_coll_id>\n';
-	}
-	// Build concepts message part
-	var conceptsMessPart = '';
-	for (var i = 0; i < concepts.length; i++) {
-		conceptsMessPart +=
-		'					<concept>\n'+
-		'						<hlevel>' + i2b2.h.Escape(concepts[i].level) + '</hlevel>\n'+
-		'						<item_key>' + i2b2.h.Escape(concepts[i].key) + '</item_key>\n'+
-		'						<dim_tablename>' + i2b2.h.Escape(concepts[i].tablename) + '</dim_tablename>\n'+
-		'						<dim_dimcode>' + i2b2.h.Escape(concepts[i].dimcode) + '</dim_dimcode>\n'+
-		'						<item_is_synonym>' + i2b2.h.Escape(concepts[i].synonym) + '</item_is_synonym>\n'+
-										concepts[i].constrainString +
-		'					</concept>\n';
-	}
-	// Build additional input message part
-	var aiMessPart = '';
-	for (var i = 0; i < addIns.length; i++) {
-		//alert("name: " + addIns[i][0] + " value: " + addIns[i][1]);
-		aiMessPart += '' +
-			'				<inputParameter>\n'+
-			'					<name>' + i2b2.h.Escape(addIns[i][0]) + '</name>\n'+
-			'					<value>' + i2b2.h.Escape(addIns[i][1]) + '</value>\n'+
-			'				</inputParameter>\n';
-	}
-	// Build object holding message parameters
-	var messParams = {};
-	messParams['r_scriptlet_name'] = i2b2.h.Escape(piDirName);
-	messParams['qts_url'] = i2b2.h.Escape(qtsUrl);
-	messParams['patient_sets'] = psMessPart;
-	messParams['concepts'] = conceptsMessPart;
-	messParams['additional_input'] = aiMessPart;
-	messParams['result_wait_time'] = i2b2.GIRIX.cfg.params.queryTimeout;
-	// Display waiting message
+       	// Display waiting message
 	var resultsDiv = $("girix-result");
 	resultsDiv.hide();
 	var plotsDiv = $("girix-plots");
@@ -789,131 +685,141 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 	var waitingDiv = $("girix-waiting");
 	waitingDiv.show();
 
-	// Send message (see above)
-	var scoped_callback = new i2b2_scopedCallback;
-	scoped_callback.scope = this;
-	scoped_callback.callback = i2b2.GIRIXPlugin.displayResults;
-	var commObjRef = eval("(i2b2.GIRIX.ajax)");
-	commObjRef['getRResults']("GIRIXPlugin Client", messParams, scoped_callback);
-
+        var callback = i2b2.GIRIXPlugin.displayResults
+        i2b2.GIRIXPlugin.sendMessage(callback)
 };
+
+i2b2.GIRIXPlugin.generateSessionKey = function() {
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "") + Date.now();
+}
+
+i2b2.GIRIXPlugin.getSessionKey = function() {
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "");
+}
 
 // This function processes and displays the results coming from the answer message
 i2b2.GIRIXPlugin.displayResults = function(cbResults) {
-	// Hide waiting screen
-	var waitingDiv = $("girix-waiting");
-	waitingDiv.hide();
-
-	// Check for server side errors
-	var tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/@type");
-	if(tmpNode[0].nodeValue == "ERROR") {
-		tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/text()");
-		alert(tmpNode[0].nodeValue);
-		return;
-	}
-	
-	// Show result divs
-	var plotsDiv = $("girix-plots");
-	plotsDiv.show();
-	var resultsDiv = $("girix-result");
-	resultsDiv.show();
-
-	// Show custom heading
-	var heading = Element.select(resultsDiv, 'h1')[0];
-	heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].title) + "'"
-
-	// Show results descriptions
-	var resDescr = Element.select(resultsDiv, 'p')[0];
-	resDescr.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].resDescr);
-
 	// Parse message
 	cbResults.parse();
 
-	// Show result values
-	var resultProt = $$("DIV#girixplugin-mainDiv .girix-result-prot")[0];
-	var resultCont = $("girix-results-list");
-	for (var i = 0; i < cbResults.model.length; i++) {
-		var newNode = resultProt.cloneNode(true);
-		var parName = Element.select(newNode, 'h3')[0];
-		var parDescr = Element.select(newNode, '.girix-result-descr')[0];
-		var parValue = Element.select(newNode, '.girix-result-value')[0];
-		var parCSVLink = Element.select(newNode, 'a')[0];
-		var parCSVDiv = Element.select(newNode, 'div')[0];
-		parName.innerHTML = i2b2.h.Escape(cbResults.model[i].title);
-		parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
-		// For security reasons the result values are escaped -> No HTML tags will be interpreted
-		//parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
-		parValue.innerHTML = cbResults.model[i].value;
-                exec_body_scripts(parValue)
-		newNode.className = "girix-result-element";
-		if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
-			// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed
-			// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
+	if(cbResults.sessionKey == i2b2.GIRIXPlugin.currentSessionKey) {
+		$("girix-stop-button").hide();
+		$("girix-start-button").show();
+
+		// Hide waiting screen
+		var waitingDiv = $("girix-waiting");
+		waitingDiv.hide();
+
+		// Check for server side errors
+		var tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/@type");
+		if(tmpNode[0].nodeValue == "ERROR") {
+			tmpNode = i2b2.h.XPath(cbResults.refXML, "//status/text()");
+			alert(tmpNode[0].nodeValue);
+			return;
+		}
+		
+		// Show result divs
+		var plotsDiv = $("girix-plots");
+		plotsDiv.show();
+		var resultsDiv = $("girix-result");
+		resultsDiv.show();
+
+		// Show custom heading
+		var heading = Element.select(resultsDiv, 'h1')[0];
+		heading.innerHTML = "Results of scriptlet '" + i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].title) + "'"
+
+		// Show results descriptions
+		var resDescr = Element.select(resultsDiv, 'p')[0];
+		resDescr.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].resDescr);
+
+		// Show result values
+		var resultProt = $$("DIV#girixplugin-mainDiv .girix-result-prot")[0];
+		var resultCont = $("girix-results-list");
+		for (var i = 0; i < cbResults.model.length; i++) {
+			var newNode = resultProt.cloneNode(true);
+			var parName = Element.select(newNode, 'h3')[0];
+			var parDescr = Element.select(newNode, '.girix-result-descr')[0];
+			var parValue = Element.select(newNode, '.girix-result-value')[0];
+			var parCSVLink = Element.select(newNode, 'a')[0];
+			var parCSVDiv = Element.select(newNode, 'div')[0];
+			parName.innerHTML = i2b2.h.Escape(cbResults.model[i].title);
+			parDescr.innerHTML = i2b2.h.Escape(cbResults.model[i].description);
+			// For security reasons the result values are escaped -> No HTML tags will be interpreted
+			//parValue.innerHTML = i2b2.h.Escape(cbResults.model[i].value);
 			parValue.innerHTML = cbResults.model[i].value;
-			// Add a link to download csv
-			parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/csv/" + cbResults.model[i].title + ".csv";
-			Element.show(parCSVDiv);
+	                exec_body_scripts(parValue)
+			newNode.className = "girix-result-element";
+			if (cbResults.model[i].type == "data.frame" || cbResults.model[i].type == "matrix") {
+				// Do not escape here. Otherwise the table HTML tags will be escaped and therefore the table will not be properly dispayed
+				// Note that this is NOT a security flaw here as the 'xtable' R-module is smart enough to output encode the table's content
+				parValue.innerHTML = cbResults.model[i].value;
+				// Add a link to download csv
+				parCSVLink.href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/csv/" + cbResults.model[i].title + ".csv";
+				Element.show(parCSVDiv);
+			}
+			resultCont.appendChild(newNode);
+			Element.show(newNode);
 		}
-		resultCont.appendChild(newNode);
-		Element.show(newNode);
-	}
-	
-	// Delete old plots
-	var allOldPlots = $$("DIV#girixplugin-mainDiv .girix-plot");
-	for (var i = 0; i < allOldPlots.length; i++) {
-		allOldPlots[i].parentElement.removeChild(allOldPlots[i]);
-	}
-
-	// Show plot description
-	var plotHeading = Element.select(plotsDiv, 'p')[0];
-	plotHeading.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].plotDescr);	
-
-	// Show plots if available
-	var plotProt = $$("DIV#girixplugin-mainDiv .girix-plot-prot")[0];
-	for (var i = 1; i <= cbResults.plotNumber; i++) {
-		var newNode = plotProt.cloneNode(true);
-		var plotIMG = Element.select(newNode, 'img')[0];
-		var plotA = Element.select(newNode, 'a')[0];
-		var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
-		plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.h.getUser() + "/plots/plot00" + i + ".svg?a=" + d.getTime();
-		newNode.className = "girix-plot";
-		plotsDiv.appendChild(newNode);
-		Element.show(newNode);
-	}
-	
-	// Don't show plot area if no plots are available
-	if (cbResults.plotNumber == 0) Element.hide(plotsDiv);
-	
-	// Show R output area if desired
-	var oStreamDiv = $("girix-ostream");
-	if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].ostream == "true") {
-		Element.show(oStreamDiv);
-		var outputText = Element.select(oStreamDiv, 'p')[0];
-		if (cbResults.Routput == "") {
-			outputText.innerHTML = "(R didn't produce any output)";
-		} else {
-			outputText.innerHTML = i2b2.h.Escape(cbResults.Routput).replace("\n", "<br>");
+		
+		// Delete old plots
+		var allOldPlots = $$("DIV#girixplugin-mainDiv .girix-plot");
+		for (var i = 0; i < allOldPlots.length; i++) {
+			allOldPlots[i].parentElement.removeChild(allOldPlots[i]);
 		}
-	}
-	
-	// Show R error area if desired
-	var eStreamDiv = $("girix-estream");
-	if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].estream == "true") {
-		Element.show(eStreamDiv);
-		var errorsText = Element.select(eStreamDiv, 'p')[0];
-		if (cbResults.Rerrors == "") {
-			errorsText.innerHTML = "(R didn't produce any errors)";
-			errorsText.style.color = 'black';
-		} else {
-			errorsText.innerHTML = i2b2.h.Escape(cbResults.Rerrors).replace("\n", "<br>");
-			errorsText.style.color = 'red';
-		}
-	}
 
-	// Show 'Download environment'
-	var envLink = $("girix-envionment-div");
-	envLink.show();
+		// Show plot description
+		var plotHeading = Element.select(plotsDiv, 'p')[0];
+		plotHeading.innerHTML = i2b2.h.Escape(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].plotDescr);	
+
+		// Show plots if available
+		var plotProt = $$("DIV#girixplugin-mainDiv .girix-plot-prot")[0];
+		for (var i = 1; i <= cbResults.plotNumber; i++) {
+			var newNode = plotProt.cloneNode(true);
+			var plotIMG = Element.select(newNode, 'img')[0];
+			var plotA = Element.select(newNode, 'a')[0];
+			var d=new Date(); // This hack forces images with the same name to be reloaded every time. Src: http://jesin.tk/javascript-reload-image/
+			plotIMG.src = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+			plotA.href= i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/plots/plot00" + i + ".svg?a=" + d.getTime();
+			newNode.className = "girix-plot";
+			plotsDiv.appendChild(newNode);
+			Element.show(newNode);
+		}
+		
+		// Don't show plot area if no plots are available
+		if (cbResults.plotNumber == 0) Element.hide(plotsDiv);
+		
+		// Show R output area if desired
+		var oStreamDiv = $("girix-ostream");
+		if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].ostream == "true") {
+			Element.show(oStreamDiv);
+			var outputText = Element.select(oStreamDiv, 'p')[0];
+			if (cbResults.Routput == "") {
+				outputText.innerHTML = "(R didn't produce any output)";
+			} else {
+				outputText.innerHTML = i2b2.h.Escape(cbResults.Routput).replace("\n", "<br>");
+			}
+		}
+		
+		// Show R error area if desired
+		var eStreamDiv = $("girix-estream");
+		if(i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].estream == "true") {
+			Element.show(eStreamDiv);
+			var errorsText = Element.select(eStreamDiv, 'p')[0];
+			if (cbResults.Rerrors == "") {
+				errorsText.innerHTML = "(R didn't produce any errors)";
+				errorsText.style.color = 'black';
+			} else {
+				errorsText.innerHTML = i2b2.h.Escape(cbResults.Rerrors).replace("\n", "<br>");
+				errorsText.style.color = 'red';
+			}
+		}
+
+		// Show 'Download environment'
+		$("girix-environment-link").href = i2b2.GIRIXPlugin.cfg.config.assetDir + "userfiles/" + i2b2.GIRIXPlugin.currentSessionKey + "/RImage/RImage";
+		var envLink = $("girix-envionment-div");
+		envLink.show();
+
+	}
 
 };
 

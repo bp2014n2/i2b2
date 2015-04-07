@@ -3,9 +3,9 @@ require(RJDBC)
 i2b2 <- list()
 db <- list()
 
-source("lib/utils.r")
-source("lib/i2b2.crc.r")
-source("lib/i2b2.ont.r")
+source("utils.r")
+source("i2b2.crc.r")
+source("i2b2.ont.r")
 
 executeQuery <- function(config=list(), query, ...) {
   

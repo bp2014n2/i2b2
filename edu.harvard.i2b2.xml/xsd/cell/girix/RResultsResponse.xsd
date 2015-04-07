@@ -8,6 +8,7 @@
 	<xs:complexType name="RResultsType">
 		<xs:sequence>
 			<xs:element name="plotNumber" type="xs:unsignedByte" minOccurs="0"/>
+			<xs:element name="sessionKey" type="xs:string" minOccurs="0"/>
 			<xs:element name="Routput" type="xs:string" minOccurs="0"/>
 			<xs:element name="Rerrors" type="xs:string" minOccurs="0"/>
 			<xs:element name="result" type="girix:resultType" minOccurs="0" maxOccurs="unbounded"/>

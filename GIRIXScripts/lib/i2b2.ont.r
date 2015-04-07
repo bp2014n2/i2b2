@@ -1,6 +1,6 @@
 i2b2$ont <- list()
 
-source("lib/i2b2.ont.config.r")
+source("i2b2.ont.config.r")
 
 executeONTQuery <- function(query, ...) {
   return(executeQuery(i2b2$ont$db, query, ...))

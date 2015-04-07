@@ -11,6 +11,7 @@
     <xs:complexType name="RScriptletResultType">
         <xs:sequence>
             <xs:element name="RScriptletName" type="xs:string" />
+            <xs:element name="sessionKey" type="xs:string" />
 	    <xs:element name="QTSUrl" type="xs:anyURI"/>
 	    <xs:element name="patientSets" type="girix:patientSetsType"/>
 	    <xs:element name="concepts" type="girix:conceptsType"/>

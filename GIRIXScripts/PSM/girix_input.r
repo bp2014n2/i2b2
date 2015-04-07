@@ -9,5 +9,5 @@ girix.modifiers <- c()
 girix.events <- c()
 girix.observers <- c()
 
-girix.input['Treatment group'] <- 3
+girix.input['Treatment group'] <- 3   #in webclient: L10 Pemphiguskr
 girix.input['Control group'] <- 12

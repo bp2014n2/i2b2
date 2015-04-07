@@ -1,33 +1,19 @@
 require(Matrix)
 require(speedglm)
-require(Matching)
 
-source("../lib/i2b2.r", chdir=TRUE)
-source("utils.r")
+ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.vector, signed.matrix=FALSE) {
+  # to do: bring to lib together with function ProbabilitiesOfLogRegFitting (almost identical) from AutoPSM
 
-# to do: parallelization!!
-
-#to do: usable for all sorts of concepts
-#returns scores and treatments for patients of given concept
-Scores.TreatmentsForMonitoredConcept <- function(all.patients, patients.probabilities, concept) {
-  diagnosed.ind <- which(all.patients[,i2b2ConceptToHuman(concept)]==1)
-  result <- patients.probabilities[diagnosed.ind,]
-#  result <- cbind(probs.to.match, patientnums.to.match)
-  colnames(result) <- c("Probability", "Treatment")
-  return(result)
-}
-
-ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept, signed.matrix=FALSE) {
   # minimum amount of diagnoses per feature per group (treated + control) to be considered relevant
   minDiagnoses <- 5 # to do: remove this magic number 
   
-  # remove target column from featureMatrix
-  print("target.concept:")
-  print(target.concept)
-  target.colname <- i2b2ConceptToHuman(i2b2concept=target.concept)
-  target.colind <- which(colnames(featureMatrix)==target.colname) # to do: unnecessary? 
-  target.vector <- sign(featureMatrix[,target.colname])
-  featureMatrix <- featureMatrix[,-target.colind]
+  # # remove target column from featureMatrix
+  # print("target.concept:")
+  # print(target.concept)
+  # target.colname <- i2b2ConceptToHuman(i2b2concept=target.concept)
+  # target.colind <- which(colnames(featureMatrix)==target.colname) # to do: unnecessary? 
+  # target.vector <- sign(featureMatrix[,target.colname])
+  # featureMatrix <- featureMatrix[,-target.colind]
   
   featureMatrix <- cBind(1, featureMatrix)
   colnames(featureMatrix)[1] <- 'int'

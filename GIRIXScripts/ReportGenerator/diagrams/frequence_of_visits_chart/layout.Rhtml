@@ -1,36 +1,36 @@
-<!--rinline knitr::read_chunk('diagram.r')-->
-
-<div id="frequence_of_visits_chart-output">
+<div id="frequence_of_visits_chart" class="rplot">
+  <!-- Title -->
   <h2>Frequence of Visits Chart</h2>
-  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
-      end.rcode-->
-  <br> 
-  <div id="frequence_of_visits_output_conceptbox"></div>
-<br>
 
-  <button id="clickMe" onclick="reload_frequence_of_visits_chart()">Reload</button></span>
-  <div id="frequence_of_visits_chart-loading" class="loading" style="display: none">Loading&#8230;</div>
+  <div class="plot"></div><br>
+
+  <div class="concept"></div>
+  <button class="reloadButton">Reload</button></span>
 </div>
 
 <script>
+setTimeout(function(){ 
 
-  setTimeout(function(){ i2b2.GIRIXPlugin.createNewCONCDDField("frequence_of_visits_output_conceptbox")}, 1);
+  // Config
+  var diagram = 'frequence_of_visits_chart',
+      params = {
+        "width": 10,
+        "height": 8
+      }
 
-  reload_frequence_of_visits_chart = function() {
+  // Setup
+  var conceptDiv = document.querySelector('#frequence_of_visits_chart .concept')
+  i2b2.GIRIXPlugin.createNewCONCDDField(conceptDiv);
 
-    var icd = $("frequence_of_visits_output_conceptbox").firstChild.innerHTML
-    icd = icd.substr(0,7)
-	
-    params = {
-      "icd": icd
-    }
+  // Reload function
+  document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
+    params.icd = document.querySelector("#frequence_of_visits_chart .concept")
+                   .firstChild.innerHTML.substr(0,7)
+    updatePlot(diagram, params) 
+  })
 
-    $("frequence_of_visits_chart-loading").style.display = 'block'
+  // Initial load
+  updatePlot(diagram, params)
 
-    i2b2.GIRIXPlugin.requestResults("frequence_of_visits_chart", JSON.stringify(params), function(result) {
-        //Beware! This is not jQuery!
-        $("frequence_of_visits_chart-output").innerHTML = result
-        $("limitInput").value = limit
-    })
-  }
+}, 100)
 </script>

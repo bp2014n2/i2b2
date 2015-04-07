@@ -389,12 +389,12 @@ i2b2.GIRIXPlugin.createNewPSDDField = function(container) {
 
 // Helper function: It creates & registers a new drag&drop field for a concept
 i2b2.GIRIXPlugin.createNewCONCDDField = function(container) {
-        container = container || "girix-droptrgt-conc-fields"
+        container = container || $("girix-droptrgt-conc-fields")
 	// Increment highest field counter
 	var ind = ++i2b2.GIRIXPlugin.model.highestConcDDIndex;
 	// Get handles and create a new visible field by cloning the prototype
 	var concFieldProt = $("girix-CONCPTDROP-PROT");
-	var concFieldContainer = $(container);
+	var concFieldContainer = container;
 	var newNode = concFieldProt.cloneNode(true);
 	newNode.className = "girix-droptrgt SDX-CONCPT";
 	newNode.id = "girix-CONCPTDROP-" + ind;

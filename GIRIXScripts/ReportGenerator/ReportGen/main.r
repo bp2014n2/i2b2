@@ -44,7 +44,8 @@ generateOutput <- function() {
   if(girix.input["requestDiagram"] == "all"){
     knit(paste0('layout/main.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   } else {
-    knit(paste0('diagrams/', girix.input["requestDiagram"], '/layout.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
+    print(params)
+    knit(paste0('ReportGen/diagram.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   }
 
   output <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size) 

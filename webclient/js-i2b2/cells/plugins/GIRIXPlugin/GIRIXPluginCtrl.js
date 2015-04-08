@@ -514,18 +514,21 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 	}
 
 	var concepts = [];
-	for (var i = 0; i < i2b2.GIRIXPlugin.model.conceptRecords.length; i++) {
+	for (var i = 0, j = 0; i < i2b2.GIRIXPlugin.model.conceptRecords.length; i++) {
 		var t;
 		var cdata;
-		t = i2b2.GIRIXPlugin.model.conceptRecords[i].origData.xmlOrig;
-		cdata = {};
-		cdata.level = i2b2.h.getXNodeVal(t, "level");
-		cdata.key = i2b2.h.getXNodeVal(t, "key");
-		cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
-		cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
-		cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
-		cdata.constrainString = i2b2.GIRIXPlugin.buildConstrainString(i);
-		concepts[i] = cdata;
+                if(i2b2.GIRIXPlugin.model.conceptRecords[i]) {
+                  t = i2b2.GIRIXPlugin.model.conceptRecords[i].origData.xmlOrig;
+                  cdata = {};
+                  cdata.level = i2b2.h.getXNodeVal(t, "level");
+                  cdata.key = i2b2.h.getXNodeVal(t, "key");
+                  cdata.tablename = i2b2.h.getXNodeVal(t, "tablename");
+                  cdata.dimcode = i2b2.h.getXNodeVal(t, "dimcode");
+                  cdata.synonym = i2b2.h.getXNodeVal(t, "synonym_cd");
+                  cdata.constrainString = i2b2.GIRIXPlugin.buildConstrainString(i);
+                  concepts[j] = cdata;
+                  j++
+                }
 	}
 	
 	// Get additional inputs: Text fields

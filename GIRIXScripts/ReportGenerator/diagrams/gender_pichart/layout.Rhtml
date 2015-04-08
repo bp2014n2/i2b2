@@ -1,0 +1,30 @@
+<div id="gender_pichart" class="rplot">
+  <!-- Title -->
+  <h2 contentEditable>Gender</h2>
+
+  <div class="plot"></div><br>
+
+  <div class="concept"></div>
+  <button class="reloadButton">Reload</button></span>
+</div>
+
+<script>
+setTimeout(function(){ 
+
+  // Config
+  var diagram = 'gender_pichart',
+      params = {
+        "width": 8,
+        "height": 5
+      }
+
+  // Reload function
+  document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
+    updatePlot(diagram, params) 
+  })
+
+  // Initial load
+  updatePlot(diagram, params)
+
+}, 100)
+</script>

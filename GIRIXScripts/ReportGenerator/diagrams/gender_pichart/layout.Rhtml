@@ -12,19 +12,19 @@
 setTimeout(function(){ 
 
   // Config
-  var diagram = 'gender_pichart',
-      params = {
+  var diagram = 'gender_pichart'
+  params[diagram] = {
         "width": 8,
         "height": 5
       }
 
   // Reload function
   document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
-    updatePlot(diagram, params) 
+    updatePlot(diagram, params[diagram]) 
   })
 
   // Initial load
-  updatePlot(diagram, params)
+  updatePlot(diagram, params[diagram])
 
 }, 100)
 </script>

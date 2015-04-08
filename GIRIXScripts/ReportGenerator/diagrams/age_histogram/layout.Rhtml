@@ -20,7 +20,7 @@ setTimeout(function(){
       }
  
   // Reload function
-  document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
+  jQuery("#"+diagram+" .reloadButton").click(function() {
     params.limit = document.querySelector("#"+diagram+" .limitInput").value
     updatePlot(diagram, params) 
   })

@@ -1,6 +1,8 @@
 require(Matrix)
 require(speedglm)
 
+source("../lib/i2b2.r", chdir=TRUE)
+
 ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.vector, signed.matrix=FALSE) {
   # to do: bring to lib together with function ProbabilitiesOfLogRegFitting (almost identical) from AutoPSM
 
@@ -48,4 +50,20 @@ ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.v
   patient.probabilities <- cbind(probabilities, target.vector)
 
   return(patient.probabilities)  
+}
+
+GetYearCosts <- function(patient_nums) {
+  num.string <- toString(patient_nums[1])
+  for (i in patient_nums) {
+    num.string <- paste0(num.string, ", ", i)
+  }
+
+  query <- "SELECT patient_num, EXTRACT(YEAR FROM datum) as datum_year, SUM(summe_aller_kosten)
+    FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
+    WHERE patient_num IN (%s)
+    GROUP BY patient_num, datum_year
+    ORDER BY patient_num, datum_year
+    LIMIT 20;"
+
+  return(executeCRCQuery(query, num.string))  
 }

@@ -25,7 +25,7 @@
 			<name>Treatment date</name>
 			<description>Select the date of the treatment you want to evaluate</description>
 			<type>date</type>
-			<default>01/01/2010</default>
+			<default>01/01/2009</default>
 		</input>
 	</additionalInputs>
 	<customOutputs>

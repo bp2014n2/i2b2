@@ -25,9 +25,7 @@ setTimeout(function(){
   // Reload function
   document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
     var conceptFieldId = document.querySelector("#frequence_of_visits_chart .concept").firstChild.id.slice(17)
-    console.log(conceptFieldId)
-    console.log(document.querySelector("#frequence_of_visits_chart .concept").firstChild)
-    params.icd = i2b2.h.getXNodeVal(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId].origData.xmlOrig,  "dimcode")
+    params.icd = i2b2.h.getXNodeVal(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId].origData.xmlOrig,  "dimcode").split('\\').join("\\\\")
     updatePlot(diagram, params) 
   })
 

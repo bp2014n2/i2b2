@@ -166,7 +166,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
     // Start R
     JRIProcessor jriProcessor = null;
     try {
-		jriProcessor = new JRIProcessor(sessionKey);
+		jriProcessor = new JRIProcessor();
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();

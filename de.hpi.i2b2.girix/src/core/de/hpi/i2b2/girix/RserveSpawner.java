@@ -55,8 +55,8 @@ public class RserveSpawner {
 			}
 			log.info("Starting new Rserve");
 			// we need to fetch the output - some platforms will die if you don't ...
-			RserveConsoleWriter errorHog = new RserveConsoleWriter(p.getErrorStream());
-			RserveConsoleWriter outputHog = new RserveConsoleWriter(p.getInputStream());
+			new RserveConsoleWriter(p.getErrorStream());
+			new RserveConsoleWriter(p.getInputStream());
 			if (!isWindows) /* on Windows the process will never return, so we cannot wait */ {
 				p.waitFor();
 			}

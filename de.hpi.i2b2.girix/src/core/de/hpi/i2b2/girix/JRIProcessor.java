@@ -54,15 +54,14 @@ public class JRIProcessor {
 	    try {
 			re.voidEval("library(xtable)");
 		} catch (REngineException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new I2B2Exception("Package 'xtable' not installed");
 		}
   }
 
   public static void initializeR() throws I2B2Exception {
 
     // Set some system settings that are required for running R
-    GIRIXUtil.setUpREnvironment();
+    //GIRIXUtil.setUpREnvironment();
 
     // Make sure we have the right version of everything
 //    boolean versionOK = Rengine.versionCheck();
@@ -261,9 +260,9 @@ public class JRIProcessor {
 	  }
   }
 
-  public List<OutputVariable> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception {
+  public List<GIRIXOutputVariable> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception {
     // Array has 4 elements: Name, description, type, value
-    List<OutputVariable> l = new LinkedList<OutputVariable>();
+    List<GIRIXOutputVariable> l = new LinkedList<GIRIXOutputVariable>();
 
     // Get default output variables
     int i = 1;
@@ -272,13 +271,15 @@ public class JRIProcessor {
     	while(true) {
 	      getOrEval(re, "girix.output." + i);
 	      String name = "girix.output." + (i); // Default name
-	      OutputVariable oV = new OutputVariable(name, "", getType(name), extractResult(name, webPath + "/csv", name));
+	      GIRIXOutputVariable oV = new GIRIXOutputVariable(name, "", getType(name), extractResult(name, webPath + "/csv", name));
 	      l.add(oV);
 	      i++;
 	    }
-    } catch(REXPMismatchException | REngineException e) {
+    } catch(REXPMismatchException e) {
     	// TODO Auto-generated catch block
     	e.printStackTrace();
+    } catch (REngineException e) {
+    	//Ignore because an exception will be thrown anyway
     }
 
     // Get custom (user defined) output variables
@@ -289,7 +290,7 @@ public class JRIProcessor {
           oName = oName.replace("\"", "\\\"");
           String Rname = "girix.output[[\"" + oName + "\"]]"; // Name to access output variable in R
     	  getOrEval(re, Rname);
-    	  OutputVariable oV = new OutputVariable(
+    	  GIRIXOutputVariable oV = new GIRIXOutputVariable(
     			  oElement[0],
     			  oElement[1],
     			  getType(Rname),

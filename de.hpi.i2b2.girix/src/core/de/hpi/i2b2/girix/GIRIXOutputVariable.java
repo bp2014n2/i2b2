@@ -1,13 +1,13 @@
 package de.hpi.i2b2.girix;
 
-public class OutputVariable {
+public class GIRIXOutputVariable {
 	
 	private String name;
 	private String description;
 	private String value;
 	private String type;
 	
-	public OutputVariable(String name, String description, String value, String type) {
+	public GIRIXOutputVariable(String name, String description, String type, String value) {
 		this.name = name;
 		this.description = description;
 		this.value = value;

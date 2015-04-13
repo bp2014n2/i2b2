@@ -136,7 +136,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
 
 	// Read out output variables from R
-	List<OutputVariable> oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
+	List<GIRIXOutputVariable> oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
 
 	// Flush R workspace
 	jriProcessor.doFinalRTasks(extendedWebdirPath);
@@ -358,12 +358,12 @@ private List<ItemType> extractConcepts(ConceptsType conceptsType)
     }
   }
 
-  private RResultsType buildAnswer(SettingsType settingsType, short plotNumber, List<OutputVariable> oV) {
+  private RResultsType buildAnswer(SettingsType settingsType, short plotNumber, List<GIRIXOutputVariable> oV) {
 	// Assemble body part of response message (=RResultsType)
     RResultsType rrt = new RResultsType();
     List<ResultType> resultList = rrt.getResult();
     // Add output variables
-    for (OutputVariable outputVar : oV) {
+    for (GIRIXOutputVariable outputVar : oV) {
       ResultType rT = new ResultType();
       rT.setName(outputVar.getName());
       rT.setDescription(outputVar.getDescription());

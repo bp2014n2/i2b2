@@ -19,8 +19,6 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngineException;
 import org.xml.sax.SAXException;
 
 import de.hpi.i2b2.girix.datavo.i2b2message.BodyType;
@@ -165,15 +163,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 
     // Start R
     JRIProcessor jriProcessor = null;
-    try {
-		jriProcessor = new JRIProcessor();
-	} catch (REngineException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	} catch (REXPMismatchException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
+    jriProcessor = new JRIProcessor();
 
     // Add username suffix to webdir path and create folder
     String extendedWebdirPath = GIRIXUtil.getWEBDIRPATH() + "/userfiles/" + sessionKey + "/";
@@ -187,15 +177,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
 
     // Do some preparations in the R environment. Returns File handle to the plot directory (later needed)
     File plotDir = null;
-	try {
-		plotDir = jriProcessor.prepare(extendedWebdirPath);
-	} catch (REngineException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	} catch (REXPMismatchException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
+	plotDir = jriProcessor.prepare(extendedWebdirPath);
 
     // Extract the concept list
     List<ItemType> conceptsList = conceptsType.getConcept();
@@ -303,9 +285,7 @@ public class GetRResultsRequestHandler implements RequestHandler {
         throw new I2B2Exception("Error delivered from server: Unmarshalling CRC response");
       }
 
-      // Let R read in strings as data.frame after parsing them
-      try {
-	  jriProcessor.readDataFrameFromString("girix.patients[[" + i + "]]", CRCResponseParser.parsePatientSet(crcPS), CRCResponseParser.patientsColClasses);
+      jriProcessor.readDataFrameFromString("girix.patients[[" + i + "]]", CRCResponseParser.parsePatientSet(crcPS), CRCResponseParser.patientsColClasses);
 	
       if (conceptAvailable) {
     	jriProcessor.readDataFrameFromString("girix.observations[[" + i + "]]", CRCResponseParser.parseObservationSet(crcOS, crcCS), CRCResponseParser.conceptsColClasses);
@@ -313,13 +293,6 @@ public class GetRResultsRequestHandler implements RequestHandler {
         jriProcessor.readDataFrameFromString("girix.modifiers[[" + i + "]]", CRCResponseParser.parseModifierSet(crcMS), CRCResponseParser.modifierColClasses);
         jriProcessor.readDataFrameFromString("girix.observers[[" + i + "]]", CRCResponseParser.parseObserverSet(crcObS), CRCResponseParser.observersColClasses);
       }
-      } catch (REngineException e) {
-  		// TODO Auto-generated catch block
-  		e.printStackTrace();
-	  } catch (REXPMismatchException e) {
-		// TODO Auto-generated catch block
-	  	e.printStackTrace();
-	  }
       i++;
     }
 
@@ -332,35 +305,25 @@ public class GetRResultsRequestHandler implements RequestHandler {
     // ============== R processing ==============
     short plotNumber = 0;
     List<String[]> oV = null;
-    // Initialize additional input variables in R
-    try {
-    	jriProcessor.assignAdditionalInput(inputParametersMap);
+    jriProcessor.assignAdditionalInput(inputParametersMap);
 
-    	// Initialize names of the chosen in R
-    	jriProcessor.assignConceptNames(conceptNames);
+	// Initialize names of the chosen in R
+	jriProcessor.assignConceptNames(conceptNames);
 
-    	// Set working directory
-    	jriProcessor.setWorkingDirectory(scriptletDirectoryPath);
-    	
-    	// Run script in R
-    	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
+	// Set working directory
+	jriProcessor.setWorkingDirectory(scriptletDirectoryPath);
+	
+	// Run script in R
+	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
 
-    	// Read out output variables from R
-    	oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
+	// Read out output variables from R
+	oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
 
-    	// Get number of plots
-    	plotNumber = (short) plotDir.listFiles().length;
+	// Get number of plots
+	plotNumber = (short) plotDir.listFiles().length;
 
-    	// Flush R workspace
-    	jriProcessor.doFinalRTasks(extendedWebdirPath);
-    
-	} catch (REngineException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (REXPMismatchException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	// Flush R workspace
+	jriProcessor.doFinalRTasks(extendedWebdirPath);
 
     String plotDirPath = extendedWebdirPath + "/plots";
     String csvDirPath = extendedWebdirPath + "/csv";

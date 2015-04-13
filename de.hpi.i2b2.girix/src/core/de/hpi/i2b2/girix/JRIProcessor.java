@@ -261,9 +261,9 @@ public class JRIProcessor {
 	  }
   }
 
-  public List<String[]> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception {
+  public List<OutputVariable> getOutputVariables(List<String[]> outputParametersList, String webPath) throws I2B2Exception {
     // Array has 4 elements: Name, description, type, value
-    List<String[]> l = new LinkedList<String[]>();
+    List<OutputVariable> l = new LinkedList<OutputVariable>();
 
     // Get default output variables
     int i = 1;
@@ -272,12 +272,8 @@ public class JRIProcessor {
     	while(true) {
 	      getOrEval(re, "girix.output." + i);
 	      String name = "girix.output." + (i); // Default name
-	      String[] array = new String[4];
-	      array[0] = name;
-	      array[1] = ""; // Default output variables don't have descriptions
-	      array[2] = getType(name);
-	      array[3] = extractResult(array[2], name, webPath + "/csv", name);
-	      l.add(array);
+	      OutputVariable oV = new OutputVariable(name, "", getType(name), extractResult(name, webPath + "/csv", name));
+	      l.add(oV);
 	      i++;
 	    }
     } catch(REXPMismatchException | REngineException e) {
@@ -293,12 +289,13 @@ public class JRIProcessor {
           oName = oName.replace("\"", "\\\"");
           String Rname = "girix.output[[\"" + oName + "\"]]"; // Name to access output variable in R
     	  getOrEval(re, Rname);
-          String[] array = new String[4];
-          array[0] = oElement[0];
-          array[1] = oElement[1];
-          array[2] = getType(Rname);
-          array[3] = extractResult(array[2], Rname, webPath + "/csv", oName);
-          l.add(array);
+    	  OutputVariable oV = new OutputVariable(
+    			  oElement[0],
+    			  oElement[1],
+    			  getType(Rname),
+    			  extractResult(Rname, webPath + "/csv", oName)
+    	  );
+          l.add(oV);
       }
       catch (REngineException | REXPMismatchException e) {
     	// TODO Auto-generated catch block
@@ -331,8 +328,9 @@ public class JRIProcessor {
 
   // Create HTML table code and a csv file if it is a table-like R type
   // Otherwise just return the result value as a string
-  private String extractResult(String type, String name, String csvPath, String filename) throws I2B2Exception {
-    if (type.equals("data.frame") || type.equals("matrix")) {
+  private String extractResult(String name, String csvPath, String filename) throws I2B2Exception {
+      String type = getType(name);
+	  if (type.equals("data.frame") || type.equals("matrix")) {
       // This is a workaround for a bug in xtable library (Date columns produce an error)
       // See http://stackoverflow.com/questions/8652674/r-xtable-and-dates for details
       try {

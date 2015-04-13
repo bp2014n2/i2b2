@@ -40,6 +40,7 @@ import de.hpi.i2b2.girix.datavo.pdo.query.RequestType;
 import de.hpi.i2b2.girix.datavo.girixconfig.InputType;
 import de.hpi.i2b2.girix.datavo.girixconfig.OutputType;
 import de.hpi.i2b2.girix.datavo.girixconfig.RscriptletType;
+import de.hpi.i2b2.girix.datavo.girixconfig.SettingsType;
 import de.hpi.i2b2.girix.datavo.girixmessages.AdditionalInputType;
 import de.hpi.i2b2.girix.datavo.girixmessages.PatientSetsType;
 import de.hpi.i2b2.girix.datavo.girixmessages.ConceptsType;
@@ -54,16 +55,19 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 public class GetRResultsRequestHandler implements RequestHandler {
 
   private static Log log = LogFactory.getLog(GetRResultsRequestHandler.class);
+  private String domain = null;
+  private String username = null;
+  private String password = null;
+  private String project = null;
+  private String sessionKey = null;
+  private String QTSUrl = null;
+  private JRIProcessor jriProcessor;
 
   public String handleRequest(RequestMessageType input) throws I2B2Exception {
 
     // ============== Process the input ==============
 
     // Read out some important informations from message header
-    String domain = null;
-    String username = null;
-    String password = null;
-    String project = null;
     try {
       domain = input.getMessageHeader().getSecurity().getDomain();
       username = input.getMessageHeader().getSecurity().getUsername();
@@ -75,14 +79,12 @@ public class GetRResultsRequestHandler implements RequestHandler {
     }
 
     // Unwrap request message body and extract information
-    JAXBUnWrapHelper unwrapHelper = new JAXBUnWrapHelper();
     RScriptletResultType girixResType = null;
     String scriptletDirectoryName = null;
-    String sessionKey = null;
-    String QTSUrl = null;
     PatientSetsType patSetType = null;
     ConceptsType conceptsType = null; 
     try {
+      JAXBUnWrapHelper unwrapHelper = new JAXBUnWrapHelper();
       girixResType = (RScriptletResultType) unwrapHelper.getObjectByClass(input.getMessageBody().getAny(), RScriptletResultType.class);
       scriptletDirectoryName = girixResType.getRScriptletName();
       sessionKey = girixResType.getSessionKey();
@@ -98,7 +100,78 @@ public class GetRResultsRequestHandler implements RequestHandler {
     }
     AdditionalInputType addInType = girixResType.getAdditionalInput();
 
-    // Assemble scriptlet path
+    String scriptletDirectoryPath = findScriptletDirectory(scriptletDirectoryName);
+
+    RscriptletType girixType = validateConfig(scriptletDirectoryName, scriptletDirectoryPath);
+
+    Map<String,String> inputParametersMap = getAdditionalInputParameters(girixType, addInType);
+
+    List<String[]> outputParametersList = prepareCustomtOutputs(girixType);
+
+    // Start R
+    jriProcessor = new JRIProcessor();
+
+    // Add username suffix to webdir path and create folder
+    String extendedWebdirPath = GIRIXUtil.getWEBDIRPATH() + "/userfiles/" + sessionKey + "/";
+    setupWebDir(extendedWebdirPath);
+
+    // Do some preparations in the R environment. Returns File handle to the plot directory (later needed)
+    File plotDir = jriProcessor.prepare(extendedWebdirPath);
+
+    //List<ItemType> conceptsList = extractConcepts(conceptsType);
+    //String[] conceptNames = getConceptNames(conceptsList);
+
+    //setupPDO(patSetType, conceptsList);
+
+    // ============== R processing ==============
+    jriProcessor.assignAdditionalInput(inputParametersMap);
+
+	// Initialize names of the chosen in R
+	//jriProcessor.assignConceptNames(conceptNames);
+
+	// Set working directory
+	jriProcessor.setWorkingDirectory(scriptletDirectoryPath);
+	
+	// Run script in R
+	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
+
+	// Read out output variables from R
+	List<OutputVariable> oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
+
+	// Flush R workspace
+	jriProcessor.doFinalRTasks(extendedWebdirPath);
+
+	// Get number of plots
+	short plotNumber = (short) plotDir.listFiles().length;
+
+	uploadAssets(extendedWebdirPath);
+
+    // ============== Build and send answer message ==============
+
+    RResultsType rrt = buildAnswer(girixType.getSettings(), plotNumber, oV);
+
+    return assembleAnswer(input, rrt);
+  }
+
+private String assembleAnswer(RequestMessageType input, RResultsType rrt)
+		throws I2B2Exception {
+	// Assemble Response message and return it
+    ResponseHeaderType respHeaderType = MessageUtil.createResponseHeaderType("DONE", "Processing completed");
+
+    de.hpi.i2b2.girix.datavo.i2b2message.ObjectFactory i2b2mesFac = new de.hpi.i2b2.girix.datavo.i2b2message.ObjectFactory();
+    BodyType bodType = i2b2mesFac.createBodyType();
+    de.hpi.i2b2.girix.datavo.girixmessages.ObjectFactory girixmesFac = new de.hpi.i2b2.girix.datavo.girixmessages.ObjectFactory();
+    bodType.getAny().add(girixmesFac.createRResults(rrt));
+
+    MessageHeaderType mesHead = MessageUtil.createResponseMessageHeaderType(input.getMessageHeader());
+    ResponseMessageType respMessageType = MessageUtil.createResponseMessageType(mesHead, respHeaderType, bodType);
+    String response = MessageUtil.convertResponseMessageTypeToXML(respMessageType);
+	return response;
+}
+
+private String findScriptletDirectory(String scriptletDirectoryName)
+		throws I2B2Exception {
+	// Assemble scriptlet path
     scriptletDirectoryName.replace("/", ""); // for security
     scriptletDirectoryName.replace("..", ""); // for security
     scriptletDirectoryName.replace("\\", ""); // for security
@@ -108,8 +181,12 @@ public class GetRResultsRequestHandler implements RequestHandler {
       log.error("Scriptlet directory error (Existing? Is a directory? Access rights?) at path: " + scriptletDirectoryPath);
       throw new I2B2Exception("Error delivered from server: Scriptlet directory not available");
     }
+	return scriptletDirectoryPath;
+}
 
-    // Validate corresponding config file against XML schema and unmarshall into a JAXB Object
+private RscriptletType validateConfig(String scriptletDirectoryName,
+		String scriptletDirectoryPath) throws I2B2Exception {
+	// Validate corresponding config file against XML schema and unmarshall into a JAXB Object
     RscriptletType girixType = null;
     try {
       girixType = GIRIXUtil.validateAndUnmarshallScriptletConfigFile(scriptletDirectoryPath, scriptletDirectoryName);
@@ -122,79 +199,36 @@ public class GetRResultsRequestHandler implements RequestHandler {
       log.error("Error during config file validation (girixType==null)");
       throw new I2B2Exception("Error delivered from server: Validation error (girixTaype==null)");
     }
+	return girixType;
+}
 
-    // Extract additional input values if there are any
-    Map<String,String> inputParametersMap = new HashMap<String, String>();
-    if (girixType.getAdditionalInputs() != null) {
-      // For handy access convert the request input parameter list into a map
-      Map<String, String> inputParametersFromRequest = null;
-      if (addInType != null) {
-        inputParametersFromRequest = GIRIXUtil.convertListIntoMapAndDecodeHTML(addInType.getInputParameter());
-      }
-      // For every specified (in config file!) additional input value...
-      for (InputType ipt : girixType.getAdditionalInputs().getInput()) {
-        String iptNameFromConfig = ipt.getName();
-        // Check if it is also available in request message
-        if (inputParametersFromRequest != null && inputParametersFromRequest.get(iptNameFromConfig) != null) {
-          // If yes, escape double quotes at first for security reasons...
-          String parValue = inputParametersFromRequest.get(iptNameFromConfig);
-          parValue.replace("\"", "\\\"");
-          // ...and add key/value pair to the later used map
-          inputParametersMap.put(iptNameFromConfig, parValue);
-        } else {
-          // If not, add an empty string as value
-          inputParametersMap.put(iptNameFromConfig, "");
-        }
-      } 
+private String[] getConceptNames(List<ItemType> conceptsList) {
+	// Extract the concept names
+    String[] conceptNames = new String[conceptsList.size()];
+    for (int i = 0; i < conceptsList.size(); i++) {
+      conceptNames[i] = conceptsList.get(i).getDimDimcode();
     }
+	return conceptNames;
+}
 
-    // Create custom output values list if there are any
-    List<String[]> outputParametersList = new LinkedList<String[]>();
-    if (girixType.getCustomOutputs() != null) {
-      for (OutputType ot : girixType.getCustomOutputs().getOutput()) {
-        String[] sa = new String[2];
-        if (ot.getName() != null) sa[0] = ot.getName();
-        else continue;
-        if (ot.getDescription() != null) sa[1] = ot.getDescription();
-        else sa[1] = "";
-        outputParametersList.add(sa);
-      }
-    }
-
-    // Start R
-    JRIProcessor jriProcessor = null;
-    jriProcessor = new JRIProcessor();
-
-    // Add username suffix to webdir path and create folder
-    String extendedWebdirPath = GIRIXUtil.getWEBDIRPATH() + "/userfiles/" + sessionKey + "/";
-    File extendedWebdirFile = new File(extendedWebdirPath);
-    if (! extendedWebdirFile.exists()) {
-      if (! extendedWebdirFile.mkdirs()) {
-        log.error("Extended webdir subfolder could not be created");
-        throw new I2B2Exception("Extended webdir subfolder could not be created");
-      }
-    }
-
-    // Do some preparations in the R environment. Returns File handle to the plot directory (later needed)
-    File plotDir = null;
-	plotDir = jriProcessor.prepare(extendedWebdirPath);
-
-    // Extract the concept list
+private List<ItemType> extractConcepts(ConceptsType conceptsType)
+		throws I2B2Exception {
+	// Extract the concept list
     List<ItemType> conceptsList = conceptsType.getConcept();
     // It's not an error if the concept list is empty but it has to exist!
     if (conceptsList == null) {
       log.error("Concepts list missing");
       throw new I2B2Exception("Error delivered from server: No concepts list specified");
     }
-    boolean conceptAvailable = true;
-    if (conceptsList.size() == 0) conceptAvailable = false;
-    // Extract the concept names
-    String[] conceptNames = new String[conceptsList.size()];
-    for (int i = 0; i < conceptsList.size(); i++) {
-      conceptNames[i] = conceptsList.get(i).getDimDimcode();
-    }
+	return conceptsList;
+}
 
-    // For every specified patient set...
+  private void setupPDO(PatientSetsType patSetType, List<ItemType> conceptsList) throws I2B2Exception {
+	JAXBUnWrapHelper unwrapHelper = new JAXBUnWrapHelper();
+	boolean conceptAvailable = true;
+    if (conceptsList.size() == 0) conceptAvailable = false;
+    
+	// For every specified patient set...
     int i = 1;
     for (Integer pst  : patSetType.getPatientSetCollId()) {
       // Extract collection id
@@ -301,31 +335,10 @@ public class GetRResultsRequestHandler implements RequestHandler {
       log.error("No patient set specified in request message");
       throw new I2B2Exception("Error delivered from server: No Patient set specified");
       }*/
+  }
 
-    // ============== R processing ==============
-    short plotNumber = 0;
-    List<String[]> oV = null;
-    jriProcessor.assignAdditionalInput(inputParametersMap);
-
-	// Initialize names of the chosen in R
-	jriProcessor.assignConceptNames(conceptNames);
-
-	// Set working directory
-	jriProcessor.setWorkingDirectory(scriptletDirectoryPath);
-	
-	// Run script in R
-	jriProcessor.executeRScript(scriptletDirectoryPath + "/mainscript.r");
-
-	// Read out output variables from R
-	oV = jriProcessor.getOutputVariables(outputParametersList, extendedWebdirPath);
-
-	// Get number of plots
-	plotNumber = (short) plotDir.listFiles().length;
-
-	// Flush R workspace
-	jriProcessor.doFinalRTasks(extendedWebdirPath);
-
-    String plotDirPath = extendedWebdirPath + "/plots";
+  private void uploadAssets(String extendedWebdirPath) {
+	String plotDirPath = extendedWebdirPath + "/plots";
     String csvDirPath = extendedWebdirPath + "/csv";
     String rImageDirPath = extendedWebdirPath + "/RImage";
 
@@ -343,47 +356,88 @@ public class GetRResultsRequestHandler implements RequestHandler {
     for (File file : rImages.listFiles()) {
       uploader.uploadFile(file, file.getName(), "RImage");
     }
+  }
 
-    // ============== Build and send answer message ==============
-
-    // Assemble body part of response message (=RResultsType)
+  private RResultsType buildAnswer(SettingsType settingsType, short plotNumber, List<OutputVariable> oV) {
+	// Assemble body part of response message (=RResultsType)
     RResultsType rrt = new RResultsType();
     List<ResultType> resultList = rrt.getResult();
     // Add output variables
-    for (String[] outputVar : oV) {
+    for (OutputVariable outputVar : oV) {
       ResultType rT = new ResultType();
-      rT.setName(outputVar[0]);
-      rT.setDescription(outputVar[1]);
-      rT.setType(outputVar[2]);
-      rT.setValue(outputVar[3]);
+      rT.setName(outputVar.getName());
+      rT.setDescription(outputVar.getDescription());
+      rT.setType(outputVar.getType());
+      rT.setValue(outputVar.getValue());
       resultList.add(rT);
     }
     rrt.setPlotNumber(plotNumber);
     rrt.setSessionKey(sessionKey);
 
     // Add R output stream text if desired in config file (if not set: passing output is default behaviour)
-    if (girixType.getSettings().isPassROutput() == null || girixType.getSettings().isPassROutput()) {
+    if (settingsType.isPassROutput() == null || settingsType.isPassROutput()) {
       rrt.setRoutput(JRIProcessor.getROutput());
     }
 
     // Add R error stream text if desired in config file (if not set: passing errors is default behaviour)
-    if (girixType.getSettings().isPassRErrors() == null || girixType.getSettings().isPassRErrors()) {
+    if (settingsType.isPassRErrors() == null || settingsType.isPassRErrors()) {
       rrt.setRerrors(JRIProcessor.getRErrors());
     }
+	return rrt;
+  }
 
-    // Assemble Response message and return it
-    ResponseHeaderType respHeaderType = MessageUtil.createResponseHeaderType("DONE", "Processing completed");
+  private void setupWebDir(String extendedWebdirPath) throws I2B2Exception {
+	File extendedWebdirFile = new File(extendedWebdirPath);
+    if (! extendedWebdirFile.exists()) {
+      if (! extendedWebdirFile.mkdirs()) {
+        log.error("Extended webdir subfolder could not be created");
+        throw new I2B2Exception("Extended webdir subfolder could not be created");
+      }
+    }
+  }
+  
+  private List<String[]> prepareCustomtOutputs(RscriptletType girixType) {
+	// Create custom output values list if there are any
+    List<String[]> outputParametersList = new LinkedList<String[]>();
+    if (girixType.getCustomOutputs() != null) {
+      for (OutputType ot : girixType.getCustomOutputs().getOutput()) {
+        String[] sa = new String[2];
+        if (ot.getName() != null) sa[0] = ot.getName();
+        else continue;
+        if (ot.getDescription() != null) sa[1] = ot.getDescription();
+        else sa[1] = "";
+        outputParametersList.add(sa);
+      }
+    }
+	return outputParametersList;
+}
 
-    de.hpi.i2b2.girix.datavo.i2b2message.ObjectFactory i2b2mesFac = new de.hpi.i2b2.girix.datavo.i2b2message.ObjectFactory();
-    BodyType bodType = i2b2mesFac.createBodyType();
-    de.hpi.i2b2.girix.datavo.girixmessages.ObjectFactory girixmesFac = new de.hpi.i2b2.girix.datavo.girixmessages.ObjectFactory();
-    bodType.getAny().add(girixmesFac.createRResults(rrt));
-
-    MessageHeaderType mesHead = MessageUtil.createResponseMessageHeaderType(input.getMessageHeader());
-    ResponseMessageType respMessageType = MessageUtil.createResponseMessageType(mesHead, respHeaderType, bodType);
-    String response = MessageUtil.convertResponseMessageTypeToXML(respMessageType);
-
-    return response;
+private Map<String, String> getAdditionalInputParameters(RscriptletType girixType, AdditionalInputType addInType) {
+	// Extract additional input values if there are any
+	Map<String,String> inputParametersMap = new HashMap<String, String>();
+	if (girixType.getAdditionalInputs() != null) {
+	  // For handy access convert the request input parameter list into a map
+	  Map<String, String> inputParametersFromRequest = null;
+      if (addInType != null) {
+        inputParametersFromRequest = GIRIXUtil.convertListIntoMapAndDecodeHTML(addInType.getInputParameter());
+      }
+      // For every specified (in config file!) additional input value...
+      for (InputType ipt : girixType.getAdditionalInputs().getInput()) {
+        String iptNameFromConfig = ipt.getName();
+        // Check if it is also available in request message
+        if (inputParametersFromRequest != null && inputParametersFromRequest.get(iptNameFromConfig) != null) {
+          // If yes, escape double quotes at first for security reasons...
+          String parValue = inputParametersFromRequest.get(iptNameFromConfig);
+          parValue.replace("\"", "\\\"");
+          // ...and add key/value pair to the later used map
+          inputParametersMap.put(iptNameFromConfig, parValue);
+        } else {
+          // If not, add an empty string as value
+          inputParametersMap.put(iptNameFromConfig, "");
+        }
+      } 
+    }
+	return inputParametersMap;
   }
 
 }

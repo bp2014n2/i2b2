@@ -3,6 +3,8 @@ library(maptools)
 library(rgdal)
 library(RColorBrewer)
 
+gpclibPermit()
+
 map <- function(){
   par(mar=c(0,0,0,0),oma=c(1,1,1,0), mfcol=c(1,1),family="Lato",las=1)
   # Daten einlesen und Grafik vorbereiten
@@ -28,6 +30,9 @@ map <- function(){
 
   # Grafik erstellen und weitere Elemente
   plot(map_data,col=colors[color_nr],border=F)
+
+  map_data.union <- unionSpatialPolygons(map_data, map_data$zip)
+  plot(map_data.union, add = TRUE, border = "black", lwd = 1)
 
   # Title
   mtext("Patient distribution",side=3,line=-4,adj=0,cex=1.0)

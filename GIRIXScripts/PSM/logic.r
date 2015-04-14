@@ -1,47 +1,21 @@
 require(Matrix)
 require(speedglm)
-require(Matching)
 
-source("lib/i2b2.r")
-source("PSM/utils.r")
+source("../lib/i2b2.r", chdir=TRUE)
 
-# to do: parallelization!!
+ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.vector, signed.matrix=FALSE) {
+  # to do: bring to lib together with function ProbabilitiesOfLogRegFitting (almost identical) from AutoPSM
 
-generateFeatureMatrix <- function(patients_limit, features, filter, level=3) {
-  patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
-  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, patients_limit=patients_limit, level=level)
-  feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
-  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
-  return(feature_matrix)
-}
-
-generateObservationMatrix <- function(observations, features, patients) {
-  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd_sub, features)), 
-                                       x=as.numeric(counts), dims=c(length(patients), length(features)), dimnames=list(patients, features)))  
-  return(m)
-}
-
-#to do: usable for all sorts of concepts
-#returns scores and treatments for patients of given concept
-Scores.TreatmentsForMonitoredConcept <- function(all.patients, patients.probabilities, concept) {
-  diagnosed.ind <- which(all.patients[,i2b2ConceptToHuman(concept)]==1)
-  result <- patients.probabilities[diagnosed.ind,]
-#  result <- cbind(probs.to.match, patientnums.to.match)
-  colnames(result) <- c("Probability", "Treatment")
-  return(result)
-}
-
-ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept, signed.matrix=FALSE) {
   # minimum amount of diagnoses per feature per group (treated + control) to be considered relevant
-  minDiagnoses <- 5
+  minDiagnoses <- 5 # to do: remove this magic number 
   
-  # remove target column from featureMatrix
-  print("target.concept:")
-  print(target.concept)
-  target.colname <- i2b2ConceptToHuman(i2b2concept=target.concept)
-  target.colind <- which(colnames(featureMatrix)==target.colname) # to do: unnecessary? 
-  target.vector <- sign(featureMatrix[,target.colname])
-  featureMatrix <- featureMatrix[,-target.colind]
+  # # remove target column from featureMatrix
+  # print("target.concept:")
+  # print(target.concept)
+  # target.colname <- i2b2ConceptToHuman(i2b2concept=target.concept)
+  # target.colind <- which(colnames(featureMatrix)==target.colname) # to do: unnecessary? 
+  # target.vector <- sign(featureMatrix[,target.colname])
+  # featureMatrix <- featureMatrix[,-target.colind]
   
   featureMatrix <- cBind(1, featureMatrix)
   colnames(featureMatrix)[1] <- 'int'
@@ -76,4 +50,44 @@ ProbabilitiesOfLogRegFitting <- function(featureMatrix, target.concept, signed.m
   patient.probabilities <- cbind(probabilities, target.vector)
 
   return(patient.probabilities)  
+}
+
+GetAllYearCosts <- function(patient_nums) {
+  # returns summe_aller_kosten for each patient for every year
+  # to do: remove limit
+  # to do: integrate to lib dataPrep.r
+  num.string <- toString(patient_nums[1])
+  for (i in patient_nums) {
+    num.string <- paste0(num.string, ", ", i)
+  }
+
+  query <- "SELECT patient_num, EXTRACT(YEAR FROM datum) as datum_year, SUM(summe_aller_kosten)
+    FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
+    WHERE patient_num IN (%s)
+    GROUP BY patient_num, datum_year
+    ORDER BY patient_num, datum_year
+    LIMIT 20;"
+
+  result <- executeCRCQuery(query, num.string)
+  return(result)
+}
+
+GetOneYearCosts <- function(patient_nums, year) {
+  # returns summe_aller_kosten for each patient for one specific year
+  # to do: integrate to lib dataPrep.r
+  num.string <- toString(patient_nums[1])
+  for (i in patient_nums) {
+    num.string <- paste0(num.string, ", ", i)
+  }
+
+  query <- "SELECT patient_num, SUM(summe_aller_kosten)
+    FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
+    WHERE patient_num IN (%s)
+    AND CAST(EXTRACT(YEAR FROM datum) AS INT) = %d
+    GROUP BY patient_num
+    ORDER BY patient_num"
+
+  result <- executeCRCQuery(query, num.string, year)
+  rownames(result) <- result[,"patient_num"]
+  return(result)
 }

@@ -2,8 +2,8 @@
 <girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
 	<settings>
-        <title>Propensity Score Matching</title>
-		<description>Propensity score matching using logistic regression as scoring algorithm. Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
+        <title>Propensity Score Matching with User-Defined Groups</title>
+		<description>Propensity score matching using logistic regression as scoring algorithm. The patient groups Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
 		<passROutput>false</passROutput>
 		<passRErrors>false</passRErrors>
 		<resultDescription>Matching results</resultDescription>
@@ -12,14 +12,20 @@
 	</settings>
 	<additionalInputs>
 		<input>
-			<name>Observed patient concept</name>
-			<description>Drag a concept in here to select the patients you want to observe.</description>
-			<type>concept</type>
+			<name>Treatment group</name>
+			<description>Drag the patient set you want to select as treatment group in here.</description>
+			<type>patient_set</type>
 		</input>
 		<input>
-			<name>Evaluated treatment</name>
-			<description>Drag the treatment you want to evaluate in here</description>
-			<type>concept</type>
+			<name>Control group</name>
+			<description>Drag the patient set you want to select as control group in here</description>
+			<type>patient_set</type>
+		</input>
+		<input>
+			<name>Treatment date</name>
+			<description>Select the date of the treatment you want to evaluate. Everything but the year will be ignored.</description>
+			<type>date</type>
+			<default>01/01/2009</default>
 		</input>
 	</additionalInputs>
 	<customOutputs>

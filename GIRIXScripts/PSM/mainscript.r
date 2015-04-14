@@ -1,45 +1,53 @@
-# required packages needed, must be installed first
 require(Matrix)
 require(Matching)
 
-source("PSM/logic.r")
-source("lib/i2b2.r")
+source("../lib/i2b2.r", chdir=TRUE)
+source("../lib/dataPrep.r", chdir=TRUE)
+source("logic.r")
 
 if(!exists('girix.input')) {
-  source("PSM/girix_input.r")
+  source("girix_input.r")
 }
 
-# to do: to be set in configuration tab
-girix.input['Feature level'] <- 3
+# girix input processing
+patientset.t.id <- strtoi(girix.input['Treatment group'])
+patientset.c.id <- strtoi(girix.input['Control group'])
+treatmentDate <- i2b2DateToPOSIXlt(girix.input['Treatment date'])
 
-# for debugging: limits database queries to decrease waiting times
-patients.limit <- 10000
-#interval.limit <- list(start=as.Date("2008-01-01"), end=as.Date("2009-01-01"))
+# i2b2 date format (MM/DD/YYYY)
+interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=treatmentDate)
 
-# input preparation to be done by GIRI
-features.filter <- c("ATC:", "ICD:")
-features.level <- strtoi(girix.input['Feature level'])
-features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level) # to adapt feature set
+print("getting featureMatrices")
+featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval)
+featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval)
 
-# get feature set including all ATC/ICDs out of database
-print("getting featureMatrix")
-featureMatrix <- generateFeatureMatrix(patients_limit= patients.limit, level=features.level, features=features, filter=features.filter)
+featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
 
 print("calculating probabilities")
-patients.probs <- ProbabilitiesOfLogRegFitting(featureMatrix, girix.input['Evaluated treatment'])
-
-to.match <- Scores.TreatmentsForMonitoredConcept(all.patients = featureMatrix, patients.probabilities = patients.probs, 
-                                                 concept=girix.input['Observed patient concept'])
+target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
+probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
 
 print("matching")
-matched <- Match(Tr=to.match[,"Treatment"], X=to.match[,"Probability"], M=1, exact=TRUE, ties=TRUE, version="fast")
+matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
+
+print("getting and calculating costs")
+treatmentYear <- as.numeric(format(treatmentDate, "%Y"))
+previousYear <- treatmentYear -1
+pnums.treated <- rownames(featureMatrix)[matched$index.treated]
+pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
+costs.tY <- GetOneYearCosts(c(pnums.treated, pnums.control), treatmentYear)
+costs.pY <- GetOneYearCosts(c(pnums.treated, pnums.control), previousYear)
 
 print("outputting")
-output <- cbind(rownames(to.match[matched$index.treated,]), to.match[matched$index.treated,"Probability"], rownames(to.match[matched$index.control,]), to.match[matched$index.control, "Probability"])
-colnames(output) <- c("Treatment group patient number", "Score", "Control group patient number", "Score")
+output <- matrix()
+output <- cbind(pnums.treated, probabilities[matched$index.treated, "probabilities"], costs.pY[pnums.treated,"sum"], costs.tY[pnums.treated,"sum"],
+				pnums.control, probabilities[matched$index.control, "probabilities"], costs.pY[pnums.control,"sum"], costs.tY[pnums.control,"sum"])
 
-matching.description <- paste0("Matching on patients that have diagnose(s) <b>", i2b2ConceptToHuman(girix.input['Observed patient concept']), 
-                              "</b>. <nl>Evaluated treatment is <b>", i2b2ConceptToHuman(girix.input["Evaluated treatment"]), "</b>.")
+colnames(output) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
+					  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
+rownames(output) <- c()
 
 girix.output[["Matched patients"]] <- output
-girix.output[["Matching description"]] <- matching.description
+girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 
+										  Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
+										  Simulatenously for the following four columns for patients of control group"

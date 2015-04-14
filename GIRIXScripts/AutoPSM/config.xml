@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
+	<settings>
+        <title>Propensity Score Matching</title>
+		<description>Propensity score matching using logistic regression as scoring algorithm. Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
+		<resultDescription>Matching results</resultDescription>
+		<numberOfPatientSets>0</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
+	</settings>
+	<additionalInputs>
+		<input>
+			<name>Observed patient concept</name>
+			<description>Drag a concept in here to select the patients you want to observe.</description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Evaluated treatment</name>
+			<description>Drag the treatment you want to evaluate in here</description>
+			<type>concept</type>
+		</input>
+	</additionalInputs>
+	<customOutputs>
+		<output>
+			<name>Matched patients</name>
+			<description>Treatment group on the left, control group on the right:</description>
+		</output>
+		<output>
+			<name>Matching description</name>
+			<description></description>
+		</output>
+	</customOutputs>
+</girixconf:Rscriptlet>

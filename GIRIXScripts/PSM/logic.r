@@ -88,5 +88,6 @@ GetOneYearCosts <- function(patient_nums, year) {
     ORDER BY patient_num"
 
   result <- executeCRCQuery(query, num.string, year)
+  rownames(result) <- result[,"patient_num"]
   return(result)
 }

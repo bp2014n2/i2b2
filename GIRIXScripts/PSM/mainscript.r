@@ -1,6 +1,6 @@
 require(Matrix)
 require(Matching)
-q
+
 source("../lib/i2b2.r", chdir=TRUE)
 source("../lib/dataPrep.r", chdir=TRUE)
 source("logic.r")
@@ -34,33 +34,20 @@ print("matching")
 matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
 
 print("getting and calculating costs")
-cost.query.result <- GetYearCosts(rownames(featureMatrix))
 treatmentYear <- as.numeric(format(treatmentDate, "%Y"))
 previousYear <- treatmentYear -1
-
-costs.t <- matrix()
-j <- 1
-for (i in rownames(featureMatrix[matched$index.treated,])) {
-	# first column: costs of year before treatment
-	# second column: costs of year of treatment
-	#third column: patientnum
-	costs.t[j, 1] <- cost.query.result[intersect(which((cost.query.result["patient_num"]==i)), 
-												which((cost.query.result["datum_year"]==(previousYear)))),3]
-	costs.t[j, 2] <- cost.query.result[intersect(which((cost.query.result["patient_num"]==i)), 
-												which((cost.query.result["datum_year"]==(treatmentYear)))),3]
-	#costs.t[j, 2] <- which((cost.query.result["patient_num"]==i) & (cost.query.result["datum_year"]==treatmentYear))
-	costs.t[j, 3] <- i
-	j <- j + 1
-}
-
-
+pnums.treated <- rownames(featureMatrix)[matched$index.treated]
+pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching (order matters)
+costs.tY <- GetOneYearCosts(c(pnums.treated, pnums.control), treatmentYear)
+costs.pY <- GetOneYearCosts(c(pnums.treated, pnums.control), previousYear)
 
 print("outputting")
-output <- cbind(rownames(featureMatrix[matched$index.treated,]), probabilities[matched$index.treated,1], 
-				costs.t[,1:2],
-				rownames(featureMatrix[matched$index.control,]), probabilities[matched$index.control,1],
-				costs.c[,1:2])
-colnames(output) <- c("Treatment group patient number", "Score", "Control group patient number", "Score")
+output <- matrix()
+output <- cbind(pnums.treated, probabilities[matched$index.treated, "probabilities"], costs.pY[pnums.treated,"sum"], costs.tY[pnums.treated,"sum"],
+				pnums.control, probabilities[matched$index.control, "probabilities"], costs.pY[pnums.control,"sum"], costs.tY[pnums.control,"sum"])
+
+colnames(output) <- c("Treatment group patient number", "Score", "Costs at year before treatment", "Cost at treatment year", 
+					  "Control group patient number", "Score", "Costs at year before treatment", "Cost at treatment year")
 rownames(output) <- c()
 
 girix.output[["Matched patients"]] <- output

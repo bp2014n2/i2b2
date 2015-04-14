@@ -4,8 +4,8 @@
 	<settings>
         <title>Propensity Score Matching with User-Defined Groups</title>
 		<description>Propensity score matching using logistic regression as scoring algorithm. The patient groups Feature set contains all ICD and ATC codes with 3 digits as well as age and sex.</description>
-		<passROutput>true</passROutput>
-		<passRErrors>true</passRErrors>
+		<passROutput>false</passROutput>
+		<passRErrors>false</passRErrors>
 		<resultDescription>Matching results</resultDescription>
 		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>
@@ -23,7 +23,7 @@
 		</input>
 		<input>
 			<name>Treatment date</name>
-			<description>Select the date of the treatment you want to evaluate</description>
+			<description>Select the date of the treatment you want to evaluate. Everything but the year is ignored.</description>
 			<type>date</type>
 			<default>01/01/2009</default>
 		</input>

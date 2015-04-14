@@ -178,3 +178,19 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('\\\\ICD
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
   return(executeCRCQuery(queries.visitcount, concept_condition))
 }
+
+
+i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
+  queries.patients <- "SELECT statecityzip_path, COUNT(*)
+    FROM i2b2demodata.patient_dimension
+    WHERE (TRUE = %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
+    GROUP BY statecityzip_path"
+  
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+}
+
+

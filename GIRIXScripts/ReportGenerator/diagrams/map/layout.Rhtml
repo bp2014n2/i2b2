@@ -5,6 +5,7 @@
   <div class="plot"></div><br>
 
   <div class="concept"></div>
+  <span>PLZ Prefix-Filter: <input class="plzFilter" value="14"></input>
   <button class="reloadButton">Reload</button></span>
 </div>
 
@@ -20,6 +21,7 @@ setTimeout(function(){
 
   // Reload function
   document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
+    params.plzFilter = document.querySelector("#"+diagram+" .plzFilter").value
     updatePlot(diagram, params) 
   })
 

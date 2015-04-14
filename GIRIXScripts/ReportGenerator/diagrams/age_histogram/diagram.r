@@ -61,8 +61,8 @@ hist_age_extended <- function(ages) {
   # Titles
   mtext("Age Distribution",3,line=1.3,adj=0,cex=1.2,family="Lato Black",outer=T)
   
-  if(!is.null(input.params$limit)) {
-    mtext(paste0("Histogram for first ", input.params$limit, " patients"),3,line=0,adj=0,cex=0.9,outer=T)
+  if(!is.null(params$limit)) {
+    mtext(paste0("Histogram for first ", params$limit, " patients"),3,line=0,adj=0,cex=0.9,outer=T)
   } else {
     mtext(paste0("Histogram for all patients"),3,line=0,adj=0,cex=0.9,outer=T)
   }

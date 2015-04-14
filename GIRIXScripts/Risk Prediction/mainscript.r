@@ -151,7 +151,7 @@ colnames(prediction.top) <- c('Patient number', 'Probability (in %)')
 
 performance <- validateModel(fit, model.test, model.target.test)
 quality <- data.frame(c(performance$auc, performance$ppv$value))
-dimnames(quality) <- list(c('AUC', paste0("PPV ", performance$ppv$percentage, "% (Cutoff: ", performance$ppv$cutoff*100, ")")), 'Value')
+dimnames(quality) <- list(c('AUC', paste0("PPV ", performance$ppv$percentage, "% (Cutoff: ", round(performance$ppv$cutoff*100, digits=2), ")")), 'Value')
 
 girix.output[['Information']] <- info
 girix.output[['Summary']] <- summary
@@ -165,7 +165,7 @@ options(scipen=10)
 histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)')
 abline(v=mean(probabilities))
 text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4)
-plot(performance$roc, main='ROC curve', lty="dotted")
+plot(performance$roc, main='ROC curve')
 if(smooth_lines) {
   #smoothedLine(performance$roc@x.values[[1]], performance$roc@y.values[[1]])
 }

@@ -1,28 +1,32 @@
-<!--rinline knitr::read_chunk('diagram.r')-->
+<div id="age_histogram" class="rplot">
+  <!-- Title -->
+  <h2 contentEditable>Age Histogram</h2>
 
-<div id="age-histogram-output">
-  <h2>Age Histogram</h2>
-  <!--begin.rcode code, fig.width=10, fig.height=8, out.width="100%"
-      end.rcode-->
-  <br> 
-  <span>Patient Limit: <input id="limitInput" value="1000"></input>
-  <button id="clickMe" onclick="reload_age_histogram()">Reload</button></span>
-  <div id="age-histogram-loading" class="loading" style="display: none">Loading&#8230;</div>
+  <!-- Plot -->
+  <div class="plot"></div><br> 
+
+  <span>Patient Limit: <input class="limitInput" value="1000"></input>
+  <button class="reloadButton">Reload</button></span>
 </div>
 
 <script>
-  reload_age_histogram = function() {
-    limit = $("limitInput").value
-    params = {
-      "limit": limit
-    }
+setTimeout(function(){
 
-    $("age-histogram-loading").style.display = 'block'
+  // Config
+  var diagram = 'age_histogram',
+      params = {
+        'width':  10,
+        'height': 8
+      }
+ 
+  // Reload function
+  jQuery("#"+diagram+" .reloadButton").click(function() {
+    params.limit = document.querySelector("#"+diagram+" .limitInput").value
+    updatePlot(diagram, params) 
+  })
+ 
+  // Initial load
+  updatePlot(diagram, params)
 
-    i2b2.GIRIXPlugin.requestResults("age_histogram", JSON.stringify(params), function(result) {
-        //Beware! This is not jQuery!
-        $("age-histogram-output").innerHTML = result
-        $("limitInput").value = limit
-    })
-  }
+}, 100)
 </script>

@@ -22,14 +22,14 @@ map <- function(){
   color_nr <- cut(map_data$x, c(0,100,500,1000,5000,100000))
   colors<-brewer.pal(6, "Oranges")
 
-  if(!is.null(params$plzFilter)) {
-    map_data<-subset(map_data,substr(map_data$PLZ99,1,nchar(params$plzFilter))==params$plzFilter)
+  if(!is.null(params$plzFilter) && nchar(params$plzFilter) == 2) {
+    map_data<-subset(map_data,substr(map_data$PLZ99,1,2)==params$plzFilter)
   }
 
   # Grafik erstellen und weitere Elemente
   plot(map_data,col=colors[color_nr],border=F)
 
-  # Betitelung
-  mtext("PLZ Grenzen",side=3,line=-4,adj=0,cex=1.7)
+  # Title
+  mtext("Patient distribution",side=3,line=-4,adj=0,cex=1.0)
 }
 map()

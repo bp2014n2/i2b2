@@ -1,6 +1,6 @@
 # ---- code ----
-library(maptools)
-library(rgdal)
+suppressMessages(library(maptools))
+suppressMessages(library(rgdal))
 library(RColorBrewer)
 
 gpclibPermit()
@@ -33,6 +33,7 @@ map <- function(){
 
   map_data.union <- unionSpatialPolygons(map_data, map_data$zip)
   plot(map_data.union, add = TRUE, border = "black", lwd = 1)
+  # text(map_data.union, labels=map_data.union$id, cex=1.5, col="white")
 
   # Title
   mtext("Patient distribution",side=3,line=-4,adj=0,cex=1.0)

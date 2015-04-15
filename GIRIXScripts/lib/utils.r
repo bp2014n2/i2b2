@@ -56,7 +56,7 @@ printPatientSet <- function(id) {
 smoothedLine <- function(x, y) {
   xnna <- x[!is.na(y)]
   ynna <- y[!is.na(y)]
-  lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), col="red", lwd=2)
+  lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), lwd=2)
 }
 
 utils.random_dates <- function(N, st="2011/01/01", et="2014/12/31") {

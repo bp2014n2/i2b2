@@ -20,7 +20,7 @@ hist_age_extended <- function(patients) {
 
   # Setting the layout
   par(
-    omi=c(0.37,0,0,0),             # Outer border
+    omi=c(0.37,0,0,0),          # Outer border
     mai=c(0.3,0.9,0.35,0.3),    # Inner border
     mgp=c(0,0,0),               # Space axle text
     family="Lato",              # Font

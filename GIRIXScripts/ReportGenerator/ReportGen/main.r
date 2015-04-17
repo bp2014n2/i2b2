@@ -1,4 +1,4 @@
-# Install packages if necessary
+# Install package necessary
 list.of.packages <- c("knitr", "extrafont")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -27,7 +27,7 @@ generateOutput <- function() {
 
   # Deactivates code output globally
   knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='hide')
-  opts_knit$set(progress = FALSE, verbose = FALSE)
+#  opts_knit$set(progress = FALSE, verbose = FALSE)
   opts_chunk$set(fig.width=5, fig.height=5)
 
   # Embed SVGs in HTML

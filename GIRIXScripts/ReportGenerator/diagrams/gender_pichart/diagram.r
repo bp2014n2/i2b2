@@ -1,17 +1,35 @@
 # ---- code ----
+source("../../lib/style.r")
+
+# newpie is a pi chart with labels inside
+newpie <- pie
+newlbs <- quote(if (!is.na(lab) && nzchar(lab)) {
+  text(0.5 * P$x, 0.5 * P$y, labels[i], xpd = TRUE, adj = ifelse(P$x < 0, 1, 0), ...)
+})
+body(newpie)[[22]][[4]][[7]] <- newlbs
+
 sex_pi <- function(patients){
   data <- table(patients$sex_cd)
 
-  par(omi=c(0.5,0.25,0.75,2.75),mai=c(0.3,1.5,0.35,1),mgp=c(3,3,0),
-        family="Lato Light", las=1)  
+  par(
+    omi=c(0.5,0,0,7), # Outer border (bottom, top, left, right)
+    mai=c(0.3,0,0,0), # Inner border
+    mgp=c(3,3,0),     # Space axle text 
+    las=1,            # Style of axle labels (horizontal) 
+    col="white",      # Default color
+    family="Lato"     # Default font
+  )  
 
   # Diagram
-  pie(data, labels=c("Weiblich", "Männlich"), col=c(rgb(235/255, 54/255, 180/255), rgb(54/255, 171/255, 235/255)), border="white")
+  newpie(
+    data, 
+    labels=c("Female", "Male"), 
+    col=c(set.alpha(baseColor,0.7),set.alpha(accentColor[1], 0.7)), 
+    border="white"
+  )
 
   # Titles
-  mtext("Sex Distribution",3,line=1.3,adj=0,cex=1.2,family="Lato Black",outer=T)
-  mtext("Pi Chart",3,line=0,adj=0,cex=0.9,outer=T)
-  mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3)
+  mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3, col=darkGray)
 }
 
 sex_pi(i2b2$crc$getPatients(model.patient_set))

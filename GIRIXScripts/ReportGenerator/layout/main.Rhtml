@@ -30,6 +30,7 @@ end.rcode-->
   function updatePlot(diagram, params) {
     // Send request
     document.querySelector("#"+diagram+" .spinner").style.display = 'block'
+    delete Array.prototype.toJSON // fixes that arrays are not converted to strings
     i2b2.GIRIXPlugin.requestResults(diagram, JSON.stringify(params), function(result) {
         document.querySelector("#"+diagram+" .plot").innerHTML = result
         document.querySelector("#"+diagram+" .spinner").style.display = 'none'

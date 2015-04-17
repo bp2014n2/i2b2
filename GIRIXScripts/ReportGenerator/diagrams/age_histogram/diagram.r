@@ -2,6 +2,8 @@
 source("../../lib/style.r")
 
 hist_age_extended <- function(patients) {
+  options(scipen=10) # don't convert into exponential format
+
   # The only needed information from patients
   ages <- patients$age_in_years_num
 
@@ -48,19 +50,34 @@ hist_age_extended <- function(patients) {
     )
   }
 
-  # Highlight the highest value
+  # Highlight the desired bars
   overlay<-c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  indexOfMax <- which.max(ages.hist$counts)
-  overlay[indexOfMax] <- max(ages.hist$counts) # Print only a overlay for the highest 
-  x2<-barplot(
-    overlay,                    # Array of values to overlay
-    horiz=T,                    # Horizontal
-    border=NA,                  # No border
-    xlim=c(0,ages.hist$max),    # Limits of original plot
-    col=baseColor,              # Color
-    axes=F,                     # Don't print axes
-    add=T                       # Additive
-  )
+  if(!is.null(params$highlight)) {
+    if(params$highlight == "none") {
+      indexes <- c()
+    } else if (params$highlight == "highest") {
+      indexes <- c(which.max(ages.hist$counts))
+    } else if (params$highlight == "aboveAverage") {
+      indexes <- which(ages.hist$counts>ages.hist$mean, arr.in=TRUE)
+    } else if (params$highlight == "index") {
+       indexes <- params$highlightIndexes
+    }
+  } else {
+    indexes <- c(which.max(ages.hist$counts))
+  }
+
+  for(index in indexes) {
+    overlay[index] <- ages.hist$counts[index] # Print only a overlay for the highest 
+    x2<-barplot(
+      overlay,                    # Array of values to overlay
+      horiz=T,                    # Horizontal
+      border=NA,                  # No border
+      xlim=c(0,ages.hist$max),    # Limits of original plot
+      col=baseColor,              # Color
+      axes=F,                     # Don't print axes
+      add=T                       # Additive
+    )
+  }
 
   #Y Legend
   for (i in 1:length(ages.hist$counts))

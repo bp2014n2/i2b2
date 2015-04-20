@@ -4,6 +4,7 @@ i2b2 <- list()
 db <- list()
 
 source("utils.r")
+source("style.r")
 source("i2b2.crc.r")
 source("i2b2.ont.r")
 

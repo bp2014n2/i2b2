@@ -162,14 +162,14 @@ girix.output[['Quality']] <- quality
 
 smooth_lines <- TRUE
 options(scipen=10)
-histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)')
-abline(v=mean(probabilities))
-text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4)
-plot(performance$roc, main='ROC curve')
+histogram <- hist(probabilities, seq(0, 100, 10), ylim=c(0,nrow(newdata.patients)), xlab='Probabilities (in %)', col=par("col"))
+abline(v=mean(probabilities), lwd=3, col=accentColor[1])
+text(x=mean(probabilities), y=par('yaxp')[2]/2, labels='Mean', pos=4, font=2, col=accentColor[1])
+plot(performance$roc, main='ROC curve', box.col=darkGray)
 if(smooth_lines) {
   #smoothedLine(performance$roc@x.values[[1]], performance$roc@y.values[[1]])
 }
-plot(performance$precrec, main='Precision/Recall curve', lty="dotted")
+plot(performance$precrec, main='Precision/Recall curve', lty="dotted", col=accentColor[1], box.col=darkGray)
 if(smooth_lines) {
   smoothedLine(performance$precrec@x.values[[1]], performance$precrec@y.values[[1]])
   #y <- performance$precrec@y.values[[1]]

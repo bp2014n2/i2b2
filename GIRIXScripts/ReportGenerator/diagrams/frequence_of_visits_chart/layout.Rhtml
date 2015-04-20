@@ -1,6 +1,7 @@
 <div id="frequence_of_visits_chart" class="rplot">
   <!-- Title -->
   <h2 contentEditable>Frequence of Visits Chart</h2>
+  <p contentEditable class="desc">Click here to add description</p>
 
   <div class="plot"></div><br>
 
@@ -25,7 +26,10 @@ setTimeout(function(){
   // Reload function
   document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
     var conceptFieldId = document.querySelector("#frequence_of_visits_chart .concept").firstChild.id.slice(17)
-    params.icd = i2b2.h.getXNodeVal(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId].origData.xmlOrig,  "dimcode").split('\\').join("\\\\")
+    if(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId]) {
+      params.icd = i2b2.h.getXNodeVal(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId].origData.xmlOrig,  "dimcode").split('\\').join("\\\\")
+      params.icdName = document.querySelector("#frequence_of_visits_chart .concept").firstChild.innerText
+    }
     updatePlot(diagram, params) 
   })
 

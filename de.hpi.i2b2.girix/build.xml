@@ -16,7 +16,7 @@
 			<path refid="common-classpath" />
 			<pathelement location="${classes}" />
 			<pathelement location="${lib}/REngine.jar" />
-			<pathelement location="${lib}/JRI.jar" />
+			<pathelement location="${lib}/RserveEngine.jar" />
 			<pathelement location="${lib}/rJava.jar" />
 			<pathelement location="${lib}/jna-4.0.0.jar" />
 			<pathelement location="../${i2b2CommonProject}/dist/i2b2Common-core.jar" />
@@ -127,12 +127,6 @@
 		<copy todir="//${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/services">
 			<fileset dir="${dist}">
 				<include name="**/**.aar" />
-			</fileset>
-		</copy>
-		
-		<copy todir="//${jboss.home}/standalone/lib/ext">
-			<fileset dir="${lib}">
-				<include name="libjri.so" />
 			</fileset>
 		</copy>
 	</target>

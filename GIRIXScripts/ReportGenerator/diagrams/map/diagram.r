@@ -36,7 +36,7 @@ map <- function(){
   map_data$zip <- as.numeric(substr(map_data$PLZ99, 1, 2))
   map_data <- merge(x=map_data, y=zip_data, by="zip") 
 
-  color_nr <- cut(map_data$x, c(0,1000,2000,4000,10000,100000))
+  color_nr <- cut(map_data$x, c(0,1000,2000,4000,10000,100000),dig.lab=10)
   colors<-brewer.pal(6, "Oranges")
 
   if(!is.null(params$plzFilter) && nchar(params$plzFilter) == 2) {

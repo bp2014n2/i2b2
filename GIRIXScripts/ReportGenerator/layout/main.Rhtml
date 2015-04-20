@@ -20,12 +20,13 @@ end.rcode-->
 end.rcode-->
 
 <br>
-<button id="createPdf">Export as PDF</button>
+<div class="exportPDF">
+  <button id="createPdf">Export as PDF</button>
+</div>
 
 <script>
   window.params = Array()
-  createLoadingSpinners()
-  console.log(jQuery)
+  createLoadingSpinners('.rplot')
 
   function updatePlot(diagram, params) {
     // Send request
@@ -37,9 +38,9 @@ end.rcode-->
     })
   }
 
-  function createLoadingSpinners() {
+  function createLoadingSpinners(outerClass) {
     window.setTimeout(function() {
-      var plotDivs = document.querySelectorAll('.rplot')
+      var plotDivs = document.querySelectorAll(outerClass)
       for (i = 0; i < plotDivs.length; ++i) {
         var plotDiv = plotDivs[i]
         //create loading spinner
@@ -370,6 +371,7 @@ doc.text(30, 195, titleText);
 doc.addPage()
 
 function createPdf(plots, titles, descriptions, doc){
+    document.querySelector(".exportPDF .spinner").style.display = 'block'
     var plot = plots.splice(0,1)[0]
     var title = titles.splice(0,1)[0].innerText
     var description = descriptions.splice(0,1)[0].innerText
@@ -385,6 +387,7 @@ function createPdf(plots, titles, descriptions, doc){
       doc.text(20, 200, description);
       if(plots.length == 0) {
         doc.save("Report.pdf")
+        document.querySelector(".exportPDF .spinner").style.display = 'none'
       } else {
         doc.addPage()
         createPdf(plots, titles, descriptions, doc)
@@ -396,6 +399,8 @@ createPdf(plots, titles, descriptions, doc)
 
 }
 }, 10)
+
+createLoadingSpinners('.exportPDF')
 </script>
 <style>
 #girix-result img {

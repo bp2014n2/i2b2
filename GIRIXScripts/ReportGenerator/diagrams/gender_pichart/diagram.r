@@ -20,7 +20,7 @@ sex_pi <- function(patients){
     family="Lato"     # Default font
   )  
 
-  # Diagram
+  # Plot
   newpie(
     data, 
     labels=c("Female", "Male"), 
@@ -28,7 +28,7 @@ sex_pi <- function(patients){
     border="white"
   )
 
-  # Titles
+  # Footer
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3, col=darkGray)
 }
 

@@ -55,7 +55,7 @@ ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.v
 GetAllYearCosts <- function(patient_nums) {
   # returns summe_aller_kosten for each patient for every year
   # to do: remove limit
-  # to do: integrate to lib dataPrep.r
+  # to do: integrate to lib dataPrep.r/data access
   num.string <- toString(patient_nums[1])
   for (i in patient_nums) {
     num.string <- paste0(num.string, ", ", i)
@@ -74,20 +74,28 @@ GetAllYearCosts <- function(patient_nums) {
 
 GetOneYearCosts <- function(patient_nums, year) {
   # returns summe_aller_kosten for each patient for one specific year
-  # to do: integrate to lib dataPrep.r
+  # to do: integrate to lib dataPrep.r/data access
   num.string <- toString(patient_nums[1])
   for (i in patient_nums) {
     num.string <- paste0(num.string, ", ", i)
   }
 
-  query <- "SELECT patient_num, SUM(summe_aller_kosten)
-    FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
-    WHERE patient_num IN (%s)
-    AND CAST(EXTRACT(YEAR FROM datum) AS INT) = %d
-    GROUP BY patient_num
-    ORDER BY patient_num"
+ query <- "SELECT patient_num, SUM(summe_aller_kosten)
+   FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
+   WHERE patient_num IN (%s)
+   AND CAST(EXTRACT(YEAR FROM datum) AS INT) = %d
+   GROUP BY patient_num
+   ORDER BY patient_num"
 
   result <- executeCRCQuery(query, num.string, year)
   rownames(result) <- result[,"patient_num"]
   return(result)
 }
+
+    # for hpcc:
+    #  query <- "SELECT patient_num, SUM(summe_aller_kosten)
+    # FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
+    # WHERE patient_num IN (%s)
+    # AND SUBSTRING(datum FROM 1 FOR 4) = %d
+    # GROUP BY patient_num
+    # ORDER BY patient_num"

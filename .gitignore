@@ -17,3 +17,6 @@ hs_err_pid*
 # hpcc server credentials
 ./i2b2/GIRIXScripts/lib/i2b2.crc.config_hpcc.r
 */HPCCJDBC.log*
+
+# postgresql database connection configuration
+./i2b2/GIRIXScripts/lib/i2b2.crc.config_postgres.r

@@ -372,7 +372,7 @@ doc.addPage()
 function createPdf(plots, titles, descriptions, doc){
     var plot = plots.splice(0,1)[0]
     var title = titles.splice(0,1)[0].innerText
-    var desciption = descriptions.splice(0,1)[0].innerText
+    var description = descriptions.splice(0,1)[0].innerText
 
     var ratio = plot.height / plot.width
     var canvas = jQuery(plot.src.replace("data:image/svg+xml;utf8,", ""))[0]
@@ -381,8 +381,10 @@ function createPdf(plots, titles, descriptions, doc){
       doc.addImage(background, 'JPEG', 0, 0, 210, 300);
       doc.text(20, 35, title);
       doc.addImage(imgData, 'JPEG', 15, 50, 180, 180 * ratio);
+      doc.setFontSize(14);
+      doc.text(205, 35, description);
       if(plots.length == 0) {
-        doc.save("hey.pdf")
+        doc.save("Report.pdf")
       } else {
         doc.addPage()
         createPdf(plots, titles, descriptions, doc)

@@ -28,6 +28,7 @@ setTimeout(function(){
     var conceptFieldId = document.querySelector("#frequence_of_visits_chart .concept").firstChild.id.slice(17)
     if(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId]) {
       params.icd = i2b2.h.getXNodeVal(i2b2.GIRIXPlugin.model.conceptRecords[conceptFieldId].origData.xmlOrig,  "dimcode").split('\\').join("\\\\")
+      params.icdName = document.querySelector("#frequence_of_visits_chart .concept").firstChild.innerText
     }
     updatePlot(diagram, params) 
   })

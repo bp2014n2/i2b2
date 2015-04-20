@@ -4,7 +4,7 @@ source("../../lib/style.r")
 frequence_of_visits <- function(patients) {
  
   par(
-    mai=c(1,1,0.5,0.5),         # Outer border (bottom, top, left, right)
+    mai=c(1,1,0,0.5),           # Outer border
     omi=c(0.65,0.25,0.75,0.75), # Inner border
     family="Lato",              # Font 
     las=1,                      # Style of axle labels (horizontal) 
@@ -30,12 +30,23 @@ frequence_of_visits <- function(patients) {
     )
   )
 
-  visits_per_quarter <- quarters(patients$visitsWithObservation$visitDate)
-  years <- strftime(patients$visitsWithObservation$visitDate, "%Y")
-  dd <- data.frame(visits_per_quarter, years, patients.withObservation.relative_visits_counts)
+  quarters_of_visits <- quarters(patients$visitsWithObservation$visitDate)
+  years_of_visits <- strftime(patients$visitsWithObservation$visitDate, "%Y")
+  dd <- data.frame(quarters_of_visits, years_of_visits, patients.withObservation.relative_visits_counts)
 
-  p.with.agg <- aggregate(patients.withObservation.relative_visits_counts ~ visits_per_quarter + years, dd, FUN = sum)
-  p.with.agg$date <- as.POSIXct(paste(p.with.agg$years, as.numeric(substr(p.with.agg$visits_per_quarter,2,2))*3, "01", sep = "-"))
+  patients.withObservation.aggregated <- setNames(
+    aggregate(patients.withObservation.relative_visits_counts ~ quarters_of_visits + years_of_visits, dd, FUN = sum), 
+    c('quarter', 'year', 'relative_visit_counts')
+  )
+
+  patients.withObservation.aggregated$date <- as.POSIXct(
+    paste(                                                                   # Recreate date strings
+      patients.withObservation.aggregated$year,                              # Year
+      as.numeric(substr(patients.withObservation.aggregated$quarter,2,2))*3, # Quarters to months conversion
+      "01",                                                                  # Day
+      sep = "-"
+    )
+  )
 
   # Coverting visit date to timestamp
   patients$visitsWithoutObservation$visitDate <- strptime(
@@ -56,34 +67,94 @@ frequence_of_visits <- function(patients) {
     )
   )
 
-  visits_per_quarter <- quarters(patients$visitsWithoutObservation$visitDate)
-  years <- strftime(patients$visitsWithoutObservation$visitDate, "%Y")
-  dd <- data.frame(visits_per_quarter, years, patients.withoutObservation.relative_visits_counts)
+  quarters_of_visits <- quarters(patients$visitsWithoutObservation$visitDate)
+  years_of_visits <- strftime(patients$visitsWithoutObservation$visitDate, "%Y")
+  dd <- data.frame(quarters_of_visits, years_of_visits, patients.withoutObservation.relative_visits_counts)
 
-  p.without.agg <- aggregate(patients.withoutObservation.relative_visits_counts ~ visits_per_quarter + years, dd, FUN = sum)
-  p.without.agg$date <- as.POSIXct(paste(p.without.agg$years, as.numeric(substr(p.without.agg$visits_per_quarter,2,2))*3, "01", sep = "-"))
-  
-  plot(p.with.agg$date,p.with.agg$patients.withObservation.relative_visits_counts,type="n",xlab="",ylab="relative count")
+  patients.withoutObservation.aggregated <- setNames(
+    aggregate(patients.withoutObservation.relative_visits_counts ~ quarters_of_visits + years_of_visits, dd, FUN = sum), 
+    c('quarter', 'year', 'relative_visit_counts')
+  )
 
-  # axis(2,col=par("bg"),col.ticks="grey81", lwd.ticks=0.5,tck=-0.025)
-  lines(p.with.agg$date,p.with.agg$patients.withObservation.relative_visits_counts,type="l",col=baseColor,lwd=3,xpd=T)
-  lines(p.without.agg$date,p.without.agg$patients.withoutObservation.relative_visits_counts,type="l",col=accentColor[1],lwd=3)
-  text(head(p.with.agg$date, 1),max(p.without.agg$patients.withoutObservation.relative_visits_counts, p.with.agg$patients.withObservation.relative_visits_counts)*0.9,"Mit Knorpelkrankheiten",adj=0,cex=1,col=baseColor)
-  text(head(p.with.agg$date, 1),max(p.without.agg$patients.withoutObservation.relative_visits_counts, p.with.agg$patients.withObservation.relative_visits_counts)*0.85,"Ohne Knorpelkrankheiten",adj=0,cex=1,col=accentColor[1])
-  beginn<-c(head(p.with.agg$date, 1)); ende<-c(tail(p.with.agg$date, 1))
-  farbe<-c(set.alpha(baseColor, 0.5))
-  for(i in 1:length(beginn)) {
-    xx<-c(p.with.agg$date,rev(p.with.agg$date)); yy<-c(p.with.agg$patients.withObservation.relative_visits_counts,rev(p.without.agg$patients.withoutObservation.relative_visits_counts))
-    polygon(xx,yy,col=farbe[i],border=F)
-  }
+  patients.withoutObservation.aggregated$date <- as.POSIXct(
+    paste(                                                                      # Recreate date strings
+      patients.withoutObservation.aggregated$year,                              # Year
+      as.numeric(substr(patients.withoutObservation.aggregated$quarter,2,2))*3, # Quarters to months conversion
+      "01",                                                                     # Day
+      sep = "-"
+    )
+  )
+
+  # Plot
+  plot(
+    patients.withObservation.aggregated$date,
+    patients.withObservation.aggregated$relative_visit_counts,
+    type="n",
+    xlab="",
+    ylab="relative count"
+  )
+
+  # Line for patients with overvation
+  lines(
+    patients.withObservation.aggregated$date,
+    patients.withObservation.aggregated$relative_visit_counts,
+    type="l",
+    col=baseColor,
+    lwd=3,
+    xpd=T
+  )
   
-  # Betitelung
-  mtext("Frequenz der Arztbesuche",3,line=1.3,adj=0,family="Lato Black",cex=1.2,outer=T)
-  if(!is.null(params$icd)) {
-     mtext(paste0("Analysierte ICD: ", params$icd),3,line=0,adj=0,cex=0.9,outer=T)
+  # Line for patients without observation
+  lines(
+    patients.withoutObservation.aggregated$date,
+    patients.withoutObservation.aggregated$relative_visit_counts,
+    type="l",
+    col=accentColor[1],
+    lwd=3
+  )
+
+  if(is.null(params$icdName)){
+    icdText <- "M94 Sonstige Knorpelkrankheiten"
   } else {
-     mtext("\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\",3,line=0,adj=0,cex=0.9,outer=T)
+    icdText <- params$icdName
   }
+
+  text(
+    head(patients.withObservation.aggregated$date, 1),
+    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.9,
+    paste("With", icdText),
+    adj=0,
+    cex=1,
+    col=baseColor
+  )
+
+  text(
+    head(patients.withObservation.aggregated$date, 1),
+    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.85,
+    paste("Without", icdText),
+    adj=0,
+    cex=1,
+    col=accentColor[1]
+  )
+
+  # Color space between lines
+  try({
+    beginn<-c(head(patients.withObservation.aggregated$date, 1))
+    farbe<-c(set.alpha(baseColor, 0.5))
+    for(i in 1:length(beginn)) {
+      xx <- c(
+        patients.withObservation.aggregated$date,
+        rev(patients.withObservation.aggregated$date)
+      )
+      yy <- c(
+        patients.withObservation.aggregated$relative_visit_counts,
+        rev(patients.withoutObservation.aggregated$relative_visit_counts)
+      )
+      polygon(xx,yy,col=farbe[i],border=F)
+    }
+   }, T) 
+
+  # Footer
   mtext("Elsevier Health Analytics",1,line=3,adj=1,cex=0.65,font=3)
 }  
 

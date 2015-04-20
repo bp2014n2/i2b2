@@ -112,7 +112,7 @@ i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, p
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
 }
 
-i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num NOT IN
@@ -125,41 +125,55 @@ i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(concepts=c('\\\\
          FROM i2b2demodata.concept_dimension
          WHERE %s)
      GROUP BY patient_num) patients)
+  AND (%s OR
+      visit_dimension.patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
   GROUP BY visit_dimension.start_date
   ORDER BY visit_dimension.start_date"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.visitcount, concept_condition))
+  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set))
 }
 
-i2b2$crc$getPatientsCountWithoutObservation <- function(concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getPatientsCountWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
   queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) as counts 
   FROM i2b2demodata.patient_dimension
   WHERE patient_num NOT IN (
-  SELECT DISTINCT patient_num
+    SELECT DISTINCT patient_num
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
-      SELECT concept_cd
-      FROM i2b2demodata.concept_dimension
-      WHERE %s))"
-  
+        SELECT concept_cd
+        FROM i2b2demodata.concept_dimension
+        WHERE %s))
+  AND (%s OR
+    patient_num IN (
+    SELECT patient_num
+    FROM i2b2demodata.qt_patient_set_collection
+    WHERE result_instance_id = %d)) "
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.patientcount, concept_condition))
+  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set))
 } 
 
-i2b2$crc$getPatientsCountWithObservation <- function(concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getPatientsCountWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
   queries.patientcount <- "SELECT count(DISTINCT patient_num) as counts
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
       SELECT concept_cd
       FROM i2b2demodata.concept_dimension
-      WHERE %s)"
+      WHERE %s)
+    AND (%s OR
+      patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.patientcount, concept_condition))
+  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set))
 } 
 
-i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num IN
@@ -172,11 +186,16 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(concepts=c('\\\\ICD
          FROM i2b2demodata.concept_dimension
          WHERE %s)
      GROUP BY patient_num) patients)
+  AND (%s OR
+    visit_dimension.patient_num IN (
+    SELECT patient_num
+    FROM i2b2demodata.qt_patient_set_collection
+    WHERE result_instance_id = %d))
   GROUP BY visit_dimension.start_date
   ORDER BY visit_dimension.start_date"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.visitcount, concept_condition))
+  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set))
 }
 
 

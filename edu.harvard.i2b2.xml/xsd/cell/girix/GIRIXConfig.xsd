@@ -62,6 +62,7 @@
 			<xs:enumeration value="concept"/>
 			<xs:enumeration value="patient_set"/>
 			<xs:enumeration value="date"/>
+			<xs:enumeration value="checkbox"/>
 			<xs:enumeration value="hidden"/>
 			<xs:enumeration value="headline"/>
 			<xs:enumeration value="interval"/>

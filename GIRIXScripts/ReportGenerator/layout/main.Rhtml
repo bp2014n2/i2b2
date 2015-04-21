@@ -27,6 +27,14 @@ end.rcode-->
 <script>
   window.params = Array()
   createLoadingSpinners('.rplot')
+  initializeSaveButtons()
+
+  function duplicateDiagram(cssId){
+      jQuery('#'+cssId).clone()
+          .attr("id",cssId + "-saved")
+              .insertBefore(jQuery('#'+cssId))
+      jQuery('#'+cssId+"-saved .reloadButton").parent().hide()
+  }
 
   function updatePlot(diagram, params) {
     // Send request
@@ -36,6 +44,20 @@ end.rcode-->
         document.querySelector("#"+diagram+" .plot").innerHTML = result
         document.querySelector("#"+diagram+" .spinner").style.display = 'none'
     })
+  }
+
+  function initializeSaveButtons() {
+    window.setTimeout(function() {
+      var plotDivs = document.querySelectorAll('.rplot')
+      for (i = 0; i < plotDivs.length; ++i) {
+        var plotDiv = plotDivs[i]
+        var saveButton = document.querySelector('#' + plotDiv.id + ' .saveButton')
+        saveButton.name = plotDiv.id
+        saveButton.onclick = function() {
+           duplicateDiagram(this.name)
+        }
+      }
+    }, 0)
   }
 
   function createLoadingSpinners(outerClass) {

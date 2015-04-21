@@ -27,4 +27,5 @@ install.packages("maptools")
 library(extrafont)
 font_import(prompt = FALSE)
 print('RUN sudo apt-get install libproj-dev libgdal-dev BEFORE INSTALLING rgdal !!!!!')
-
+install.packages('Rserve')
+install.packages('RSclient')

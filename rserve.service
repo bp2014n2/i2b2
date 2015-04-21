@@ -1,0 +1,36 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          Was macht das Skript?
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Kurze Beschreibung
+# Description:       Längere Bechreibung
+### END INIT INFO
+# Author: Name <email@domain.tld>
+
+start(){
+    sudo /home/ubuntu/i2b2/start_rserve.sh
+}
+
+stop(){
+    sudo -u ubuntu /home/ubuntu/i2b2/shutdown_rserve.sh
+}
+
+# Aktionen
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        sleep 30
+        start
+        ;;
+esac
+
+exit 0

@@ -45,6 +45,9 @@ progPid=$!
     sudo apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base libproj-dev libgdal-dev
     sudo /etc/init.d/apache2 restart
     sudo R CMD ./install_girix_packages.r
+    sudo cp ./rserve.service /etc/init.d/rserve
+    sudo update-rc.d rserve defaults
+    sudo service rserve start
 }  >> $LOG_FILE 2>&1
 echo "" ; kill -13 "$progPid";
 

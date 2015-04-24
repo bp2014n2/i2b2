@@ -5,19 +5,21 @@
 
   <!-- Plot -->
   <div class="plot"></div>
-   
-  <h3>Highlight bars</h3>
-  <p>
-    <input type="radio" name="highlight" value="none"> None<br>
-    <input type="radio" name="highlight" value="highest" checked> Highest<br>
-    <input type="radio" name="highlight" value="aboveAverage"> Above average<br>
-    <input type="radio" name="highlight" value="index"> Specific indexes: <input class="indexesInput" value="1,3,4"></input>
-  </p> 
-  <h3>Patient Limit</h3> 
-  <p>
-    Limit (-1 for no limit): <input class="limitInput" value="-1"></input>
-  </p>
-  <br><span><button class="reloadButton">Reload</button> | <button class="saveButton">Save Version</button></span>
+     
+  <div class="settings">
+    <h3>Highlight bars</h3>
+    <p>
+      <input type="radio" name="highlight" value="none"> None<br>
+      <input type="radio" name="highlight" value="highest" checked> Highest<br>
+      <input type="radio" name="highlight" value="aboveAverage"> Above average<br>
+      <input type="radio" name="highlight" value="index"> Specific indexes: <input class="indexesInput" value="1,3,4"></input>
+    </p> 
+    <h3>Patient Limit</h3> 
+    <p>
+      Limit (-1 for no limit): <input class="limitInput" value="-1"></input>
+    </p>
+    <br><span><button class="reloadButton">Reload</button> | <button class="saveButton">Save Version</button></span>
+  </div>
 </div>
 
 <script>

@@ -33,7 +33,7 @@ end.rcode-->
       jQuery('#'+cssId).clone()
           .attr("id",cssId + "-saved")
               .insertBefore(jQuery('#'+cssId))
-      jQuery('#'+cssId+"-saved .reloadButton").parent().hide()
+      jQuery('#'+cssId+"-saved .settings").remove()
   }
 
   function updatePlot(diagram, params) {

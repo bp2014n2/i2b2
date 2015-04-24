@@ -133,12 +133,12 @@ hist_age_extended <- function(patients) {
 
 age_histogram_main <- function() {
   # Check if limit is set as a parameter
-  if(!is.null(params$limit) && params$limit > 0){
-    # Patients with limit
-    patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
-  } else {
+  if(is.null(params$limit) || (params$limit == -1)){
     # All patients
     patients <- i2b2$crc$getPatients(model.patient_set)
+  } else {
+    # Patients with limit
+    patients <- i2b2$crc$getPatientsWithLimit(model.patient_set, params$limit)
   }
   # age_in_years_num is not set in database so calculate it
   patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())

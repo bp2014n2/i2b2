@@ -12,6 +12,10 @@
         </settings>
         <additionalInputs>
                 <input>
+                        <name>Global settings</name>
+                        <type>headline</type>
+                </input>
+                <input>
                         <name>Patient Set</name>
                         <type>patient_set</type>
                 </input>

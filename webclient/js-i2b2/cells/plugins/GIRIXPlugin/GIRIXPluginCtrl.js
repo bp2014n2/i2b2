@@ -144,6 +144,7 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		allNPInput[i].parentElement.removeChild(allNPInput[i]);
 	}
 	
+	numberAIHeadlineFields = 0;
 	numberAIDateFields = 0;
 	numberAIHiddenFields = 0;
 	numberAIConceptFields = 0;
@@ -162,6 +163,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 			newNode = i2b2.GIRIXPlugin.createNewAITextField(addIns[i]);
 		} else if (addIns[i].type == "dropdown") {
 			newNode = i2b2.GIRIXPlugin.createNewAIDropdownField(addIns[i]);
+		} else if (addIns[i].type == "headline") {
+			var newID = "girix-AIHEADLINE-" + numberAIHeadlineFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIHeadlineField(addIns[i], newID);
+			numberAIHeadlineFields++;
 		} else if (addIns[i].type == "hidden") {
 			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i], newID);
@@ -236,6 +241,18 @@ i2b2.GIRIXPlugin.createNewAIDropdownField = function(config) {
 	newNode.className = "girix-input girix-input-dropdown";
 	return newNode;
 };
+
+i2b2.GIRIXPlugin.createNewAIHeadlineField = function(config, newID) {
+	// Additional input headline prototype
+	var aiHeadlineProt = $$("DIV#girixplugin-mainDiv .girix-headline-prototype")[0];	
+	numberAIHeadlineFields = $$(".girix-input-headline").length;
+	newNode = aiHeadlineProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h2')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	newNode.className = "girix-input girix-input-headline";
+	return newNode;
+};
+
 
 i2b2.GIRIXPlugin.createNewAIHiddenField = function(config, newID) {
 	// Additional input hidden prototype

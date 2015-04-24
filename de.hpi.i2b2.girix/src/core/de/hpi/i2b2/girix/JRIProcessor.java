@@ -140,14 +140,14 @@ public class JRIProcessor {
 
     // ========= Create data structures (vectors) =========
     try {
-    	re.assign("girix.patients", "c()");
-	    re.assign("girix.observations", "c()");
-	    re.assign("girix.input", "c()");
-	    re.assign("girix.output", "list()");
-	    re.assign("girix.concept.names", "c()");
-	    re.assign("girix.modifiers", "c()");
-	    re.assign("girix.events", "c()");
-	    re.assign("girix.observers", "c()");
+    	re.voidEval("girix.patients <- c()");
+	    re.voidEval("girix.observations <- c()");
+	    re.voidEval("girix.input <- c()");
+	    re.voidEval("girix.output <- list()");
+	    re.voidEval("girix.concept.names <- c()");
+	    re.voidEval("girix.modifiers <- c()");
+	    re.voidEval("girix.events <- c()");
+	    re.voidEval("girix.observers <- c()");
     }
     catch (REngineException e) {
       log.error("Error with setting up new vectors in R");

@@ -23,9 +23,15 @@
 		</input>
 		<input>
 			<name>Treatment date</name>
-			<description>Select the date of the treatment you want to evaluate. Everything but the year will be ignored.</description>
+			<description>Select the date of the treatment you want to evaluate. Everything but the year is ignored.</description>
 			<type>date</type>
-			<default>01/01/2009</default>
+			<default>01/01/2009</default>			
+		</input>
+		<input>
+			<name>Feature Selection</name>
+			<description>Select the features you want to use for score calculation</description>
+			<type>checkbox</type>
+			<value>ATC</value>
 		</input>
 		<input>
 			<name>Feature level</name>

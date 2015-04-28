@@ -148,6 +148,7 @@ i2b2.GIRIXPlugin.loadAI = function() {
 	numberAIDateFields = 0;
 	numberAIHiddenFields = 0;
 	numberAIConceptFields = 0;
+	numberAIIntervalFields = 0;
 	numberAIPatientSetFields = 0;
 	// Clear old additional concepts
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
@@ -171,6 +172,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 			var newID = "girix-AIHIDDEN-" + numberAIHiddenFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIHiddenField(addIns[i], newID);
 			numberAIHiddenFields++;
+		} else if (addIns[i].type == "interval") {
+			var newID = "girix-AIINTERVAL-" + numberAIIntervalFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIIntervalField(addIns[i], newID);
+			numberAIIntervalFields++;
 		} else if (addIns[i].type == "date") {
 			var newID = "girix-AIDATE-" + numberAIDateFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i], newID);
@@ -203,10 +208,37 @@ i2b2.GIRIXPlugin.createNewAITextField = function(config) {
 	return newNode;
 };
 
+i2b2.GIRIXPlugin.createNewAIIntervalField = function(config, newID) {
+	// Additional input interval prototype
+	var aiIntervalProt = $$("DIV#girixplugin-mainDiv .girix-interval-prototype")[0];	
+	newNode = aiIntervalProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+	newNode.className = "girix-input girix-input-interval";
+        config.dates.forEach(function(date, index) {
+          newDateNode = $$("DIV#girixplugin-mainDiv .girix-interval-date-prototype")[0].cloneNode(true)
+          var parDescr = Element.select(newDateNode, 'h4')[0];
+          parDescr.innerHTML = i2b2.h.Escape(date.name);
+          var parTextfield = Element.select(newDateNode, 'input')[0];		
+          var parLink = Element.select(newDateNode, 'a')[0];
+          parTextfield.id = newID + "-date-" + index;
+          if (i2b2.h.Escape(date.default) != "") {
+                  parTextfield.value = i2b2.h.Escape(date.default);
+          }
+          parLink.href = "Javascript:i2b2.GIRIXPlugin.doShowCalendar('" + parTextfield.id + "')"
+          newDateNode.style.marginRight = "20px"
+          newDateNode.style.display = "inline"
+          Element.select(newNode, 'div')[0].appendChild(newDateNode);
+        })
+	return newNode;
+};
+
+
 i2b2.GIRIXPlugin.createNewAIDateField = function(config, newID) {
 	// Additional input date prototype
 	var aiDateProt = $$("DIV#girixplugin-mainDiv .girix-date-select-prototype")[0];	
-	numberAIDateFields = $$(".girix-input-date-select").length;
 	newNode = aiDateProt.cloneNode(true);
 	var parTitle = Element.select(newNode, 'h3')[0];
 	var parDescr = Element.select(newNode, 'p')[0];
@@ -513,6 +545,7 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 	var allAIDate = $$("DIV#girixplugin-mainDiv .girix-input-date-select");
 	var allAIDD = $$("DIV#girixplugin-mainDiv .girix-input-dropdown");
 	var allAICO = $$("DIV#girixplugin-mainDiv .girix-input-concept");
+	var allAIInterval = $$("DIV#girixplugin-mainDiv .girix-input-interval");
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
 	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
 
@@ -575,6 +608,25 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		var name = Element.select(allHiddenText[i], 'h3')[0].innerHTML;
 		var value = Element.select(allHiddenText[i], 'input')[0].value;
 		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional Inputs: Intervals
+	for (var i = 0; i < allAIInterval.length; i++) {
+		var name = Element.select(allAIInterval[i], 'h3')[0].innerHTML;
+                var isFirst = true
+                var datesVector = "c("
+                var dates = Element.select(allAIInterval[i], 'div')[0]
+                Element.select(dates, 'div').forEach(function(element) {
+                  if(!isFirst) {
+                    datesVector += ", "
+                  }
+                  isFirst = false
+                  datesVector += '"' + Element.select(element, 'h4')[0].innerHTML + '"=' 
+                  datesVector += '"' + Element.select(element, 'input')[0].value + '"' 
+                })
+                datesVector += ')'
+		addIns[j] = [name, datesVector];
 		j++;
 	}
 

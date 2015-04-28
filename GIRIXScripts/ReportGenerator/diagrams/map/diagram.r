@@ -1,11 +1,9 @@
 # ---- code ----
-suppressMessages(library(maptools))
-suppressMessages(library(rgdal))
-library(RColorBrewer)
-gpclibPermit()
+# suppressMessages(library(maptools))
+# suppressMessages(library(rgdal))
+suppressMessages(library(RColorBrewer))
+# gpclibPermit()
 
-print("GETTING WD")
-getwd()
 map <- function(){
   options(scipen=10) # don't convert into exponential format
 
@@ -42,10 +40,12 @@ map <- function(){
 
   color<-sample(1:7,length(map_data),replace=T)
 
-  patient_data <- i2b2$crc$getPatientsWithPlz(model.patient_set)
-  patient_data$zip <- substring(patient_data$statecityzip_path, nchar(patient_data$statecityzip_path)-2, nchar(patient_data$statecityzip_path)-1)
+  patient_data_tmp <- i2b2$crc$getPatientsWithPlz(model.patient_set)
+  patient_data_tmp$zip <- as.numeric(substring(patient_data_tmp$statecityzip_path, nchar(patient_data_tmp$statecityzip_path)-2, nchar(patient_data_tmp$statecityzip_path)-1))
+  patient_data <- na.omit(patient_data_tmp)
+  patient_data$counts <- as.numeric(patient_data$counts)
 
-  zip_data <- aggregate(x=patient_data$count, by=list(patient_data$zip), FUN=sum)
+  zip_data <- aggregate(x=patient_data$counts, by=list(patient_data$zip), FUN=sum)
   zip_data$zip <- as.numeric(zip_data[,1])
 
   tmp_data <- merge(x=slot(map_data, "data"), y=zip_data, by="zip", all.x=T) 
@@ -59,7 +59,7 @@ map <- function(){
   colors<-brewer.pal(6, "Oranges")
 
   if(!is.null(params$plzFilter) && nchar(params$plzFilter) == 2) {
-    map_data<-subset(map_data,substr(map_data$PLZ99,1,2)==params$plzFilter)
+    map_data<-subset(map_data,substr(map_data$PLZ99,1,2)==as.numeric(params$plzFilter))
   }
 
   # Plot

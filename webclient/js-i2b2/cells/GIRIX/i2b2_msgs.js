@@ -93,7 +93,7 @@ i2b2.GIRIX.cfg.parsers.getRScriptlets = function(){
 			nodeData.addInputs = [];
 			for (var j = 0; j < addInputNodes.length; j++) {
 				nodeData.addInputs[j] = {};
-				nodeData.addInputs[j].name = i2b2.h.getXNodeVal(addInputNodes[j], "name"); // Can't be undefined if config.xml is valid
+				nodeData.addInputs[j].name = i2b2.h.XPath(addInputNodes[j], "descendant-or-self::"+"name"+"/text()")[0].nodeValue
 				nodeData.addInputs[j].descr = i2b2.h.getXNodeVal(addInputNodes[j], "description");
 				if (nodeData.addInputs[j].descr == undefined) { nodeData.addInputs[j].descr = ""; }
 				nodeData.addInputs[j].default = i2b2.h.getXNodeVal(addInputNodes[j], "default");
@@ -107,7 +107,19 @@ i2b2.GIRIX.cfg.parsers.getRScriptlets = function(){
 							nodeData.addInputs[j].options[k] = options[k].nodeValue; // Can't be undefined if config.xml is valid
 						}
 					}
-				} else if (nodeData.addInputs[j].type == "text") {
+				}
+                                if (nodeData.addInputs[j].type == "interval") {
+					var dates = i2b2.h.XPath(addInputNodes[j], ".//date");
+					nodeData.addInputs[j].dates = [];
+					if (dates != undefined) {
+						for (var k = 0; k < dates.length; k++) {
+                                                        nodeData.addInputs[j].dates[k] = [];
+							nodeData.addInputs[j].dates[k].default = i2b2.h.getXNodeVal(dates[k], "default")
+							nodeData.addInputs[j].dates[k].name = i2b2.h.getXNodeVal(dates[k], "name")
+						}
+					}
+				} 
+                                if (nodeData.addInputs[j].type == "text") {
 					nodeData.addInputs[j].lines = i2b2.h.getXNodeVal(addInputNodes[j], "lines");
 					if (nodeData.addInputs[j].lines == undefined) { nodeData.addInputs[j].lines = "1"; }
 				}

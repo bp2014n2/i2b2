@@ -82,14 +82,17 @@ validateModel <- function(fit, model, target) {
 
 }
 
-model.interval <- list(start=i2b2DateToPOSIXlt(girix.input['Model data start']), end=i2b2DateToPOSIXlt(girix.input['Model data end']))
+model.interval.tmp <- eval(parse(text=girix.input['Model interval']))
+model.interval <- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
 model.patient_set <- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
 
-model.target.interval <- list(start=i2b2DateToPOSIXlt(girix.input['Target data start']), end=i2b2DateToPOSIXlt(girix.input['Target data end']))
+model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
+model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
 target.concept.path <- girix.input['Target concept']
 target.concept.name <- i2b2$ont$getConceptName(target.concept.path)
 
-newdata.interval <- list(start=i2b2DateToPOSIXlt(girix.input['Prediction data start']), end=i2b2DateToPOSIXlt(girix.input['Prediction data end']))
+newdata.interval.tmp <- eval(parse(text=girix.input['Prediction interval']))
+newdata.interval <- list(start=i2b2DateToPOSIXlt(newdata.interval.tmp['Start']), end=i2b2DateToPOSIXlt(newdata.interval.tmp['End']))
 newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi(girix.input['New Patient set']), -1)
 
 features.filter <- c("ATC:", "ICD:")
@@ -127,9 +130,9 @@ prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == '
 prediction.sorted$probability <- prediction.sorted$probability * 100
 
 newdata.target.interval <- list(start=POSIXltToi2b2Date(as.Date(newdata.interval$start) + as.numeric(difftime(model.target.interval$start, model.interval$start))), end=POSIXltToi2b2Date(as.Date(newdata.interval$end) + as.numeric(difftime(model.target.interval$end, model.interval$end))))
-info.model <- sprintf('Model Data for %s (%d patients, split %d:%d) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), model.split*100, (1-model.split)*100, girix.input['Model data start'], girix.input['Model data end'])
-info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.name, girix.input['Target data start'], girix.input['Target data end'])
-info.newdata <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(newdata.patient_set), nrow(newdata.patients), girix.input['Prediction data start'], girix.input['Prediction data end'])
+info.model <- sprintf('Model Data for %s (%d patients, split %d:%d) from %s to %s', printPatientSet(model.patient_set), nrow(model.patients), model.split*100, (1-model.split)*100, model.interval.tmp['Start'], model.interval.tmp['End'])
+info.model.target <- sprintf('Target Data for %s from %s to %s', target.concept.name, model.target.interval.tmp['Start'], model.target.interval.tmp['End'])
+info.newdata <- sprintf('Prediction for %s (%d patients) based on data from %s to %s', printPatientSet(newdata.patient_set), nrow(newdata.patients), newdata.interval.tmp['Start'], newdata.interval.tmp['End'])
 info.newdata.target <- sprintf('Prediction from %s to %s', newdata.target.interval$start, newdata.target.interval$end)
 
 info <- data.frame(c(info.model, info.model.target, info.newdata, info.newdata.target))

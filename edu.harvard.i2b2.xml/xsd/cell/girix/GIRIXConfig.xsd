@@ -25,7 +25,7 @@
 
 	<xs:complexType name="settingsType">
         	<xs:sequence>
-           		<xs:element name="title" type="xs:string" minOccurs="0"/>
+           		<xs:element name="title" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
 			<xs:element name="subdirectory" type="xs:string" minOccurs="0"/>
 			<xs:element name="passROutput" type="xs:boolean" minOccurs="0"/>
@@ -50,6 +50,7 @@
 			<xs:element name="type" type="girixconf:typeType" />
 			<xs:element name="default" type="xs:string" minOccurs="0"/>
 			<xs:element name="items" type="girixconf:itemsType" minOccurs="0"/>
+			<xs:element name="dates" type="girixconf:datesType" minOccurs="0"/>
 			<xs:element name="lines" type="xs:unsignedByte" minOccurs="0"/>
         	</xs:sequence>
 	</xs:complexType>
@@ -62,6 +63,7 @@
 			<xs:enumeration value="patient_set"/>
 			<xs:enumeration value="date"/>
 			<xs:enumeration value="hidden"/>
+			<xs:enumeration value="interval"/>
 			<xs:enumeration value="headline"/>
 		</xs:restriction>
 	</xs:simpleType>
@@ -77,6 +79,19 @@
            		<xs:element name="item" type="girixconf:nonEmptyString" maxOccurs="unbounded"/>
         	</xs:sequence>
 	</xs:complexType>
+
+        <xs:complexType name="datesType">
+                <xs:sequence>
+                        <xs:element name="date" type="girixconf:dateType" maxOccurs="unbounded"/>
+                </xs:sequence>
+        </xs:complexType>
+
+        <xs:complexType name="dateType">
+        <xs:sequence>
+                        <xs:element name="name" type="girixconf:nonEmptyString"/>
+                        <xs:element name="default" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        </xs:complexType>
 	
 	<xs:complexType name="customOutputsType">
         	<xs:sequence>

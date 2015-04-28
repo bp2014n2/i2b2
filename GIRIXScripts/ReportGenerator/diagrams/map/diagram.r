@@ -1,6 +1,7 @@
 # ---- code ----
 # suppressMessages(library(maptools))
 # suppressMessages(library(rgdal))
+suppressMessages(library(sp))
 suppressMessages(library(RColorBrewer))
 # gpclibPermit()
 

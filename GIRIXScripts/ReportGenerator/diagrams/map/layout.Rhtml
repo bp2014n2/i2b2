@@ -6,7 +6,9 @@
 
   <div class="plot"></div><br>
   <div class="settings">
+<!--
     PLZ Prefix-Filter: <input class="plzFilter" value="14"></input>
+-->
     <br><br><span><button class="reloadButton">Reload</button> | <button class="saveButton">Save Version</button></span>
   </div>
 </div>
@@ -23,7 +25,7 @@ setTimeout(function(){
 
   // Reload function
   document.querySelector("#"+diagram+" .reloadButton").addEventListener("click", function() {
-    params.plzFilter = document.querySelector("#"+diagram+" .plzFilter").value
+  //params.plzFilter = document.querySelector("#"+diagram+" .plzFilter").value
     updatePlot(diagram, params) 
   })
 

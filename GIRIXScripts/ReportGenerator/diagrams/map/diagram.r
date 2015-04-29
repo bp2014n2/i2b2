@@ -1,11 +1,10 @@
 # ---- code ----
-suppressMessages(library(maptools))
-suppressMessages(library(rgdal))
+# suppressMessages(library(maptools))
+# suppressMessages(library(rgdal))
+suppressMessages(library(sp))
 library(RColorBrewer)
-gpclibPermit()
+# gpclibPermit()
 
-print("GETTING WD")
-getwd()
 map <- function(){
   options(scipen=10) # don't convert into exponential format
 
@@ -48,6 +47,12 @@ map <- function(){
   zip_data <- aggregate(x=patient_data$count, by=list(patient_data$zip), FUN=sum)
   zip_data$zip <- as.numeric(zip_data[,1])
 
+ #  if(!is.null(params$plzFilter) && nchar(params$plzFilter) > 0) {
+ #    indexInSet <- which(slot(map_data, "data") == params$plzFilter)[1]
+ #    slot(map_data, "data") <- as.data.frame(slot(map_data, "data")[14,])
+ #    slot(map_data, "plotOrder") <- seq(1,1)
+ #  }
+
   tmp_data <- merge(x=slot(map_data, "data"), y=zip_data, by="zip", all.x=T) 
   tmp_data$x[is.na(tmp_data$x)] <- 0 # Replace NA with 0
   slot(map_data, "data") <- tmp_data
@@ -57,10 +62,6 @@ map <- function(){
 
   color_nr <- cut(sorted_data_alphanumerical, c(0,10,1000,2000,4000,10000,100000),dig.lab=10)
   colors<-brewer.pal(6, "Oranges")
-
-  if(!is.null(params$plzFilter) && nchar(params$plzFilter) == 2) {
-    map_data<-subset(map_data,substr(map_data$PLZ99,1,2)==params$plzFilter)
-  }
 
   # Plot
   plot(map_data,col=colors[color_nr],border = "black", lwd = 1)

@@ -1,0 +1,48 @@
+<div id="age_histogram" class="rplot">
+  <!-- Title -->
+  <h2 contentEditable>Age Histogram</h2>
+  <button class="deleteButton">delete</button>
+  <p contentEditable class="desc">Click here to add description</p>
+
+  <!-- Plot -->
+  <div class="plot"></div>
+     
+  <div class="settings">
+    <h3>Highlight bars</h3>
+    <p>
+      <input type="radio" name="highlight" value="none"> None<br>
+      <input type="radio" name="highlight" value="highest" checked> Highest<br>
+      <input type="radio" name="highlight" value="aboveAverage"> Above average<br>
+      <input type="radio" name="highlight" value="index"> Specific indexes: <input class="indexesInput" value="1,3,4"></input>
+    </p> 
+    <h3>Patient Limit</h3> 
+    <p>
+      Limit (-1 for no limit): <input class="limitInput" value="-1"></input>
+    </p>
+    <br><span><button class="reloadButton">Reload</button> | <button class="saveButton">Save Version</button></span>
+  </div>
+</div>
+
+<script>
+setTimeout(function(){
+
+  // Config
+  var diagram = 'age_histogram',
+      params = {
+        'width':  10,
+        'height': 8
+      }
+ 
+  // Reload function
+  jQuery("#"+diagram+" .reloadButton").click(function() {
+    params.limit = document.querySelector("#"+diagram+" .limitInput").value
+    params.highlight = jQuery("input:radio[name ='highlight']:checked").val()
+    params.highlightIndexes = document.querySelector("#"+diagram+" .indexesInput").value.split(",").map(Number)
+    updatePlot(diagram, params) 
+  })
+ 
+  // Initial load
+  updatePlot(diagram, params)
+
+}, 100)
+</script>

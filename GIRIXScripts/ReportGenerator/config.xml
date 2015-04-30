@@ -20,7 +20,7 @@
                         <type>patient_set</type>
                 </input>
 	        <input>
-			<name>requestDiagram</name>
+			<name>requestOutput</name>
 			<type>hidden</type>
 			<default>all</default>
 		</input>

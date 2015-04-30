@@ -26,7 +26,7 @@ generateOutput <- function() {
   dir.create(paste(tmpFolder, '/plots',  sep=''), mode="0777")
 
   # Deactivates code output globally
-  knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='hide')
+  knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='asis')
 #  opts_knit$set(progress = FALSE, verbose = FALSE)
   opts_chunk$set(fig.width=5, fig.height=5)
 

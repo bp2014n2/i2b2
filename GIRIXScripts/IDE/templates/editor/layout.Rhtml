@@ -1,13 +1,8 @@
 <div id="editor" class="rplot">
   <!-- Title -->
-  <h2 contentEditable>Code editor</h2>
+  <h2>Code editor</h2>
   <button class="deleteButton" style="display:none">delete</button>
-  <p contentEditable class="desc">Click here to add description</p>
-
-  <h3>Output:</h3><br>
-  <hr>
-  <div class="plot">Please run your code first.</div><br>
-  <hr>
+  <p style="display:none" contentEditable class="desc">Click here to add description</p>
   <br>
 
   <textarea id="demotext">
@@ -21,6 +16,12 @@ plot(cars)
   <div class="settings">
     <br><span><button class="reloadButton">Run Code</button> | <button class="saveButton">Save Version</button></span>
   </div>
+
+  <h3>Output:</h3><br>
+  <hr>
+  <div class="plot">Please run your code first.</div><br>
+  <hr>
+
 </div>
 
 <script>

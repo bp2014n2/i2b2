@@ -1,6 +1,3 @@
-<br><br>
-<h1>Statistical Overview</h1>
-
 <!--begin.rcode child='../templates/editor/layout.Rhtml' 
 end.rcode-->
 
@@ -14,6 +11,11 @@ end.rcode-->
   createLoadingSpinners('.rplot')
   initializeSaveButtons()
   initializeRemoveButtons()
+  window.setTimeout(function() {
+    jQuery('.girix-result-element h3:contains("result")')[0].hide()
+    jQuery('#girix-result h1:contains("Results of scriptlet")')[0].hide()
+    jQuery('#girix-result p:contains("IDE")')[0].hide()
+  }, 0)
 
   function deleteDiagram(cssId){
       jQuery('#'+cssId).remove()
@@ -25,6 +27,14 @@ end.rcode-->
       jQuery('#'+cssId).clone()
           .attr("id",cssId + "-saved" + timeId)
               .insertBefore(jQuery('#'+cssId))
+      jQuery('#'+cssId+"-saved"  + timeId + " .desc").show()
+      jQuery('#'+cssId+"-saved"  + timeId + " .deleteButton").show()
+      jQuery('#'+cssId+"-saved"  + timeId + " hr").remove()
+      jQuery('#'+cssId+"-saved"  + timeId + " br").remove()
+      jQuery('#'+cssId+"-saved"  + timeId + " .CodeMirror").remove()
+      jQuery('#'+cssId+"-saved"  + timeId + " h2").remove()
+      jQuery('#'+cssId+"-saved"  + timeId + " h3").remove()
+      jQuery('#'+cssId+"-saved"  + timeId + " textarea").remove()
       jQuery('#'+cssId+"-saved"  + timeId + " .settings").remove()
       initializeRemoveButton(cssId + "-saved" + timeId)
   }
@@ -406,7 +416,6 @@ doc.addPage()
 function createPdf(plots, titles, descriptions, doc){
     document.querySelector(".exportPDF .spinner").style.display = 'block'
     var plot = plots.splice(0,1)[0]
-    var title = titles.splice(0,1)[0].innerText
     var description = descriptions.splice(0,1)[0].innerText
 
     var ratio = plot.height / plot.width
@@ -414,7 +423,6 @@ function createPdf(plots, titles, descriptions, doc){
     saveSvgAsPng(canvas, function(imgData) {
       doc.setFontSize(20);
       doc.addImage(background, 'JPEG', 0, 0, 210, 300);
-      doc.text(20, 35, title);
       doc.addImage(imgData, 'JPEG', 15, 50, 180, 180 * ratio);
       doc.setFontSize(14);
       doc.text(20, 200, description);

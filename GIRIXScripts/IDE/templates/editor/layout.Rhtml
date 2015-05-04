@@ -1,7 +1,7 @@
 <div id="editor" class="rplot">
   <!-- Title -->
   <h2 contentEditable>Code editor</h2>
-  <button class="deleteButton">delete</button>
+  <button class="deleteButton" style="display:none">delete</button>
   <p contentEditable class="desc">Click here to add description</p>
 
   <h3>Output:</h3><br>
@@ -11,7 +11,11 @@
   <br>
 
   <textarea id="demotext">
-cat('Hello world!')
+# Define an ages vector with 5 values
+cars <- c(1, 3, 6, 4, 9)
+
+# Graph the ages vector with all defaults
+plot(cars)
  </textarea>
 
   <div class="settings">
@@ -24,7 +28,10 @@ setTimeout(function(){
 
   // Config
   var template = 'editor',
-      params = {}
+      params = {
+        "width": 10,
+        "height": 5
+      }
 
   // Reload function
   document.querySelector("#"+template+" .reloadButton").addEventListener("click", function() {

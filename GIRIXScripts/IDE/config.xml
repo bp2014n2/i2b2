@@ -2,17 +2,17 @@
 <girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
 	<settings>
-		<title>Elsevier Report</title>
-		<description>This is a comprehensive report generated from the given patient set.</description>
+		<title>R IDE</title>
+		<description>Write R code in you browser!</description>
 		<passROutput>false</passROutput>
                 <passRErrors>false</passRErrors>
-		<resultDescription>Your generated girix:</resultDescription>
+		<resultDescription>IDE</resultDescription>
 		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>
         </settings>
         <additionalInputs>
                 <input>
-                        <name>Global settings</name>
+                        <name>Patient set to work on</name>
                         <type>headline</type>
                 </input>
                 <input>
@@ -32,7 +32,7 @@
        </additionalInputs>
        <customOutputs>
                <output>
-                        <name>Report</name>
+                        <name>result</name>
                         <description></description>
                 </output>
         </customOutputs>

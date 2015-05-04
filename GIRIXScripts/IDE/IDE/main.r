@@ -19,14 +19,14 @@ generateOutput <- function() {
   # Generate unique information for temporary files
   randomNumber <- floor(runif(1, 10000000, 99999999))
   currentTimestamp <- print(as.numeric(Sys.time()))
-  tmpFolder <- paste('ReportGen/tmp/', randomNumber, currentTimestamp, "/", sep='')
+  tmpFolder <- paste('IDE/tmp/', randomNumber, currentTimestamp, "/", sep='')
 
   # Create temporary folder
   dir.create(tmpFolder, mode="0777", recursive=T)
   dir.create(paste(tmpFolder, '/plots',  sep=''), mode="0777")
 
   # Deactivates code output globally
-  knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='hide')
+  knitr::opts_chunk$set(echo=FALSE, fig.path=paste0(tmpFolder, 'plots/'), cache=FALSE, dev='svg', results='asis')
 #  opts_knit$set(progress = FALSE, verbose = FALSE)
   opts_chunk$set(fig.width=5, fig.height=5)
 
@@ -45,7 +45,7 @@ generateOutput <- function() {
     knit(paste0('layout/main.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   } else {
     print(params)
-    knit(paste0('ReportGen/diagram.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
+    knit(paste0('IDE/diagram.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   }
 
   output <- readChar(paste(tmpFolder, fileName, sep=""), file.info(paste(tmpFolder, fileName, sep=""))$size) 

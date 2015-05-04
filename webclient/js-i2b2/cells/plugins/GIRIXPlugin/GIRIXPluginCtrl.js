@@ -516,7 +516,7 @@ setParameter = function(parameter, value){
 // This function is used for asyncronous calls
 i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
 
-        setParameter("requestDiagram", diagram)
+        setParameter("requestOutput", diagram)
         setParameter("params", params)
 
         callbackFunction = function(result) { 
@@ -529,7 +529,7 @@ i2b2.GIRIXPlugin.requestResults = function(diagram, params, callback) {
  
         i2b2.GIRIXPlugin.sendMessage(callbackFunction)
         
-        setParameter("requestDiagram", "all")
+        setParameter("requestOutput", "all")
         setParameter("params", "{}")
 
 };

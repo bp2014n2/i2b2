@@ -43,5 +43,13 @@
 			<name>Matching description</name>
 			<description></description>
 		</output>
+		<output>
+			<name>Validation Parameters</name>
+			<description></description>
+		</output>
+		<output>
+			<name>Costs per year</name>
+			<description></description>
+		</output>
 	</customOutputs>
 </girixconf:Rscriptlet>

@@ -10,6 +10,8 @@ print_table <- function(name) {
 print.data.frame <- print_table
 print.matrix <- print_table
 
+patients <- i2b2$crc$getPatients(model.patient_set)
+
 # print <- function(x, ...) {
 #   if(typeof(x) == "data.frame" || typeof(x) == "matrix" || typeof(x) == "list"){
 #     print_table(x)

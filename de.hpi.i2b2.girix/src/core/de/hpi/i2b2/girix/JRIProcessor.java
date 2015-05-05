@@ -347,7 +347,7 @@ public class JRIProcessor {
       // This workaround ensures that every DateTime has the same representation in the .csv file
       // (without this the time would be ommited if it is midnight)
       try {
-    	  re.assign("girix.tmptable", "as.data.frame(lapply(" + name + ", function(x) if (is(x, \"POSIXt\")) format(x, \"%Y-%m-%d %H:%M:%S\") else x))");
+    	  re.voidEval("girix.tmptable <- as.data.frame(lapply(" + name + ", function(x) if (is(x, \"POSIXt\")) format(x, \"%Y-%m-%d %H:%M:%S\") else x))");
     	  re.voidEval("write.table(girix.tmptable, file = \"" + csvPath + "/" + filename + ".csv\", append = FALSE, quote=which(sapply(" + name + ", function(x) !is.numeric(x) & !is(x, \"POSIXt\")))," +
     			  " sep = \",\", eol = \"\\r\\n\", na = \"NULL\", dec = \".\", row.names = FALSE, col.names = TRUE, qmethod=\"double\", fileEncoding = \"UTF-8\")");
     	  re.voidEval("rm(girix.tmptable)");

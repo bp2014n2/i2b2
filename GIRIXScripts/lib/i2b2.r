@@ -8,12 +8,10 @@ source("style.r")
 source("i2b2.crc.r")
 source("i2b2.ont.r")
 
-executeQuery <- function(config=list(), query, silent=F, ...) {
+executeQuery <- function(config=list(), query, ...) {
 
   final_query <- sprintf(strunwrap(query), ...)
-  if(!silent) {
-    print(final_query)
-  }
+  print(final_query)
   con <- initializeConnection(config)
   result <- dbGetQuery(con, final_query)
   dbDisconnect(con)

@@ -20,7 +20,7 @@ interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=treatmentDate)
 print("getting featureMatrices")
 featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval)
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval)
-
+print("Hallo")
 featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
 
 print("calculating probabilities")

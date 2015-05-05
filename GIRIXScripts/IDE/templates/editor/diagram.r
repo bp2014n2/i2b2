@@ -9,7 +9,6 @@ print_table <- function(name) {
 print.data.frame <- print_table
 print.matrix <- print_table
 
-patients <- i2b2$crc$getPatients(model.patient_set, silent=T)
 
 disable <- function(funcs) {
   for (i in 1:length(funcs)) {
@@ -19,6 +18,9 @@ disable <- function(funcs) {
 
 if(!is.null(params)) {
   disable(c("source", "setwd", "getwd", "load", "save", "system", "read.table"))
+  sink("/dev/null");
+  patients <- i2b2$crc$getPatients(model.patient_set)
+  sink()
   code <- params$code
   eval(parse(text=code))
 }

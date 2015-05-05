@@ -33,8 +33,10 @@ matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, tie
 print("getting and calculating costs")
 treatmentYear <- as.numeric(format(treatmentDate, "%Y"))
 previousYear <- treatmentYear -1
+print("preparing pnums") #debug
 pnums.treated <- rownames(featureMatrix)[matched$index.treated]
 pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
+print("quering costs") #debug
 costs.tY <- GetOneYearCosts(c(pnums.treated, pnums.control), treatmentYear)
 costs.pY <- GetOneYearCosts(c(pnums.treated, pnums.control), previousYear)
 
@@ -46,6 +48,8 @@ output <- cbind(pnums.treated, probabilities[matched$index.treated, "probabiliti
 colnames(output) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 					  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
 rownames(output) <- c()
+
+print(output[1:2,])
 
 girix.output[["Matched patients"]] <- output
 girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 

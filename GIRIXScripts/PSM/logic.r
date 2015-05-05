@@ -73,6 +73,7 @@ GetAllYearCosts <- function(patient_nums) {
 }
 
 GetOneYearCosts <- function(patient_nums, year) {
+  print("in function GetOneYearCosts") # debug
   # returns summe_aller_kosten for each patient for one specific year
   # to do: integrate to lib dataPrep.r/data access
   num.string <- toString(patient_nums[1])
@@ -80,7 +81,10 @@ GetOneYearCosts <- function(patient_nums, year) {
     num.string <- paste0(num.string, ", ", i)
   }
 
- query <- "SELECT patient_num, SUM(summe_aller_kosten)
+  print("num.string prepared") #debug
+  print(num.string)
+
+  query <- "SELECT patient_num, SUM(summe_aller_kosten)
    FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
    WHERE patient_num IN (%s)
    AND CAST(EXTRACT(YEAR FROM datum) AS INT) = %d

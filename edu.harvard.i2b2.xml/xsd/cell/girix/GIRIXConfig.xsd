@@ -51,6 +51,7 @@
 			<xs:element name="default" type="xs:string" minOccurs="0"/>
 			<xs:element name="items" type="girixconf:itemsType" minOccurs="0"/>
 			<xs:element name="lines" type="xs:unsignedByte" minOccurs="0"/>
+			<xs:element name="value" type="xs:string" minOccurs="0"/>
         	</xs:sequence>
 	</xs:complexType>
 

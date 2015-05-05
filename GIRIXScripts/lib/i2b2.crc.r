@@ -2,8 +2,8 @@ i2b2$crc <- list()
 
 source("i2b2.crc.config.r")
 
-executeCRCQuery <- function(query, silent, ...) {
-  return(executeQuery(i2b2$crc$db, query, silent, ...))
+executeCRCQuery <- function(query, ...) {
+  return(executeQuery(i2b2$crc$db, query, ...))
 }
  
 i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
@@ -56,7 +56,7 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
   return(executeCRCQuery(queries.observations, escape(concept.path), interval$start, interval$end, patient_set < 0, patient_set))
 }
 
-i2b2$crc$getPatients <- function(patient_set=-1, silent=F) {
+i2b2$crc$getPatients <- function(patient_set=-1) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
     WHERE (TRUE = %s
@@ -65,7 +65,7 @@ i2b2$crc$getPatients <- function(patient_set=-1, silent=F) {
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d))"
   
-  return(executeCRCQuery(queries.patients, silent=silent, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
 i2b2$crc$getPatientSetDescription <- function(patient_set) {

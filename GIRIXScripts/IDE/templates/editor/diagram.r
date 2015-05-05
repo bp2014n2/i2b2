@@ -10,7 +10,10 @@ print_table <- function(name) {
 print.data.frame <- print_table
 print.matrix <- print_table
 
-patients <- i2b2$crc$getPatients(model.patient_set)
+sink("/dev/null") # On Windows use sink("NUL")
+patients <- i2b2$crc$getPatients(model.patient_set, silent=T)
+sink()
+
 
 # print <- function(x, ...) {
 #   if(typeof(x) == "data.frame" || typeof(x) == "matrix" || typeof(x) == "list"){

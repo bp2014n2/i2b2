@@ -11,6 +11,14 @@ print.matrix <- print_table
 
 patients <- i2b2$crc$getPatients(model.patient_set, silent=T)
 
+disable <- function(funcs) {
+  for (i in 1:length(funcs)) {
+    params$code <<- gsub(paste0("^.*", funcs[i], "[\\s]*\\(.*$"), paste0("print(\"", funcs[i], " function is disabled for security reasons.\"); "), params$code)
+  }
+}
+
 if(!is.null(params)) {
-  eval(parse(text=params$code))
+  disable(c("source", "setwd", "getwd", "load", "save", "system", "read.table"))
+  code <- params$code
+  eval(parse(text=code))
 }

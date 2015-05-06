@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<girixconf:Rscriptlet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
+	<settings>
+		<title>R IDE</title>
+		<description>Write R code in you browser!</description>
+		<passROutput>false</passROutput>
+                <passRErrors>false</passRErrors>
+		<resultDescription>IDE</resultDescription>
+		<numberOfPatientSets>0</numberOfPatientSets>
+		<numberOfConcepts>0</numberOfConcepts>
+        </settings>
+        <additionalInputs>
+                <input>
+                        <name>Patient set to work on</name>
+                        <type>headline</type>
+                </input>
+                <input>
+                        <name>Patient Set</name>
+                        <type>patient_set</type>
+                </input>
+	        <input>
+			<name>requestOutput</name>
+			<type>hidden</type>
+			<default>all</default>
+		</input>
+        	<input>
+			<name>params</name>
+			<type>hidden</type>
+			<default>{}</default>
+		</input>
+       </additionalInputs>
+       <customOutputs>
+               <output>
+                        <name>result</name>
+                        <description></description>
+                </output>
+        </customOutputs>
+	
+</girixconf:Rscriptlet>
+

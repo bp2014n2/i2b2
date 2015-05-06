@@ -27,6 +27,22 @@ end.rcode-->
 <script>
   window.params = Array()
   createLoadingSpinners('.rplot')
+  initializeSaveButtons()
+  initializeRemoveButtons()
+
+  function deleteDiagram(cssId){
+      jQuery('#'+cssId).remove()
+  }
+
+
+  function duplicateDiagram(cssId){
+      var timeId = Date.now()
+      jQuery('#'+cssId).clone()
+          .attr("id",cssId + "-saved" + timeId)
+              .insertBefore(jQuery('#'+cssId))
+      jQuery('#'+cssId+"-saved"  + timeId + " .settings").remove()
+      initializeRemoveButton(cssId + "-saved" + timeId)
+  }
 
   function updatePlot(diagram, params) {
     // Send request
@@ -36,6 +52,38 @@ end.rcode-->
         document.querySelector("#"+diagram+" .plot").innerHTML = result
         document.querySelector("#"+diagram+" .spinner").style.display = 'none'
     })
+  }
+
+  function initializeRemoveButton(plotId) {
+    var removeButton = document.querySelector('#' + plotId + ' .deleteButton')
+    removeButton.name = plotId
+    removeButton.onclick = function() {
+       deleteDiagram(this.name)
+    }
+  }
+
+  function initializeRemoveButtons() {
+    window.setTimeout(function() {
+      var plotDivs = document.querySelectorAll('.rplot')
+      for (i = 0; i < plotDivs.length; ++i) {
+        var plotDiv = plotDivs[i]
+        initializeRemoveButton(plotDiv.id)
+      }
+    }, 0)
+  }
+
+  function initializeSaveButtons() {
+    window.setTimeout(function() {
+      var plotDivs = document.querySelectorAll('.rplot')
+      for (i = 0; i < plotDivs.length; ++i) {
+        var plotDiv = plotDivs[i]
+        var saveButton = document.querySelector('#' + plotDiv.id + ' .saveButton')
+        saveButton.name = plotDiv.id
+        saveButton.onclick = function() {
+           duplicateDiagram(this.name)
+        }
+      }
+    }, 0)
   }
 
   function createLoadingSpinners(outerClass) {
@@ -414,5 +462,10 @@ createLoadingSpinners('.exportPDF')
 
 .rplot .desc {
   color: green;
+}
+
+.rplot .deleteButton {
+  float: right;
+  margin-right: 50px;
 }
 </style>

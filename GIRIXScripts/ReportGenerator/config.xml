@@ -3,7 +3,7 @@
     xmlns:girixconf="http://www.i2b2.org/xsd/cell/girixconf/1.0/">
 	<settings>
 		<title>Elsevier Report</title>
-		<description>This is a comprehensive girix generated from the given patient set.</description>
+		<description>This is a comprehensive report generated from the given patient set.</description>
 		<passROutput>false</passROutput>
                 <passRErrors>false</passRErrors>
 		<resultDescription>Your generated girix:</resultDescription>
@@ -12,11 +12,15 @@
         </settings>
         <additionalInputs>
                 <input>
+                        <name>Global settings</name>
+                        <type>headline</type>
+                </input>
+                <input>
                         <name>Patient Set</name>
                         <type>patient_set</type>
                 </input>
 	        <input>
-			<name>requestDiagram</name>
+			<name>requestOutput</name>
 			<type>hidden</type>
 			<default>all</default>
 		</input>
@@ -25,7 +29,7 @@
 			<type>hidden</type>
 			<default>{}</default>
 		</input>
-        </additionalInputs>
+       </additionalInputs>
        <customOutputs>
                <output>
                         <name>Report</name>

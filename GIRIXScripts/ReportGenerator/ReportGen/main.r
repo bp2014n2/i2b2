@@ -41,7 +41,7 @@ generateOutput <- function() {
 
   # Generate File
   fileName <- 'main.html'
-  if(girix.input["requestDiagram"] == "all"){
+  if(girix.input["requestOutput"] == "all"){
     knit(paste0('layout/main.Rhtml'), output=paste(tmpFolder, fileName, sep=""))
   } else {
     print(params)

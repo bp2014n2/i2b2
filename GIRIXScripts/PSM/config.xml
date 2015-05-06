@@ -27,11 +27,81 @@
 			<type>date</type>
 			<default>01/01/2009</default>			
 		</input>
-		<input>
+                <input>
+			<name>Exact matching</name>
+			<description>Select if a feature should be exact for matching</description>
+			<type>checkboxes</type>
+                        <checkboxes>
+                          <checkbox>
+                            <name>Age</name>
+                            <default></default>
+                          </checkbox>
+                          <checkbox>
+                            <name>Gender</name>
+                            <default>selected</default>
+                          </checkbox>
+                        </checkboxes>
+		</input>
+                <input>
+			<name>Feature Settings</name>
+			<description></description>
+			<type>headline</type>
+		</input>
+                <input>
 			<name>Feature Selection</name>
 			<description>Select the features you want to use for score calculation</description>
-			<type>checkbox</type>
-			<value>ATC</value>
+			<type>checkboxes</type>
+                        <checkboxes>
+                          <checkbox>
+                            <name>ICD</name>
+                            <default>selected</default>
+                          </checkbox>
+                          <checkbox>
+                            <name>ATC</name>
+                            <default>selected</default>
+                          </checkbox>
+                        </checkboxes>
+		</input>
+		<input>
+			<name>Feature level</name>
+			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
+			<type>dropdown</type>
+			<default>3</default>
+			<items>
+				<item>2</item>
+				<item>3</item>
+				<item>4</item>
+			</items>
+		</input>
+		<input>
+			<name>Additional Features (optional)</name>
+			<description>You can select up to five additional features for matching.</description>
+			<type>headline</type>
+		</input>
+		<input>
+			<name>Additional feature 1</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Additional feature 2</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+                <input>
+			<name>Additional feature 3</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+	        <input>
+			<name>Additional feature 4</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+                <input>
+			<name>Additional feature 5</name>
+			<description></description>
+			<type>concept</type>
 		</input>
 	</additionalInputs>
 	<customOutputs>

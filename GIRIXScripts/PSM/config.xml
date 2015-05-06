@@ -27,14 +27,34 @@
 			<type>date</type>
 			<default>01/01/2009</default>			
 		</input>
-		<input>
+                <input>
+			<name>Exact matching</name>
+			<description>Select if a feature should be exact for matching</description>
+			<type>checkboxes</type>
+                        <checkboxes>
+                          <checkbox>
+                            <name>Age</name>
+                            <default></default>
+                          </checkbox>
+                          <checkbox>
+                            <name>Gender</name>
+                            <default>selected</default>
+                          </checkbox>
+                        </checkboxes>
+		</input>
+                <input>
+			<name>Feature Settings</name>
+			<description></description>
+			<type>headline</type>
+		</input>
+                <input>
 			<name>Feature Selection</name>
 			<description>Select the features you want to use for score calculation</description>
 			<type>checkboxes</type>
                         <checkboxes>
                           <checkbox>
                             <name>ICD</name>
-                            <default></default>
+                            <default>selected</default>
                           </checkbox>
                           <checkbox>
                             <name>ATC</name>

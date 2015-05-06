@@ -212,20 +212,20 @@ i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
-GetAllYearCosts <- function(patient_nums) {
-  # returns summe_aller_kosten for each patient for every year
-  # to do: remove limit
-  # to do: integrate to lib dataPrep.r/data access
-  num.string <- toString(patient_nums[1])
-  for (i in patient_nums) {
-    num.string <- paste0(num.string, ", ", i)
-  }
+i2b2$crc$getAllYearCosts <- function(patient_set_ids) {
+  # returns summe_aller_kosten for each patient in patient_set for every year
+  # to do: integrate to lib dataPrep.r/data access <- peter (y...? <- marc)
 
   query <- "SELECT patient_num, datum, summe_aller_kosten 
     FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
-    WHERE patient_num IN (%s)
+    WHERE patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE %s)
     ORDER BY patient_num, datum"
 
-  result <- executeCRCQuery(query, num.string)
+  patient_condition <- paste(paste("result_instance_id = ", patient_set_ids, sep=""), collapse=" OR ")
+
+  result <- executeCRCQuery(query, patient_condition)
   return(result)
 }

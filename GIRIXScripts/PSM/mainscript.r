@@ -39,10 +39,10 @@ print("calculating probabilities")
 target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
 probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
 
-treatmentMean <- mean(probabilities[,2])
-treatmentMedian <- median(probabilities[,2])
-controlMean <- mean(probabilities[,1])
-controlMedian <- median(probabilities[,1])
+treatmentMean <- round(mean(probabilities[,2]),4)
+treatmentMedian <- round(median(probabilities[,2]),4)
+controlMean <- round(mean(probabilities[,1]),4)
+controlMedian <- round(median(probabilities[,1]),4)
 
 validationParams <- c(treatmentMean=treatmentMean,treatmentMedian=treatmentMedian,controlMean=controlMean,controlMedian=controlMedian)
 
@@ -54,31 +54,33 @@ pnums.treated <- rownames(featureMatrix)[matched$index.treated]
 pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
 
 print("quering costs") #debug
-costs <- GetAllYearCosts(c(pnums.treated, pnums.control))
+costs <- i2b2$crc$getAllYearCosts(c(pnums.treated, pnums.control))
 treatmentDate <- getDate(treatmentYear, treatmentQuarter)
 yearBeforeTreatmentDate <- getDate(as.integer(treatmentYear) - 1, treatmentQuarter)
 yearAfterTreatmentDate <- getDate(as.integer(treatmentYear) + 1, treatmentQuarter)
-costs.pY <- costs[yearBeforeTreatmentDate <= costs[, "datum"] & costs[, "datum"] < treatmentDate]
-costs.tY <- costs[treatmentDate <= costs[, "datum"] & costs[, "datum"] < yearAfterTreatmentDate]
+costs.pY <- costs[yearBeforeTreatmentDate <= costs[, "datum"] & costs[, "datum"] < treatmentDate,]
+costs.pY <- aggregate(summe_aller_kosten ~ patient_num, data = costs.pY, sum)
+row.names(costs.pY) <- costs.pY[,"patient_num"]
+costs.tY <- costs[treatmentDate <= costs[, "datum"] & costs[, "datum"] < yearAfterTreatmentDate,]
+costs.tY <- aggregate(summe_aller_kosten ~ patient_num, data = costs.tY, sum)
+row.names(costs.tY) <- costs.tY[,"patient_num"]
 
 print("outputting")
 options(scipen=999)
-output <- matrix()
-output <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"sum"], 2), round(costs.tY[pnums.treated,"sum"], 2),
-				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"sum"], 2), round(costs.tY[pnums.control,"sum"], 2))
+matchedPatients <- matrix()
+matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
+				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
 
-colnames(output) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
+colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 					  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
-rownames(output) <- c()
+rownames(matchedPatients) <- c()
 
-print(output[1:2,])
+print(matchedPatients[1:2,])
+print(validationParams)
 
-girix.output[["Matched patients"]] <- output
+girix.output[["Matched patients"]] <- matchedPatients
 girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 
 										  Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
 										  Simulatenously for the following four columns for patients of control group"
-<<<<<<< HEAD
 girix.output[["Validation Parameters"]] <- validationParams
 girix.output[["Costs per year"]] <- ""
-=======
->>>>>>> master

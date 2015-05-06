@@ -38,7 +38,37 @@
 				<item>4</item>
 			</items>
 		</input>
-	</additionalInputs>
+		<input>
+			<name>Additional Features (optional)</name>
+			<description>You can select up to five additional features for matching.</description>
+			<type>headline</type>
+		</input>
+		<input>
+			<name>Additional feature 1</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Additional feature 2</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+                <input>
+			<name>Additional feature 3</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+	        <input>
+			<name>Additional feature 4</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+                <input>
+			<name>Additional feature 5</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+		</additionalInputs>
 	<customOutputs>
 		<output>
 			<name>Matched patients</name>

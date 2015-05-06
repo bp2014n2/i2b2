@@ -146,9 +146,9 @@ i2b2.GIRIXPlugin.loadAI = function() {
 	
 	numberAIHeadlineFields = 0;
 	numberAIDateFields = 0;
-	numberAICheckboxFields = 0;
 	numberAIHiddenFields = 0;
 	numberAIConceptFields = 0;
+	numberAICheckboxesFields = 0;
 	numberAIIntervalFields = 0;
 	numberAIPatientSetFields = 0;
 	// Clear old additional concepts
@@ -181,11 +181,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 			var newID = "girix-AIDATE-" + numberAIDateFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i], newID);
 			numberAIDateFields++;
-		} else if (addIns[i].type == "checkbox") {
-			var newID = "girix-AICHECKBOX-" + numberAICheckboxFields;
-			newNode = i2b2.GIRIXPlugin.createNewAICheckboxField(addIns[i], newID);
-			numberAICheckboxFields++;
-
+		} else if (addIns[i].type == "checkboxes") {
+			var newID = "girix-AICHECKBOXES-" + numberAICheckboxesFields;
+			newNode = i2b2.GIRIXPlugin.createNewAICheckboxesField(addIns[i], newID);
+			numberAICheckboxesFields++;
 		} else if (addIns[i].type == "concept") {
 			var newID = "girix-AICONCPTDROP-" + numberAIConceptFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIConceptField(addIns[i], newID);
@@ -261,26 +260,31 @@ i2b2.GIRIXPlugin.createNewAIDateField = function(config, newID) {
 	return newNode;
 };
 
-i2b2.GIRIXPlugin.createNewAICheckboxField = function(config, newID) {
+i2b2.GIRIXPlugin.createNewAICheckboxesField = function(config, newID) {
 	// Additional input date prototype
-	var aiCheckboxProt = $$("DIV#girixplugin-mainDiv .girix-checkbox-prototype")[0];	
-	numberAICheckboxFields = $$(".girix-input-checkbox").length;
-	newNode = aiCheckboxProt.cloneNode(true);
-	var parTitle = Element.select(newNode, 'h3')[0];
-	var parDescr = Element.select(newNode, 'p')[0];
-	var parVal = Element.select(newNode, 'span')[0];
-	var parCheckbox = Element.select(newNode, 'input')[0];
-	// parCheckbox.checked
-
-	parTitle.innerHTML = i2b2.h.Escape(config.name);
-	parDescr.innerHTML = i2b2.h.Escape(config.descr);
-	parVal.innerHTML = i2b2.h.Escape(config.value);
-	parCheckbox.id = newID;
-	if (i2b2.h.Escape(config.default) != "") {
-		parTextfield.value = i2b2.h.Escape(config.default);
-	}
-	newNode.className = "girix-input girix-input-checkbox";
-	return newNode;
+	var aiCheckboxesProt = $$("DIV#girixplugin-mainDiv .girix-checkboxes-prototype")[0];	
+        newNode = aiCheckboxesProt.cloneNode(true);
+        var parTitle = Element.select(newNode, 'h3')[0];
+        var parDescr = Element.select(newNode, 'p')[0];
+        parTitle.innerHTML = i2b2.h.Escape(config.name);
+        parDescr.innerHTML = i2b2.h.Escape(config.descr);
+        newNode.className = "girix-input girix-input-checkbox";
+               config.checkboxes.forEach(function(checkbox, index) {
+                        newCheckboxNode = $$("DIV#girixplugin-mainDiv .girix-checkbox-prototype")[0].cloneNode(true)
+                        window.setTimeout(function() { newCheckboxNode.class = "girix-checkboxes-checkbox" }, 0)
+                        var parDescr = Element.select(newCheckboxNode, 'span')[0];
+                        parDescr.innerHTML = i2b2.h.Escape(checkbox.name);
+                        var parInput = Element.select(newCheckboxNode, 'input')[0];    
+                        parInput.id = newID+"-checkbox-"+index;
+                        Element.select(newNode, 'div')[0].appendChild(newCheckboxNode);
+                        if (i2b2.h.Escape(checkbox.default) == "selected") {
+                                         window.setTimeout(function() {
+                                           jQuery('#'+parInput.id)[0].checked = true
+                                         }, 0);
+                                 }
+                        newCheckboxNode.style.display = ""
+                      })
+        return newNode;
 };
 
 i2b2.GIRIXPlugin.createNewAIDropdownField = function(config) {
@@ -573,6 +577,7 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 	var allAIDate = $$("DIV#girixplugin-mainDiv .girix-input-date-select");
 	var allAIDD = $$("DIV#girixplugin-mainDiv .girix-input-dropdown");
 	var allAICO = $$("DIV#girixplugin-mainDiv .girix-input-concept");
+	var allAICheckboxes = $$("DIV#girixplugin-mainDiv .girix-input-checkbox");
 	var allAIInterval = $$("DIV#girixplugin-mainDiv .girix-input-interval");
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
 	var allHiddenText = $$("DIV#girixplugin-mainDiv .girix-input-hidden");
@@ -639,6 +644,26 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		j++;
 	}
 
+	// Get additional Inputs: Checkboxes
+	for (var i = 0; i < allAICheckboxes.length; i++) {
+		var name = Element.select(allAICheckboxes[i], 'h3')[0].innerHTML;
+                var isFirst = true
+                var inputsVector = "c("
+                var inputs = Element.select(allAICheckboxes[i], 'div')[0]
+                Element.select(inputs, 'div').forEach(function(element) {
+                  if(!isFirst) {
+                    inputsVector += ", "
+                  }
+                  isFirst = false
+                  inputsVector += '"' + Element.select(element, 'span')[0].innerHTML + '"=' 
+                  checkboxValue = "" + Element.select(element, 'input')[0].checked
+                  inputsVector += checkboxValue.toUpperCase()
+                })
+                inputsVector += ')'
+		addIns[j] = [name, inputsVector];
+		j++;
+	}
+
 	// Get additional Inputs: Intervals
 	for (var i = 0; i < allAIInterval.length; i++) {
 		var name = Element.select(allAIInterval[i], 'h3')[0].innerHTML;
@@ -657,6 +682,7 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		addIns[j] = [name, datesVector];
 		j++;
 	}
+
 
 	// Get additional Inputs: Date
 	for (var i = 0; i < allAIDate.length; i++) {

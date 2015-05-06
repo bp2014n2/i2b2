@@ -118,6 +118,17 @@ i2b2.GIRIX.cfg.parsers.getRScriptlets = function(){
 							nodeData.addInputs[j].dates[k].name = i2b2.h.getXNodeVal(dates[k], "name")
 						}
 					}
+				}        
+                                if (nodeData.addInputs[j].type == "checkboxes") {
+					var checkboxes = i2b2.h.XPath(addInputNodes[j], ".//checkbox");
+					nodeData.addInputs[j].checkboxes = [];
+					if (checkboxes != undefined) {
+						for (var k = 0; k < checkboxes.length; k++) {
+                                                        nodeData.addInputs[j].checkboxes[k] = [];
+							nodeData.addInputs[j].checkboxes[k].default = i2b2.h.getXNodeVal(checkboxes[k], "default")
+							nodeData.addInputs[j].checkboxes[k].name = i2b2.h.getXNodeVal(checkboxes[k], "name")
+						}
+					}
 				} 
                                 if (nodeData.addInputs[j].type == "text") {
 					nodeData.addInputs[j].lines = i2b2.h.getXNodeVal(addInputNodes[j], "lines");

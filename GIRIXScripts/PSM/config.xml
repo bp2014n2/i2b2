@@ -30,8 +30,17 @@
 		<input>
 			<name>Feature Selection</name>
 			<description>Select the features you want to use for score calculation</description>
-			<type>checkbox</type>
-			<value>ATC</value>
+			<type>checkboxes</type>
+                        <checkboxes>
+                          <checkbox>
+                            <name>ICD</name>
+                            <default></default>
+                          </checkbox>
+                          <checkbox>
+                            <name>ATC</name>
+                            <default>selected</default>
+                          </checkbox>
+                        </checkboxes>
 		</input>
 		<input>
 			<name>Feature level</name>
@@ -74,7 +83,7 @@
 			<description></description>
 			<type>concept</type>
 		</input>
-		</additionalInputs>
+	</additionalInputs>
 	<customOutputs>
 		<output>
 			<name>Matched patients</name>

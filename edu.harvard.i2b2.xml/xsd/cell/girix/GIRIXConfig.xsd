@@ -50,6 +50,7 @@
 			<xs:element name="type" type="girixconf:typeType" />
 			<xs:element name="default" type="xs:string" minOccurs="0"/>
 			<xs:element name="items" type="girixconf:itemsType" minOccurs="0"/>
+			<xs:element name="checkboxes" type="girixconf:checkboxesType" minOccurs="0"/>
 			<xs:element name="dates" type="girixconf:datesType" minOccurs="0"/>
 			<xs:element name="lines" type="xs:unsignedByte" minOccurs="0"/>
         	</xs:sequence>
@@ -62,7 +63,7 @@
 			<xs:enumeration value="concept"/>
 			<xs:enumeration value="patient_set"/>
 			<xs:enumeration value="date"/>
-			<xs:enumeration value="checkbox"/>
+			<xs:enumeration value="checkboxes"/>
 			<xs:enumeration value="hidden"/>
 			<xs:enumeration value="headline"/>
 			<xs:enumeration value="interval"/>
@@ -80,6 +81,19 @@
            		<xs:element name="item" type="girixconf:nonEmptyString" maxOccurs="unbounded"/>
         	</xs:sequence>
 	</xs:complexType>
+
+	<xs:complexType name="checkboxesType">
+        <xs:sequence>
+           	<xs:element name="checkbox" type="girixconf:checkboxType" maxOccurs="unbounded"/>
+        </xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="checkboxType">
+        <xs:sequence>
+			<xs:element name="name" type="girixconf:nonEmptyString"/>
+			<xs:element name="default" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+	</xs:complexType>
+
 
 	<xs:complexType name="datesType">
         <xs:sequence>

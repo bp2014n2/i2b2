@@ -27,6 +27,17 @@
 			<type>date</type>
 			<default>01/01/2009</default>
 		</input>
+		<input>
+			<name>Feature level</name>
+			<description>Choose 3 for 'ICD:M54' etc. or 4 for 'ICD:M541' etc.</description>
+			<type>dropdown</type>
+			<default>3</default>
+			<items>
+				<item>2</item>
+				<item>3</item>
+				<item>4</item>
+			</items>
+		</input>
 	</additionalInputs>
 	<customOutputs>
 		<output>

@@ -15,8 +15,7 @@ patientset.t.id <- strtoi(girix.input['Treatment group'])
 patientset.c.id <- strtoi(girix.input['Control group'])
 treatmentYear <- girix.input['Treatment year']
 treatmentQuarter <- girix.input['Treatment quarter']
-useICDs <- girix.input['useICDs']
-useATCs <- girix.input['useATCs']
+features <- eval(parse(text=girix.input['Feature Selection']))
 level <- strtoi(girix.input['Feature level'])
 
 # i2b2 date format (MM/DD/YYYY)
@@ -24,14 +23,14 @@ interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(trea
 
 print("getting featureMatrices")
 filter <- c()
-if(useICDs == '1') {
+if(features["ICD"] == TRUE) {
 	filter <- append(filter, 'ICD:')
 }
-if(useATCs == '1') {
+if(features["ATC"] == TRUE) {
 	filter <- append(filter, 'ATC:')
 }
-featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter)
-featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter)
+featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
+featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
 
 featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
 
@@ -54,7 +53,7 @@ pnums.treated <- rownames(featureMatrix)[matched$index.treated]
 pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
 
 print("quering costs") #debug
-costs <- i2b2$crc$getAllYearCosts(c(pnums.treated, pnums.control))
+costs <- i2b2$crc$getAllYearCosts(c(patientset.t.id, patientset.c.id))
 treatmentDate <- getDate(treatmentYear, treatmentQuarter)
 yearBeforeTreatmentDate <- getDate(as.integer(treatmentYear) - 1, treatmentQuarter)
 yearAfterTreatmentDate <- getDate(as.integer(treatmentYear) + 1, treatmentQuarter)
@@ -64,6 +63,21 @@ row.names(costs.pY) <- costs.pY[,"patient_num"]
 costs.tY <- costs[treatmentDate <= costs[, "datum"] & costs[, "datum"] < yearAfterTreatmentDate,]
 costs.tY <- aggregate(summe_aller_kosten ~ patient_num, data = costs.tY, sum)
 row.names(costs.tY) <- costs.tY[,"patient_num"]
+costs.treated <- costs[costs[,"patient_num"] %in% pnums.treated,]
+costs.control <- costs[costs[,"patient_num"] %in% pnums.control,]
+
+costsPerYear.treated <- aggregate(summe_aller_kosten ~ datum, data=costs.treated, mean)
+costsPerYear.control <- aggregate(summe_aller_kosten ~ datum, data=costs.control, mean)
+costsPerYear.treated[,1] <- as.Date(costsPerYear.treated[,1])
+costsPerYear.control[,1] <- as.Date(costsPerYear.control[,1])
+
+plot(costsPerYear.treated,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n")
+lines(costsPerYear.control,type="l",col=accentColor[2])
+lineHeight <- max(max(costsPerYear.treated[,"summe_aller_kosten"]),max(costsPerYear.control[,"summe_aller_kosten"]))+20
+arrows(as.Date(treatmentDate),-10,as.Date(treatmentDate),lineHeight,lwd=1.25,length=0,xpd=TRUE,col=darkGray)
+text(as.Date(treatmentDate),lineHeight+10,"Treatment Date",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+text(max(costsPerYear.treated[,"datum"]),lineHeight-20,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
+text(max(costsPerYear.treated[,"datum"]),lineHeight-30,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 
 print("outputting")
 options(scipen=999)

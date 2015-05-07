@@ -14,5 +14,4 @@ girix.input['Control group'] <- "26"    #in webclient: "G70-G73 Krankhe@10:47:54
 girix.input['Treatment year'] <- "2009"
 girix.input['Treatment quarter'] <- "2"
 girix.input['Feature level'] <- "2"
-girix.input['useICDs'] <- "1"
-girix.input['useATCs'] <- "0"
+girix.input['Feature Selection'] <- 'c("ICD"=TRUE,"ATC"=FALSE)'

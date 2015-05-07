@@ -724,10 +724,10 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		j++;
 	}
 
-	// Get additional inputs: Concept drag and drop fields
+	// Get additional inputs: Quarter and Year fields
 	for (var i = 0; i < allAIQuarterOfYear.length; i++) {
 		var name = Element.select(allAIQuarterOfYear[i], 'h3')[0].innerHTML;
-		var value = 'c("quarter"="'+Element.select(allAIInterval[i], 'select')[0].value + '", "year"="' + Element.select(allAIQuarterOfYear[i], 'input')[0].value + '")';
+		var value = 'c("quarter"="'+Element.select(allAIQuarterOfYear[i], 'select')[0].value + '", "year"="' + Element.select(allAIQuarterOfYear[i], 'input')[0].value + '")';
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;

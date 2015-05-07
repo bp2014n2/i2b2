@@ -21,15 +21,15 @@ ProbabilitiesOfLogRegFittingWithTargetVector <- function(featureMatrix, target.v
   colnames(featureMatrix)[1] <- 'int'
   
   # eliminate irrelevant features (they spoil fitting)
-  print("eliminating irrelevant features") #debug
-  n.IG <- colSums(featureMatrix[target.vector==1,])
-  n.VG <- colSums(featureMatrix[target.vector==0,])
-  excl.IG <- which(n.IG<minDiagnoses)
-  excl.VG <- which(n.VG<minDiagnoses)
-  excl.ALL <- intersect(excl.IG, excl.VG)
-  if(length(excl.ALL)>0) {
-    featureMatrix <- featureMatrix[,-excl.ALL]
-  }
+#  print("eliminating irrelevant features") #debug
+#  n.IG <- colSums(featureMatrix[target.vector==1,])
+  #n.VG <- colSums(featureMatrix[target.vector==0,])
+  #excl.IG <- which(n.IG<minDiagnoses)
+  #excl.VG <- which(n.VG<minDiagnoses)
+  #excl.ALL <- intersect(excl.IG, excl.VG)
+  #if(length(excl.ALL)>0) {
+    #featureMatrix <- featureMatrix[,-excl.ALL]
+  #}
   
   if (signed.matrix) {
     print("signing matrix")

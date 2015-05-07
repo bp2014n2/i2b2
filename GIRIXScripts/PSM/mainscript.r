@@ -13,10 +13,21 @@ source("logic.r")
 # girix input processing
 patientset.t.id <- strtoi(girix.input['Treatment group'])
 patientset.c.id <- strtoi(girix.input['Control group'])
-treatmentYear <- girix.input['Treatment year']
-treatmentQuarter <- girix.input['Treatment quarter']
+treatmentDate <- eval(parse(text=girix.input['Treatment Quarter']))
+treatmentYear <- treatmentDate["year"]
+treatmentQuarter <- treatmentDate["quarter"]
 features <- eval(parse(text=girix.input['Feature Selection']))
+splitBy <- eval(parse(text=girix.input['Exact matching']))
 level <- strtoi(girix.input['Feature level'])
+addFeatures <- c(girix.input['Additional feature 1'],
+	girix.input['Additional feature 2'],
+	girix.input['Additional feature 3'],
+	girix.input['Additional feature 4'],
+	girix.input['Additional feature 5'])
+
+print(treatmentDate)
+print(treatmentYear)
+print(treatmentQuarter)
 
 # i2b2 date format (MM/DD/YYYY)
 interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
@@ -32,18 +43,11 @@ if(features["ATC"] == TRUE) {
 featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
 
-featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
+featureMatrix <- cbind(featureMatrix.t, featureMatrix.c)
 
 print("calculating probabilities")
 target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
 probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
-
-treatmentMean <- round(mean(probabilities[,2]),4)
-treatmentMedian <- round(median(probabilities[,2]),4)
-controlMean <- round(mean(probabilities[,1]),4)
-controlMedian <- round(median(probabilities[,1]),4)
-
-validationParams <- c(treatmentMean=treatmentMean,treatmentMedian=treatmentMedian,controlMean=controlMean,controlMedian=controlMedian)
 
 print("matching")
 matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
@@ -76,11 +80,22 @@ lines(costsPerYear.control,type="l",col=accentColor[2])
 lineHeight <- max(max(costsPerYear.treated[,"summe_aller_kosten"]),max(costsPerYear.control[,"summe_aller_kosten"]))+20
 arrows(as.Date(treatmentDate),-10,as.Date(treatmentDate),lineHeight,lwd=1.25,length=0,xpd=TRUE,col=darkGray)
 text(as.Date(treatmentDate),lineHeight+10,"Treatment Date",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
-text(max(costsPerYear.treated[,"datum"]),lineHeight-20,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
-text(max(costsPerYear.treated[,"datum"]),lineHeight-30,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
+text(max(costsPerYear.treated[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
+text(max(costsPerYear.treated[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 
 print("outputting")
 options(scipen=999)
+treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
+treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
+controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
+controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
+scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probabilities"] - probabilities[matched$index.control,"probabilities"])))
+
+validationParams <- c("mean of treatment scores"=treatmentMean,
+	"median of treatment scores"=treatmentMedian,
+	"mean of control scores"=controlMean,
+	"median of control scores"=controlMedian,
+	"mean ofsosour score difference"=scoreDiffMean)
 matchedPatients <- matrix()
 matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
 				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))

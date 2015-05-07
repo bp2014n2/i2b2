@@ -16,7 +16,7 @@ generateObservationMatrix <- function(observations, features, patients) {
   return(m)
 }
 
-generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3) {
+generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3, date=Sys.Date()) {
   
   time.start <- proc.time()
   
@@ -27,7 +27,7 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   time.query <<- time.query + sum(c(time.end-time.start)[3])
   
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
-  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
+  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), date))
   return(feature_matrix)
 }
 
@@ -104,8 +104,8 @@ features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
 model.patients <- i2b2$crc$getPatients(patient_set=model.patient_set)
 newdata.patients <- i2b2$crc$getPatients(patient_set=newdata.patient_set)
 
-model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
-newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
+model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter, date=model.interval.tmp['End'])
+newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter, date=newdata.interval.tmp['End'])
 model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
 
 model.split <- 0.6

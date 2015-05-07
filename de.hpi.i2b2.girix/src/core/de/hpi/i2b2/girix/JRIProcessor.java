@@ -159,7 +159,7 @@ public class JRIProcessor {
     // -> Time is also considered
     try {
 		re.voidEval("setClass(\"i2b2DateTime\")");
-		re.assign("girix.swapPlusMinus", "function(x) if (!is.na(x)){if(x==\"-\") {\"+\"} else {\"-\"}}");
+		re.voidEval("girix.swapPlusMinus <- function(x) if (!is.na(x)){if(x==\"-\") {\"+\"} else {\"-\"}}");
 		re.voidEval("setAs(\"character\",\"i2b2DateTime\", function(from){do.call(c,lapply(from, function(x) {as.POSIXlt(x, tz = paste(\"GMT\", girix.swapPlusMinus(substr(x,24,24)), substr(x,26,26), sep=\"\"), format=\"%Y-%m-%dT%H:%M:%S\")}))})");
 	} catch (REngineException e) {
 		// TODO Auto-generated catch block
@@ -178,7 +178,7 @@ public class JRIProcessor {
       String initStr = s.getString().replace(GIRIXUtil.SEP, "=character(),");
       initStr = initStr.concat("=character()");
       try {
-		re.assign(name, "data.frame(" + initStr +  ")");
+		re.voidEval(name + " <- data.frame(" + initStr +  ")");
       } catch (REngineException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -186,13 +186,13 @@ public class JRIProcessor {
       return;
     }
     try {
-		re.assign("tmp", s.getString());
+		re.voidEval("tmp <- " + s.getString());
 	} catch (REngineException e1) {
 		// TODO Auto-generated catch block
 		e1.printStackTrace();
 	}
     try {
-    	re.assign(name, "read.table(textConnection(tmp), sep=\"" + GIRIXUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
+    	re.voidEval(name + " <- read.table(textConnection(tmp), sep=\"" + GIRIXUtil.SEP + "\", header=T, row.names=NULL, quote=\"\\\"\"," +
         "colClasses = " + colClasses + ", na.string=c(\"\"))");
     }
     catch (REngineException e) {
@@ -335,7 +335,7 @@ public class JRIProcessor {
       // This is a workaround for a bug in xtable library (Date columns produce an error)
       // See http://stackoverflow.com/questions/8652674/r-xtable-and-dates for details
       try {
-    	  re.assign("xtable", "function(x, ...) {\n" +
+    	  re.voidEval("xtable <- function(x, ...) {\n" +
           "for (i in which(sapply(x, function(y) !all(is.na(match(c(\"POSIXt\",\"Date\"),class(y))))))) x[[i]] <- as.character(format(x[[i]], format=\"%Y-%m-%d %H:%M:%S\"))\n" +
           "xtable::xtable(x, ...)\n}\n");
       }

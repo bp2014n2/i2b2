@@ -150,6 +150,7 @@ i2b2.GIRIXPlugin.loadAI = function() {
 	numberAIConceptFields = 0;
 	numberAICheckboxesFields = 0;
 	numberAIIntervalFields = 0;
+	numberAIQuarterOfYearFields = 0;
 	numberAIPatientSetFields = 0;
 	// Clear old additional concepts
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
@@ -181,6 +182,10 @@ i2b2.GIRIXPlugin.loadAI = function() {
 			var newID = "girix-AIDATE-" + numberAIDateFields;
 			newNode = i2b2.GIRIXPlugin.createNewAIDateField(addIns[i], newID);
 			numberAIDateFields++;
+        	} else if (addIns[i].type == "quarterOfYear") {
+			var newID = "girix-AIQUARTEROFYEAR-" + numberAIQuarterOfYearFields;
+			newNode = i2b2.GIRIXPlugin.createNewAIQuarterOfYearField(addIns[i], newID);
+			numberAIQuarterOfYearFields++;
 		} else if (addIns[i].type == "checkboxes") {
 			var newID = "girix-AICHECKBOXES-" + numberAICheckboxesFields;
 			newNode = i2b2.GIRIXPlugin.createNewAICheckboxesField(addIns[i], newID);
@@ -198,6 +203,22 @@ i2b2.GIRIXPlugin.loadAI = function() {
 		Element.show(newNode);
 	}
 }
+
+i2b2.GIRIXPlugin.createNewAIQuarterOfYearField = function(config) {
+	// Additional input quarterOfYear prototype
+	var aiQuarterOfYearProt = $$("DIV#girixplugin-mainDiv .girix-quarterOfYear-prototype")[0];	
+	newNode = aiQuarterOfYearProt.cloneNode(true);
+	var parTitle = Element.select(newNode, 'h3')[0];
+	var parDescr = Element.select(newNode, 'p')[0];
+	var parQuarterOfYear = Element.select(newNode, 'input')[0];
+	parTitle.innerHTML = i2b2.h.Escape(config.name);
+	parDescr.innerHTML = i2b2.h.Escape(config.descr);
+        if(config.default) {
+          parQuarterOfYear.setAttribute("value", config.default);
+        }
+	newNode.className = "girix-input girix-input-quarterOfYear";
+	return newNode;
+};
 
 i2b2.GIRIXPlugin.createNewAITextField = function(config) {
 	// Additional input textfield prototype
@@ -577,6 +598,7 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 	var allAIDate = $$("DIV#girixplugin-mainDiv .girix-input-date-select");
 	var allAIDD = $$("DIV#girixplugin-mainDiv .girix-input-dropdown");
 	var allAICO = $$("DIV#girixplugin-mainDiv .girix-input-concept");
+	var allAIQuarterOfYear = $$("DIV#girixplugin-mainDiv .girix-input-quarterOfYear");
 	var allAICheckboxes = $$("DIV#girixplugin-mainDiv .girix-input-checkbox");
 	var allAIInterval = $$("DIV#girixplugin-mainDiv .girix-input-interval");
 	var allAIPS = $$("DIV#girixplugin-mainDiv .girix-input-patient-set");
@@ -702,9 +724,9 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 	}
 
 	// Get additional inputs: Concept drag and drop fields
-	for (var i = 0; i < allAIPS.length; i++) {
-		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
-		var value = i2b2.GIRIXPlugin.model.aiPatientSets[name];
+	for (var i = 0; i < allAIQuarterOfYear.length; i++) {
+		var name = Element.select(allAIQuarterOfYear[i], 'h3')[0].innerHTML;
+		var value = 'c("quarter"="'+Element.select(allAIInterval[i], 'select')[0].value + '", "year"="' + Element.select(allAIQuarterOfYear[i], 'input')[0].value + '")';
 		if (value == undefined) value = "";
 		addIns[j] = [name, value];
 		j++;

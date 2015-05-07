@@ -34,7 +34,7 @@
 		</input>
 		<input>
 			<name>Model interval</name>
-			<description>Year for which our target should be predicted</description>
+			<description>Interval for observations for our model patients</description>
 			<type>interval</type>
 			<dates>
 				<date>
@@ -54,7 +54,7 @@
 		</input>
 		<input>
 			<name>Target interval</name>
-			<description>Year for which our target should be predicted</description>
+			<description>Interval for target classification of our model patients</description>
 			<type>interval</type>
 			<dates>
 				<date>
@@ -90,7 +90,7 @@
 		</input>
 		<input>
 			<name>Prediction interval</name>
-			<description>Year for which our target should be predicted</description>
+			<description>Interval for observations for our prediction patients</description>
 			<type>interval</type>
 			<dates>
 				<date>

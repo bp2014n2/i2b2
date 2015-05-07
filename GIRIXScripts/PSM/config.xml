@@ -20,12 +20,12 @@
 			<name>Control group</name>
 			<description>Drag the patient set you want to select as control group in here</description>
 			<type>patient_set</type>
-		</input>
+                      </input>
 		<input>
-			<name>Treatment date</name>
-			<description>Select the date of the treatment you want to evaluate. Everything but the year is ignored.</description>
-			<type>date</type>
-			<default>01/01/2009</default>			
+			<name>Treatment Quarter</name>
+			<description>Select the date of the treatment you want to evaluate.</description>
+			<type>quarterOfYear</type>
+			<default>2009</default>			
 		</input>
                 <input>
 			<name>Exact matching</name>

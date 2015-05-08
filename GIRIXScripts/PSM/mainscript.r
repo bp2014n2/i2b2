@@ -25,10 +25,6 @@ addFeatures <- c(girix.input['Additional feature 1'],
 	girix.input['Additional feature 4'],
 	girix.input['Additional feature 5'])
 
-print(treatmentDate)
-print(treatmentYear)
-print(treatmentQuarter)
-
 # i2b2 date format (MM/DD/YYYY)
 interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
 
@@ -43,7 +39,7 @@ if(features["ATC"] == TRUE) {
 featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
 
-featureMatrix <- cbind(featureMatrix.t, featureMatrix.c)
+featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
 
 print("calculating probabilities")
 target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
@@ -95,7 +91,7 @@ validationParams <- c("mean of treatment scores"=treatmentMean,
 	"median of treatment scores"=treatmentMedian,
 	"mean of control scores"=controlMean,
 	"median of control scores"=controlMedian,
-	"mean ofsosour score difference"=scoreDiffMean)
+	"mean of score difference"=scoreDiffMean)
 matchedPatients <- matrix()
 matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
 				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))

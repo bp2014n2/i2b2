@@ -221,8 +221,7 @@ i2b2$crc$getAllYearCosts <- function(patient_set_ids) {
     WHERE patient_num IN (
       SELECT patient_num
       FROM i2b2demodata.qt_patient_set_collection
-      WHERE %s)
-    ORDER BY patient_num, datum"
+      WHERE %s)"
 
   patient_condition <- paste(paste("result_instance_id = ", patient_set_ids, sep=""), collapse=" OR ")
 

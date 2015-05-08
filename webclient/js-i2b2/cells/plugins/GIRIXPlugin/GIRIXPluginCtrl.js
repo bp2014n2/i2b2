@@ -712,7 +712,7 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		var value = Element.select(allAIDate[i], 'input')[0].value;
 		addIns[j] = [name, value];
 		j++;
-	}
+        }
 
 	// Get additional inputs: Concept drag and drop fields
 	for (var i = 0; i < allAICO.length; i++) {
@@ -723,7 +723,16 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 		j++;
 	}
 
-	// Get additional inputs: Concept drag and drop fields
+	// Get additional inputs: Patient drag and drop fields
+	for (var i = 0; i < allAIPS.length; i++) {
+		var name = Element.select(allAIPS[i], 'h3')[0].innerHTML;
+                var value = i2b2.GIRIXPlugin.model.aiPatientSets[name];
+                if (value == undefined) value = "";
+		addIns[j] = [name, value];
+		j++;
+	}
+
+	// Get additional inputs: Quarter of year fields
 	for (var i = 0; i < allAIQuarterOfYear.length; i++) {
 		var name = Element.select(allAIQuarterOfYear[i], 'h3')[0].innerHTML;
 		var value = 'c("quarter"="'+Element.select(allAIInterval[i], 'select')[0].value + '", "year"="' + Element.select(allAIQuarterOfYear[i], 'input')[0].value + '")';

@@ -1,7 +1,7 @@
 require(Matrix)
 require(Matching)
 
-if(!exists('girix.input')) {
+if(TRUE || !exists('girix.input')) {
   setwd('/home/ubuntu/i2b2/GIRIXScripts/PSM')
   source("girix_input.r")
 }
@@ -103,7 +103,7 @@ rownames(matchedPatients) <- c()
 print(matchedPatients[1:2,])
 print(validationParams)
 
-girix.output[["Matched patients"]] <- matchedPatients
+girix.output[["Matched patients"]] <- head(matchedPatients, n=100)
 girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 
 										  Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
 										  Simulatenously for the following four columns for patients of control group"

@@ -1,7 +1,7 @@
 require(Matrix)
 require(Matching)
 
-if(TRUE || !exists('girix.input')) {
+if(!exists('girix.input')) {
   setwd('/home/ubuntu/i2b2/GIRIXScripts/PSM')
   source("girix_input.r")
 }

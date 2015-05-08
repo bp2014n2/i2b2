@@ -11,7 +11,7 @@ i2b2.GIRIXPlugin.Init = function(loadedDiv) {
 	i2b2.GIRIXPlugin.model.prsDirty = false;
 	i2b2.GIRIXPlugin.model.conceptDirty = false;
 	// Holds the currently chosen scriptlet
-	i2b2.GIRIXPlugin.model.currentScriptlet = "";
+	i2b2.GIRIXPlugin.model.selectedScriptlet = "";
 	// Holds the concept names that are dropped on additional input values of type 'concept'
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
 	// Holds the patient_set_ids that are dropped on additional input values of type 'patient_set'
@@ -98,8 +98,8 @@ i2b2.GIRIXPlugin.stopScript = function() {
 i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	
 	// Set global variable
-	i2b2.GIRIXPlugin.model.currentScriptlet = value;
-	scriptlet = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet];
+	i2b2.GIRIXPlugin.model.selectedScriptlet = value;
+	scriptlet = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.selectedScriptlet];
 
 	// Get handles
 	var title = $("girix-scriptlet-title");
@@ -119,7 +119,7 @@ i2b2.GIRIXPlugin.loadPlugin = function(value) {
 	piInputsDiv.hide();
 
 	// If empty scriptlet is chosen -> return now
-	if (i2b2.GIRIXPlugin.model.currentScriptlet == '') { return; }
+	if (i2b2.GIRIXPlugin.model.selectedScriptlet == '') { return; }
 
 	// Display new scriptlet title and description
 	title.innerHTML = i2b2.h.Escape(scriptlet.title);
@@ -158,7 +158,7 @@ i2b2.GIRIXPlugin.loadAI = function() {
 	i2b2.GIRIXPlugin.model.aiPatientSets = {};
 
 	// Display additional input parameters
-	var addIns = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.currentScriptlet].addInputs;
+	var addIns = i2b2.GIRIXPlugin.scriptlets[i2b2.GIRIXPlugin.model.selectedScriptlet].addInputs;
 	for (var i = 0; i < addIns.length; i++) {			
 		// Clone prototype object, apply parameters, change class, display it
 		var newNode;
@@ -785,6 +785,8 @@ i2b2.GIRIXPlugin.sendMessage = function(callback) {
 
 // This function is called when a user clicks on the tab "View Results"
 i2b2.GIRIXPlugin.buildAndSendMsg = function() {
+	
+	i2b2.GIRIXPlugin.model.currentScriptlet = i2b2.GIRIXPlugin.model.selectedScriptlet
 	// Get handles
 	var piList = $("girix-pilist");
 	var noResultsDiv = $("girix-no-results");
@@ -1062,7 +1064,7 @@ i2b2.GIRIXPlugin.Unload = function() {
 	i2b2.GIRIXPlugin.model.aiConcpts = {};
 	i2b2.GIRIXPlugin.model.aiPatientSets = {};
 	i2b2.GIRIXPlugin.scriptlets = {};
-	i2b2.GIRIXPlugin.model.currentScriptlet = "";
+	i2b2.GIRIXPlugin.model.selectedScriptlet = "";
 	i2b2.GIRIXPlugin.model.highestConcDDIndex = 0;
 	i2b2.GIRIXPlugin.model.highestPSDDIndex = 0;
 	i2b2.GIRIXPlugin.model.prsDirty = false;

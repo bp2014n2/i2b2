@@ -324,7 +324,6 @@ b=new Uint8Array(b);return a(1,b)});return g});
     options = options || {};
     options.scale = options.scale || 1;
     var xmlns = "http://www.w3.org/2000/xmlns/";
-
     inlineImages(el, function() {
       var outer = document.createElement("div");
       var clone = el.cloneNode(true);
@@ -421,11 +420,11 @@ doc.addPage()
 function createPdf(plots, titles, descriptions, doc){
     document.querySelector(".exportPDF .spinner").style.display = 'block'
     var plot = plots.splice(0,1)[0]
-    var title = titles.splice(0,1)[0].innerText
-    var description = descriptions.splice(0,1)[0].innerText
-
+    var title = titles.splice(0,1)[0].textContent || "undefined"
+    var description = descriptions.splice(0,1)[0].textContent || "undefined"
+        
     var ratio = plot.height / plot.width
-    var canvas = jQuery(plot.src.replace("data:image/svg+xml;utf8,", ""))[0]
+    var canvas = jQuery(atob(plot.src.substr(26)))[0]
     saveSvgAsPng(canvas, function(imgData) {
       doc.setFontSize(20);
       doc.addImage(background, 'JPEG', 0, 0, 210, 300);

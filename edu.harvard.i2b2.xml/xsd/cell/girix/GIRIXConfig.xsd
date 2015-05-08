@@ -67,6 +67,7 @@
 			<xs:enumeration value="hidden"/>
 			<xs:enumeration value="headline"/>
 			<xs:enumeration value="interval"/>
+			<xs:enumeration value="quarterOfYear"/>
 		</xs:restriction>
 	</xs:simpleType>
 	

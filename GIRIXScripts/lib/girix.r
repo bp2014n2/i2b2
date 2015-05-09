@@ -1,5 +1,4 @@
 setwd('/home/ubuntu/i2b2/GIRIXScripts')
-options( java.parameters = "-Xmx2g" )
 
 girix.patients <- c()
 girix.observations <- c()

@@ -416,10 +416,10 @@ doc.addPage()
 function createPdf(plots, titles, descriptions, doc){
     document.querySelector(".exportPDF .spinner").style.display = 'block'
     var plot = plots.splice(0,1)[0]
-    var description = descriptions.splice(0,1)[0].innerText
+    var description = descriptions.splice(0,1)[0].textContent || ""
 
     var ratio = plot.height / plot.width
-    var canvas = jQuery(plot.src.replace("data:image/svg+xml;utf8,", ""))[0]
+    var canvas = jQuery(atob(plot.src.substr(26)))[0]
     saveSvgAsPng(canvas, function(imgData) {
       doc.setFontSize(20);
       doc.addImage(background, 'JPEG', 0, 0, 210, 300);

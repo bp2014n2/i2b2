@@ -1,5 +1,5 @@
 # Install package necessary
-list.of.packages <- c("knitr", "extrafont")
+list.of.packages <- c("knitr", "extrafont", "RCurl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -7,6 +7,7 @@ if(length(new.packages)) install.packages(new.packages)
 library(knitr); 
 library(jsonlite)
 library(extrafont)
+library(RCurl)
 source("../lib/i2b2.r", chdir=TRUE)
 
 generateOutput <- function() {
@@ -36,8 +37,8 @@ generateOutput <- function() {
    x = paste(x, collapse = '.')
    if (!grepl('\\.svg', x)) return(hook_plot(x, options))
    # read the content of the svg image and write it out without <?xml ... ?>
-   paste("<img src='data:image/svg+xml;utf8,", paste(readLines(x)[-1], collapse = '\n'), "'>", sep="")
-  })
+  paste("<img src='data:image/svg+xml;base64,", base64(paste(readLines(x)[-1], collapse = '\n')), "'>", sep="")
+})
 
   # Generate File
   fileName <- 'main.html'

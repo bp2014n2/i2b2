@@ -121,5 +121,13 @@
 			<name>Costs per year</name>
 			<description></description>
 		</output>
+		<output>
+			<name>Stats</name>
+			<description></description>
+		</output>
+		<output>
+			<name>Timing</name>
+			<description></description>
+		</output>
 	</customOutputs>
 </girixconf:Rscriptlet>

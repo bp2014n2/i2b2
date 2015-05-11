@@ -99,9 +99,11 @@ costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
 
 costsPerQuarter.treated <- aggregate(. ~ datum, data=costs.treated, mean)
 costsPerQuarter.control <- aggregate(. ~ datum, data=costs.control, mean)
+costsPerQuarter <- aggregate(. ~ datum, data=costs, mean)
 
 costsPerQuarter.treated$patient_num <- NULL
 costsPerQuarter.control$patient_num <- NULL
+costsPerQuarter$patient_num <- NULL
 
 costsToPlot.t <- costsPerQuarter.treated[,c("datum", "summe_aller_kosten")]
 costsToPlot.c <- costsPerQuarter.control[,c("datum", "summe_aller_kosten")]
@@ -144,12 +146,11 @@ print(matchedPatients[1:2,])
 print(validationParams)
 
 girix.output[["Matched patients"]] <- head(matchedPatients, n=100)
-girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 
-										  Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
-										  Simulatenously for the following four columns for patients of control group"
-
+#"Verbose labels of columns: patient number (treatment group), Propensity Score, 
+#Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
+#Simulatenously for the following four columns for patients of control group"
 girix.output[["Validation Parameters"]] <- validationParams
-girix.output[["Costs per year"]] <- ""
+girix.output[["Costs per year"]] <- costsPerQuarter
 timingTag("Output")
 girix.output[["Stats"]] <- as.data.frame(stats)
 girix.output[["Timing"]] <- as.data.frame(timings)

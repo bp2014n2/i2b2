@@ -110,10 +110,6 @@
 			<description>Treatment group on the left, control group on the right:</description>
 		</output>
 		<output>
-			<name>Matching description</name>
-			<description></description>
-		</output>
-		<output>
 			<name>Validation Parameters</name>
 			<description></description>
 		</output>

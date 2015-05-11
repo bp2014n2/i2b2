@@ -2,8 +2,8 @@ require(Matrix)
 require(Matching)
 
 if(!exists('girix.input')) {
-  setwd('/home/ubuntu/i2b2/GIRIXScripts/PSM')
-  source("girix_input.r")
+  source("/home/ubuntu/i2b2/GIRIXScripts/lib/girix.r")
+  source("PSM/girix_input.r")
 }
 
 source("../lib/i2b2.r", chdir=TRUE)
@@ -71,38 +71,25 @@ splitByAge <- function(features) {
   gender[[1]] <- list()
   gender[[1]]$target <- features$target[features$target[,"age"] < 30,]
   gender[[1]]$control <- features$control[features$control[,"age"] < 30,]
-  if(nrow(gender[[1]]$target) == 0 | nrow(gender[[1]]$control) == 0) {
-    gender[[1]] <- NULL
-  }
   gender[[2]] <- list()
   gender[[2]]$target <- features$target[features$target[,"age"] >= 30 & features$target[,"age"] < 40,]
   gender[[2]]$control <- features$control[features$control[,"age"] >= 30 & features$control[,"age"] < 40,]
-  if(nrow(gender[[2]]$target) == 0 | nrow(gender[[2]]$control) == 0) {
-    gender[[2]] <- NULL
-  }
   gender[[3]] <- list()
   gender[[3]]$target <- features$target[features$target[,"age"] >= 40 & features$target[,"age"] < 50,]
   gender[[3]]$control <- features$control[features$control[,"age"] >= 40 & features$control[,"age"] < 50,]
-  if(nrow(gender[[3]]$target) == 0 | nrow(gender[[3]]$control) == 0) {
-    gender[[3]] <- NULL
-  }
   gender[[4]] <- list()
   gender[[4]]$target <- features$target[features$target[,"age"] >= 50 & features$target[,"age"] < 60,]
   gender[[4]]$control <- features$control[features$control[,"age"] >= 50 & features$control[,"age"] < 60,]
-  if(nrow(gender[[4]]$target) == 0 | nrow(gender[[4]]$control) == 0) {
-    gender[[4]] <- NULL
-  }
   gender[[5]] <- list()
   gender[[5]]$target <- features$target[features$target[,"age"] >= 60 & features$target[,"age"] < 70,]
   gender[[5]]$control <- features$control[features$control[,"age"] >= 60 & features$control[,"age"] < 70,]
-  if(nrow(gender[[5]]$target) == 0 | nrow(gender[[5]]$control) == 0) {
-    gender[[5]] <- NULL
-  }
   gender[[6]] <- list()
   gender[[6]]$target <- features$target[features$target[,"age"] >= 70,]
   gender[[6]]$control <- features$control[features$control[,"age"] >= 70,]
-  if(nrow(gender[[6]]$target) == 0 | nrow(gender[[6]]$control) == 0) {
-    gender[[6]] <- NULL
+  for(g in gender) {
+    if(nrow(g$target) == 0 | nrow(g$control) == 0) {
+      g <- NULL
+    }
   }
   print(length(gender))
   return(gender)
@@ -120,14 +107,12 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
     }
     splitted <- gender
   }
-  if (age) {
-    for(features in splitted) {      
-      age <- list()
-      for(features in splitted) {
-        age <- c(age, splitByAge(features))
-      }
-      splitted <- age
-    }    
+  if (age) {    
+    age <- list()
+    for(features in splitted) {  
+      age <- c(age, splitByAge(features))
+    }
+    splitted <- age
   }
   result <- NULL
   for(features in splitted) {

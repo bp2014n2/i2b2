@@ -55,19 +55,123 @@ timingTag("featureMatrix.t")
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
 timingTag("featureMatrix.c")
 
+splitByGender <- function(features) {
+  gender <- list()
+  gender[[1]] <- list()
+  gender[[2]] <- list()
+  gender[[1]]$target <- features$target[features$target[,"sex"] == 1,]
+  gender[[1]]$control <- features$control[features$control[,"sex"] == 1,]
+  gender[[2]]$target <- features$target[features$target[,"sex"] != 1,]
+  gender[[2]]$control <- features$control[features$control[,"sex"] != 1,]
+  return(gender)
+}
 
-featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
+splitByAge <- function(features) {
+  gender <- list()
+  gender[[1]] <- list()
+  gender[[1]]$target <- features$target[features$target[,"age"] < 30,]
+  gender[[1]]$control <- features$control[features$control[,"age"] < 30,]
+  if(nrow(gender[[1]]$target) == 0 | nrow(gender[[1]]$control) == 0) {
+    gender[[1]] <- NULL
+  }
+  gender[[2]] <- list()
+  gender[[2]]$target <- features$target[features$target[,"age"] >= 30 & features$target[,"age"] < 40,]
+  gender[[2]]$control <- features$control[features$control[,"age"] >= 30 & features$control[,"age"] < 40,]
+  if(nrow(gender[[2]]$target) == 0 | nrow(gender[[2]]$control) == 0) {
+    gender[[2]] <- NULL
+  }
+  gender[[3]] <- list()
+  gender[[3]]$target <- features$target[features$target[,"age"] >= 40 & features$target[,"age"] < 50,]
+  gender[[3]]$control <- features$control[features$control[,"age"] >= 40 & features$control[,"age"] < 50,]
+  if(nrow(gender[[3]]$target) == 0 | nrow(gender[[3]]$control) == 0) {
+    gender[[3]] <- NULL
+  }
+  gender[[4]] <- list()
+  gender[[4]]$target <- features$target[features$target[,"age"] >= 50 & features$target[,"age"] < 60,]
+  gender[[4]]$control <- features$control[features$control[,"age"] >= 50 & features$control[,"age"] < 60,]
+  if(nrow(gender[[4]]$target) == 0 | nrow(gender[[4]]$control) == 0) {
+    gender[[4]] <- NULL
+  }
+  gender[[5]] <- list()
+  gender[[5]]$target <- features$target[features$target[,"age"] >= 60 & features$target[,"age"] < 70,]
+  gender[[5]]$control <- features$control[features$control[,"age"] >= 60 & features$control[,"age"] < 70,]
+  if(nrow(gender[[5]]$target) == 0 | nrow(gender[[5]]$control) == 0) {
+    gender[[5]] <- NULL
+  }
+  gender[[6]] <- list()
+  gender[[6]]$target <- features$target[features$target[,"age"] >= 70,]
+  gender[[6]]$control <- features$control[features$control[,"age"] >= 70,]
+  if(nrow(gender[[6]]$target) == 0 | nrow(gender[[6]]$control) == 0) {
+    gender[[6]] <- NULL
+  }
+  print(length(gender))
+  return(gender)
+}
 
-timingTag("rbind2")
+psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
+  splitted <- list()
+  splitted[[1]] <- list()
+  splitted[[1]]$target <- features.target
+  splitted[[1]]$control <- features.control
+  if (sex) {
+    gender <- list()
+    for(features in splitted) {
+      gender <- c(gender, splitByGender(features))
+    }
+    splitted <- gender
+  }
+  if (age) {
+    for(features in splitted) {      
+      age <- list()
+      for(features in splitted) {
+        age <- c(age, splitByAge(features))
+      }
+      splitted <- age
+    }    
+  }
+  result <- NULL
+  for(features in splitted) {
+    result.tmp <- primitivePSM(features)
+    if(is.null(result)) {
+      result <- list()
+      result$matched <- list()
+      result$matched$index.control <- result.tmp$matched$index.control
+      result$matched$index.treated <- result.tmp$matched$index.treated
+      result$probabilities <- result.tmp$probabilities
+      result$featureMatrix <- result.tmp$featureMatrix
+    } else {
+      result$probabilities <- rbind2(result$probabilities, result.tmp$probabilities)
+      result$matched$index.control <- c(result$matched$index.control, result.tmp$matched$index.control)
+      result$matched$index.treated <- c(result$matched$index.treated, result.tmp$matched$index.treated)
+      result$featureMatrix <- rbind2(result$featureMatrix, result.tmp$featureMatrix)
+    }
+  }
+  return(result)
+}
 
-print("calculating probabilities")
-target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
-probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
+primitivePSM <- function(features) {
+  features.target <- features$target
+  features.control <- features$control
+  print("calculating probabilities")
+  target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
+  featureMatrix <- rbind2(features.target,features.control)
+  probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
+  timingTag("log reg")
+  matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
+  timingTag("matching")
+  result <- list()
+  result$probabilities <- probabilities
+  result$matched <- matched
+  result$featureMatrix <- featureMatrix
+  return(result)
+}
 
-timingTag("Probabilities Calculation")
+result <- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
-print("matching")
-matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
+probabilities <- result$probabilities
+
+matched <- result$matched
+featureMatrix <- result$featureMatrix
 
 timingTag("Matching")
 

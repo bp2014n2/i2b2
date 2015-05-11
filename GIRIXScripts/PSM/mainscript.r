@@ -10,6 +10,17 @@ source("../lib/i2b2.r", chdir=TRUE)
 source("../lib/dataPrep.r", chdir=TRUE)
 source("logic.r")
 
+time.query <- 0
+timings <- c()
+stats <- c()
+time.start <<- proc.time()
+
+timingTag <- function(name) {
+  time.end <<- proc.time()
+  timings[name] <<- sum(c(time.end-time.start)[3])
+  time.start <<- proc.time()
+}
+
 # girix input processing
 patientset.t.id <- strtoi(girix.input['Treatment group'])
 patientset.c.id <- strtoi(girix.input['Control group'])
@@ -25,6 +36,8 @@ addFeatures <- c(girix.input['Additional feature 1'],
 	girix.input['Additional feature 4'],
 	girix.input['Additional feature 5'])
 
+timingTag("Input Processing")
+
 # i2b2 date format (MM/DD/YYYY)
 interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
 
@@ -36,25 +49,39 @@ if(features["ICD"] == TRUE) {
 if(features["ATC"] == TRUE) {
 	filter <- append(filter, 'ATC:')
 }
+timingTag("-")
 featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
+timingTag("featureMatrix.t")
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
+timingTag("featureMatrix.c")
 
 
 featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
+
+timingTag("rbind2")
 
 print("calculating probabilities")
 target.vector <- c(rep(1, each=nrow(featureMatrix.t)),rep(0, each=nrow(featureMatrix.c)))
 probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
 
+timingTag("Probabilities Calculation")
+
 print("matching")
 matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
+
+timingTag("Matching")
 
 print("preparing pnums") #debug
 pnums.treated <- rownames(featureMatrix)[matched$index.treated]
 pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
 
+stats["pnums.treated"] <- length(pnums.treated)
+stats["pnums.control"] <- length(pnums.control)
+
+
 print("quering costs") #debug
 costs <- i2b2$crc$getAllYearCosts(c(patientset.t.id, patientset.c.id))
+timingTag("costs db query")
 treatmentDate <- getDate(treatmentYear, treatmentQuarter)
 yearBeforeTreatmentDate <- getDate(as.integer(treatmentYear) - 1, treatmentQuarter)
 yearAfterTreatmentDate <- getDate(as.integer(treatmentYear) + 1, treatmentQuarter)
@@ -84,6 +111,7 @@ lines(costsToPlot.c,type="l",col=accentColor[2])
 lineHeight <- max(max(costsToPlot.t[,"summe_aller_kosten"]),max(costsToPlot.c[,"summe_aller_kosten"]))+20
 arrows(as.Date(treatmentDate),-10,as.Date(treatmentDate),lineHeight,lwd=1.25,length=0,xpd=TRUE,col=darkGray)
 text(as.Date(treatmentDate),lineHeight+10,"Treatment Date",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+
 text(max(costsToPlot.t[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
 text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 
@@ -94,6 +122,9 @@ treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1
 controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
 controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
 scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probabilities"] - probabilities[matched$index.control,"probabilities"])))
+
+stats["pnums.treated"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
+stats["pnums.control"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
 
 validationParams <- data.frame(c(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean))
 dimnames(validationParams) <- list(c("mean of treatment scores",
@@ -116,5 +147,10 @@ girix.output[["Matched patients"]] <- head(matchedPatients, n=100)
 girix.output[["Matching description"]] <- "Verbose labels of columns: patient number (treatment group), Propensity Score, 
 										  Overall costs of patient in the year before treatment, Overall costs of patient in the year of treatment.
 										  Simulatenously for the following four columns for patients of control group"
+
 girix.output[["Validation Parameters"]] <- validationParams
 girix.output[["Costs per year"]] <- ""
+timingTag("Output")
+girix.output[["Stats"]] <- as.data.frame(stats)
+girix.output[["Timing"]] <- as.data.frame(timings)
+print(as.data.frame(timings))

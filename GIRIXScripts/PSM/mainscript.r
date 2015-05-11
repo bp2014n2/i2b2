@@ -39,6 +39,7 @@ if(features["ATC"] == TRUE) {
 featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
 featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
 
+
 featureMatrix <- rbind2(featureMatrix.t, featureMatrix.c)
 
 print("calculating probabilities")
@@ -66,11 +67,14 @@ row.names(costs.tY) <- costs.tY[,"patient_num"]
 costs.treated <- costs[costs[,"patient_num"] %in% pnums.treated,]
 costs.control <- costs[costs[,"patient_num"] %in% pnums.control,]
 
-costs.treated[,"datum"] <- as.Date(costsPerYear.treated[,1])
-costs.control[,"datum"] <- as.Date(costsPerYear.control[,1])
+costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
+costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
 
 costsPerQuarter.treated <- aggregate(. ~ datum, data=costs.treated, mean)
 costsPerQuarter.control <- aggregate(. ~ datum, data=costs.control, mean)
+
+costsPerQuarter.treated$patient_num <- NULL
+costsPerQuarter.control$patient_num <- NULL
 
 costsToPlot.t <- costsPerQuarter.treated[,c("datum", "summe_aller_kosten")]
 costsToPlot.c <- costsPerQuarter.control[,c("datum", "summe_aller_kosten")]

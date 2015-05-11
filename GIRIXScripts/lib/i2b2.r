@@ -1,3 +1,4 @@
+options( java.parameters = "-Xmx2g" )
 require(RJDBC)
 
 i2b2 <- list()

@@ -216,7 +216,7 @@ i2b2$crc$getAllYearCosts <- function(patient_set_ids) {
   # returns summe_aller_kosten for each patient in patient_set for every year
   # to do: integrate to lib dataPrep.r/data access <- peter (y...? <- marc)
 
-  query <- "SELECT patient_num, datum, summe_aller_kosten 
+  query <- "SELECT patient_num, datum, summe_aller_kosten, arztkosten, zahnarztkosten, apothekenkosten, krankenhauskosten, hilfsmittel, heilmittel, dialysesachkosten, krankengeld
     FROM i2b2demodata.AVK_FDB_T_Leistungskosten 
     WHERE patient_num IN (
       SELECT patient_num

@@ -66,18 +66,22 @@ row.names(costs.tY) <- costs.tY[,"patient_num"]
 costs.treated <- costs[costs[,"patient_num"] %in% pnums.treated,]
 costs.control <- costs[costs[,"patient_num"] %in% pnums.control,]
 
-costsPerYear.treated <- aggregate(summe_aller_kosten ~ datum, data=costs.treated, mean)
-costsPerYear.control <- aggregate(summe_aller_kosten ~ datum, data=costs.control, mean)
-costsPerYear.treated[,1] <- as.Date(costsPerYear.treated[,1])
-costsPerYear.control[,1] <- as.Date(costsPerYear.control[,1])
+costs.treated[,"datum"] <- as.Date(costsPerYear.treated[,1])
+costs.control[,"datum"] <- as.Date(costsPerYear.control[,1])
 
-plot(costsPerYear.treated,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n")
-lines(costsPerYear.control,type="l",col=accentColor[2])
-lineHeight <- max(max(costsPerYear.treated[,"summe_aller_kosten"]),max(costsPerYear.control[,"summe_aller_kosten"]))+20
+costsPerQuarter.treated <- aggregate(. ~ datum, data=costs.treated, mean)
+costsPerQuarter.control <- aggregate(. ~ datum, data=costs.control, mean)
+
+costsToPlot.t <- costsPerQuarter.treated[,c("datum", "summe_aller_kosten")]
+costsToPlot.c <- costsPerQuarter.control[,c("datum", "summe_aller_kosten")]
+
+plot(costsToPlot.t,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n")
+lines(costsToPlot.c,type="l",col=accentColor[2])
+lineHeight <- max(max(costsToPlot.t[,"summe_aller_kosten"]),max(costsToPlot.c[,"summe_aller_kosten"]))+20
 arrows(as.Date(treatmentDate),-10,as.Date(treatmentDate),lineHeight,lwd=1.25,length=0,xpd=TRUE,col=darkGray)
 text(as.Date(treatmentDate),lineHeight+10,"Treatment Date",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
-text(max(costsPerYear.treated[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
-text(max(costsPerYear.treated[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
+text(max(costsToPlot.t[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
+text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 
 print("outputting")
 options(scipen=999)
@@ -87,12 +91,13 @@ controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"prob
 controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
 scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probabilities"] - probabilities[matched$index.control,"probabilities"])))
 
-validationParams <- c("mean of treatment scores"=treatmentMean,
-	"median of treatment scores"=treatmentMedian,
-	"mean of control scores"=controlMean,
-	"median of control scores"=controlMedian,
-	"mean of score difference"=scoreDiffMean)
-matchedPatients <- matrix()
+validationParams <- data.frame(c(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean))
+dimnames(validationParams) <- list(c("mean of treatment scores",
+                                     "median of treatment scores",
+                                     "mean of control scores",
+                                     "median of control scores",
+                                     "mean of score difference"), 'Value')
+
 matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
 				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
 

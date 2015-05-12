@@ -6,7 +6,8 @@ if(!exists('girix.input')) {
 risk.type <- girix.input['Method']
 
 source("../lib/i2b2.r", chdir=TRUE)
-source("risk.r")
+source("../lib/risk.r")
+source("../lib/featureMatrix.r")
 
 failScript <- function(errorMessage="Somethin went wrong") {
   girix.output[['Information']] <<- errorMessage
@@ -15,43 +16,6 @@ failScript <- function(errorMessage="Somethin went wrong") {
   girix.output[['Statistics']] <<- errorMessage
   girix.output[['Prediction']] <<- errorMessage
   girix.output[['Quality']] <<- errorMessage
-}
-
-require(Matrix)
-
-generateObservationMatrix <- function(observations, features, patients) {
-  m <- with(observations, sparseMatrix(i=as.numeric(match(patient_num, patients)), j=as.numeric(match(concept_cd_sub, features)), x=as.numeric(counts), dims=c(length(patients), length(features)), dimnames=list(patients, features)))
-  
-  return(m)
-}
-
-generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3, date=Sys.Date()) {
-  
-  time.start <- proc.time()
-  
-  observations <- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
-  
-  time.end <- proc.time()
-  
-  time.query <<- time.query + sum(c(time.end-time.start)[3])
-  
-  feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
-  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), date))
-  return(feature_matrix)
-}
-
-generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
-  
-  time.start <- proc.time()
-  
-  observations <- i2b2$crc$getObservationsForConcept(concept.path=concept.path, interval=interval, patient_set=patient_set)
-  
-  time.end <- proc.time()
-  
-  time.query <<- time.query + sum(c(time.end-time.start)[3])
-  
-  target_matrix <- generateObservationMatrix(observations, c('target'), patients$patient_num)
-  return(sign(target_matrix[,1]))
 }
 
 validateModel <- function(fit, model, target) {
@@ -136,10 +100,8 @@ exec <- function() {
   newdata.interval <- list(start=i2b2DateToPOSIXlt(newdata.interval.tmp['Start']), end=i2b2DateToPOSIXlt(newdata.interval.tmp['End']))
   newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi(girix.input['New Patient set']), -1)
   
-  features.filter <- c("ATC:", "ICD:")
+  features.filter <- c("\\ATC\\", "\\ICD\\")
   features.level <- strtoi(girix.input['Feature level'])
-  
-  time.query <<- 0
   
   features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
   model.patients <- i2b2$crc$getPatients(patient_set=model.patient_set)
@@ -153,8 +115,8 @@ exec <- function() {
     return()
   }
   
-  model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter, date=model.interval.tmp['End'])
-  newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter, date=newdata.interval.tmp['End'])
+  model <- generateFeatureMatrix(level=features.level, interval=model.interval, patients=model.patients, patient_set=model.patient_set, features=features, filter=features.filter)
+  newdata <- generateFeatureMatrix(level=features.level, interval=newdata.interval, patients=newdata.patients, patient_set=newdata.patient_set, features=features, filter=features.filter)
   model.target <- generateTargetVector(interval=model.target.interval, patients=model.patients, patient_set=model.patient_set, concept.path=target.concept.path)
   
   model.split <- 0.6

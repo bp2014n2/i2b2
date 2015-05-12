@@ -7,10 +7,9 @@ if(!exists('girix.input')) {
 }
 
 source("../lib/i2b2.r", chdir=TRUE)
-source("../lib/dataPrep.r", chdir=TRUE)
-source("logic.r")
+source("../lib/risk.r")
+source("../lib/featureMatrix.r")
 
-time.query <- 0
 timings <- c()
 stats <- c()
 time.start <<- proc.time()
@@ -44,15 +43,23 @@ interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(trea
 print("getting featureMatrices")
 filter <- c()
 if(features["ICD"] == TRUE) {
-	filter <- append(filter, 'ICD:')
+	filter <- append(filter, '\\ICD\\')
 }
 if(features["ATC"] == TRUE) {
-	filter <- append(filter, 'ATC:')
+	filter <- append(filter, '\\ATC\\')
+}
+for(addFeature in addFeatures) {
+  if(!is.na(addFeature)) {
+    filter <- append(filter, addFeature)
+  }
 }
 timingTag("-")
-featureMatrix.t <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.t.id, interval=interval, filter=filter, level=level)
+features <- i2b2$crc$getConcepts(concepts=filter, level=level)
+patientset.c <- i2b2$crc$getPatients(patient_set=patientset.c.id)
+patientset.t <- i2b2$crc$getPatients(patient_set=patientset.t.id)
+featureMatrix.t <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
 timingTag("featureMatrix.t")
-featureMatrix.c <- DataPrep.generateFeatureMatrixFromPatientSet(patient_set=patientset.c.id, interval=interval, filter=filter, level=level)
+featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
 timingTag("featureMatrix.c")
 
 splitByGender <- function(features) {
@@ -91,7 +98,6 @@ splitByAge <- function(features) {
       g <- NULL
     }
   }
-  print(length(gender))
   return(gender)
 }
 
@@ -140,9 +146,13 @@ primitivePSM <- function(features) {
   print("calculating probabilities")
   target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
   featureMatrix <- rbind2(features.target,features.control)
-  probabilities <- ProbabilitiesOfLogRegFittingWithTargetVector(featureMatrix=featureMatrix, target.vector=target.vector)
+  risk.type <- 'speedglm'
+  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)
+  
+  probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
+  probabilities <- cBind(probabilities, target.vector)
   timingTag("log reg")
-  matched <- Match(Tr=probabilities[,2], X=probabilities[,1], M=1, exact=TRUE, ties=TRUE, version="fast")
+  matched <- Match(Tr=target.vector, X=probabilities$probability, M=1, exact=TRUE, ties=TRUE, version="fast")
   timingTag("matching")
   result <- list()
   result$probabilities <- probabilities
@@ -208,11 +218,11 @@ text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE
 
 print("outputting")
 options(scipen=999)
-treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
-controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
-scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probabilities"] - probabilities[matched$index.control,"probabilities"])))
+treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probability"]),4)
+treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probability"]),4)
+controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probability"]),4)
+controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probability"]),4)
+scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probability"] - probabilities[matched$index.control,"probability"])))
 
 stats["pnums.treated"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 stats["pnums.control"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
@@ -224,8 +234,8 @@ dimnames(validationParams) <- list(c("mean of treatment scores",
                                      "median of control scores",
                                      "mean of score difference"), 'Value')
 
-matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probabilities"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
-				pnums.control, round(probabilities[matched$index.control, "probabilities"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
+matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probability"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
+				pnums.control, round(probabilities[matched$index.control, "probability"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
 
 colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 					  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
@@ -244,3 +254,5 @@ timingTag("Output")
 girix.output[["Stats"]] <- as.data.frame(stats)
 girix.output[["Timing"]] <- as.data.frame(timings)
 print(as.data.frame(timings))
+
+rm(girix.input, girix.concept.names, girix.events, girix.modifiers, girix.observations, girix.observers, girix.patients); gc()

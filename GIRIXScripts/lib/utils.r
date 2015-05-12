@@ -59,6 +59,17 @@ smoothedLine <- function(x, y) {
   lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), lwd=2)
 }
 
+getDate <- function(year, quarter) {
+  month <- strtoi(quarter) * 3 - 2
+  if (month < 10) {
+    filler <- '0'
+  } else {
+    filler <- ''
+  }
+  date <- paste0(year,'-',filler,month,'-01')
+  return(date)
+}
+
 utils.random_dates <- function(N, st="2011/01/01", et="2014/12/31") {
     st <- as.POSIXct(as.Date(st))
     et <- as.POSIXct(as.Date(et))

@@ -49,7 +49,7 @@ if(features["ATC"] == TRUE) {
 	filter <- append(filter, '\\ATC\\')
 }
 for(addFeature in addFeatures) {
-  if(!is.na(addFeature)) {
+  if(addFeature != '') {
     filter <- append(filter, addFeature)
   }
 }
@@ -63,101 +63,74 @@ featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patient
 timingTag("featureMatrix.c")
 
 splitByGender <- function(features) {
+  sex <- features[,"sex"]
   gender <- list()
-  gender[[1]] <- list()
-  gender[[2]] <- list()
-  gender[[1]]$target <- features$target[features$target[,"sex"] == 1,]
-  gender[[1]]$control <- features$control[features$control[,"sex"] == 1,]
-  gender[[2]]$target <- features$target[features$target[,"sex"] != 1,]
-  gender[[2]]$control <- features$control[features$control[,"sex"] != 1,]
+  gender[[1]] <- features[sex == 1,]
+  gender[[2]] <- features[sex != 1,]
   return(gender)
 }
 
 splitByAge <- function(features) {
+  age <- features[,"age"]
   gender <- list()
-  gender[[1]] <- list()
-  gender[[1]]$target <- features$target[features$target[,"age"] < 30,]
-  gender[[1]]$control <- features$control[features$control[,"age"] < 30,]
-  gender[[2]] <- list()
-  gender[[2]]$target <- features$target[features$target[,"age"] >= 30 & features$target[,"age"] < 40,]
-  gender[[2]]$control <- features$control[features$control[,"age"] >= 30 & features$control[,"age"] < 40,]
-  gender[[3]] <- list()
-  gender[[3]]$target <- features$target[features$target[,"age"] >= 40 & features$target[,"age"] < 50,]
-  gender[[3]]$control <- features$control[features$control[,"age"] >= 40 & features$control[,"age"] < 50,]
-  gender[[4]] <- list()
-  gender[[4]]$target <- features$target[features$target[,"age"] >= 50 & features$target[,"age"] < 60,]
-  gender[[4]]$control <- features$control[features$control[,"age"] >= 50 & features$control[,"age"] < 60,]
-  gender[[5]] <- list()
-  gender[[5]]$target <- features$target[features$target[,"age"] >= 60 & features$target[,"age"] < 70,]
-  gender[[5]]$control <- features$control[features$control[,"age"] >= 60 & features$control[,"age"] < 70,]
-  gender[[6]] <- list()
-  gender[[6]]$target <- features$target[features$target[,"age"] >= 70,]
-  gender[[6]]$control <- features$control[features$control[,"age"] >= 70,]
+  gender[[1]] <- features[age < 30,]
+  gender[[2]] <- features[age >= 30 & age < 40,]
+  gender[[3]] <- features[age >= 40 & age < 50,]
+  gender[[4]] <- features[age >= 50 & age < 60,]
+  gender[[5]] <- features[age >= 60 & age < 70,]
+  gender[[6]] <- features[age >= 70,]
   for(g in gender) {
-    if(nrow(g$target) == 0 | nrow(g$control) == 0) {
+    if(nrow(g) == 0) {
       g <- NULL
     }
   }
   return(gender)
 }
 
-psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
+psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {  
+  print("calculating probabilities")
+  target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
+  featureMatrix <- rbind2(features.target,features.control)
+  risk.type <- 'speedglm'
+  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)  
+  timingTag("log reg")
+  probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
   splitted <- list()
-  splitted[[1]] <- list()
-  splitted[[1]]$target <- features.target
-  splitted[[1]]$control <- features.control
+  splitted[[1]] <- cBind(featureMatrix, probabilities=probabilities$probability, target.vector)
   if (sex) {
     gender <- list()
-    for(features in splitted) {
-      gender <- c(gender, splitByGender(features))
+    for(patients in splitted) {
+      gender <- c(gender, splitByGender(patients))
     }
     splitted <- gender
   }
   if (age) {    
     age <- list()
-    for(features in splitted) {  
-      age <- c(age, splitByAge(features))
+    for(patients in splitted) {  
+      age <- c(age, splitByAge(patients))
     }
     splitted <- age
   }
-  result <- NULL
-  for(features in splitted) {
-    result.tmp <- primitivePSM(features)
-    if(is.null(result)) {
-      result <- list()
-      result$matched <- list()
-      result$matched$index.control <- result.tmp$matched$index.control
-      result$matched$index.treated <- result.tmp$matched$index.treated
-      result$probabilities <- result.tmp$probabilities
-      result$featureMatrix <- result.tmp$featureMatrix
-    } else {
-      result$probabilities <- rbind2(result$probabilities, result.tmp$probabilities)
-      result$matched$index.control <- c(result$matched$index.control, result.tmp$matched$index.control)
-      result$matched$index.treated <- c(result$matched$index.treated, result.tmp$matched$index.treated)
-      result$featureMatrix <- rbind2(result$featureMatrix, result.tmp$featureMatrix)
-    }
+  result <- list()
+  for(patients in splitted) {
+    result$matched <- rbind2(result$matched, primitivePSM(patients))
   }
+  rownames(result$matched) <- NULL
+  result$probabilities <- cBind(patient_num=probabilities$patient_num, probabilities=probabilities$probability, target.vector)
   return(result)
 }
 
-primitivePSM <- function(features) {
-  features.target <- features$target
-  features.control <- features$control
-  print("calculating probabilities")
-  target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
-  featureMatrix <- rbind2(features.target,features.control)
-  risk.type <- 'speedglm'
-  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)
-  
-  probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
-  probabilities <- cBind(probabilities, target.vector)
-  timingTag("log reg")
-  matched <- Match(Tr=target.vector, X=probabilities$probability, M=1, exact=TRUE, ties=TRUE, version="fast")
+primitivePSM <- function(patients) {
+  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, ties=FALSE, version="fast", distance.tolerance=0.001)
   timingTag("matching")
-  result <- list()
-  result$probabilities <- probabilities
-  result$matched <- matched
-  result$featureMatrix <- featureMatrix
+  if(!is.list(matched)) {
+    return(NULL)
+  }
+  pnum.control <- rownames(patients)[matched$index.control]
+  score.control <- patients[matched$index.control,'probabilities']
+  pnum.treated <- rownames(patients)[matched$index.treated]
+  score.treated <- patients[matched$index.treated,'probabilities']
+  result <- data.frame(pnum.treated, score.treated, pnum.control, score.control, stringsAsFactors=FALSE)
   return(result)
 }
 
@@ -166,17 +139,12 @@ result <- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, 
 probabilities <- result$probabilities
 
 matched <- result$matched
-featureMatrix <- result$featureMatrix
 
 timingTag("Matching")
 
 print("preparing pnums") #debug
-pnums.treated <- rownames(featureMatrix)[matched$index.treated]
-pnums.control <- rownames(featureMatrix)[matched$index.control]  # contains together with pnums.treated the matching information(order matters)
-
-stats["pnums.treated"] <- length(pnums.treated)
-stats["pnums.control"] <- length(pnums.control)
-
+pnums.treated <- matched$pnum.treated
+pnums.control <- matched$pnum.control  # contains together with pnums.treated the matching information(order matters)
 
 print("quering costs") #debug
 costs <- i2b2$crc$getAllYearCosts(c(patientset.t.id, patientset.c.id))
@@ -217,12 +185,12 @@ text(max(costsToPlot.t[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TR
 text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 
 print("outputting")
-options(scipen=999)
-treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probability"]),4)
-treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probability"]),4)
-controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probability"]),4)
-controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probability"]),4)
-scoreDiffMean <- round(mean(abs(probabilities[matched$index.treated,"probability"] - probabilities[matched$index.control,"probability"])))
+options(scipen=10)
+treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
+treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
+controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
+controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
+scoreDiffMean <- round(mean(abs(matched$score.treated - matched$score.control)), 4)
 
 stats["pnums.treated"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 stats["pnums.control"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
@@ -234,8 +202,8 @@ dimnames(validationParams) <- list(c("mean of treatment scores",
                                      "median of control scores",
                                      "mean of score difference"), 'Value')
 
-matchedPatients <- cbind(pnums.treated, round(probabilities[matched$index.treated, "probability"], 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
-				pnums.control, round(probabilities[matched$index.control, "probability"], 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
+matchedPatients <- cbind(pnums.treated, round(matched$score.treated, 4), round(costs.pY[pnums.treated,"summe_aller_kosten"], 2), round(costs.tY[pnums.treated,"summe_aller_kosten"], 2),
+				pnums.control, round(matched$score.control, 4), round(costs.pY[pnums.control,"summe_aller_kosten"], 2), round(costs.tY[pnums.control,"summe_aller_kosten"], 2))
 
 colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 					  "Control group p_num", "Score", "Costs year before", "Costs treatment year")

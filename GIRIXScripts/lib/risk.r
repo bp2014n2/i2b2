@@ -45,10 +45,9 @@ risk$speedglm$fit <- function(model, target) {
   # We need to filter out features where not enough observations were captured
   n.IG     <- colSums(sign(model[target==1,]))
   n.VG     <- colSums(sign(model[target==0,]))
-  excl.IG  <<- which(n.IG<5)
-  excl.VG  <<- which(n.VG<5)
-  excl.EQ  <<- which(apply(model, 2, function(x) length(unique(x))) <= 1)
-  risk$speedglm$excl.ALL <<- union(intersect(excl.IG, excl.VG), excl.EQ)
+  excl.IG  <- which(n.IG<5)
+  excl.VG  <- which(n.VG<5)
+  risk$speedglm$excl.ALL <<- intersect(excl.IG, excl.VG)
   if(length(risk$speedglm$excl.ALL)>0){ 
     model <- model[,-risk$speedglm$excl.ALL]
   }

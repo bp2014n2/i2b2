@@ -1,6 +1,6 @@
 *.*~
 *.db
-.Rhistory
+**.Rhistory
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -20,3 +20,5 @@ hs_err_pid*
 
 # postgresql database connection configuration
 ./i2b2/GIRIXScripts/lib/i2b2.crc.config_postgres.r
+**.Rproj.user
+**.Rproj

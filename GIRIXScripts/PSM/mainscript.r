@@ -89,29 +89,35 @@ splitByAge <- function(features) {
 }
 
 psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {  
-  print("calculating probabilities")
   target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
   featureMatrix <- rbind2(features.target,features.control)
   risk.type <- 'speedglm'
+  print("fitting")
   fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)  
+  print("finished fitting")
   timingTag("log reg")
+  print("calculating probabilities")
   probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
-  splitted <- list()
-  splitted[[1]] <- cBind(featureMatrix, probabilities=probabilities$probability, target.vector)
+  print("finished calculating probabilities")
+  splitted <<- list()
+  splitted[[1]] <<- cBind(featureMatrix, probabilities=probabilities$probability, target.vector)
   if (sex) {
+    print("split by gender")
     gender <- list()
     for(patients in splitted) {
       gender <- c(gender, splitByGender(patients))
     }
-    splitted <- gender
+    splitted <<- gender
   }
   if (age) {  
+    print("split by age")
     age <- list()
     for(patients in splitted) {  
       age <- c(age, splitByAge(patients))
     }
-    splitted <- age
+    splitted <<- age
   }
+  print(paste(length(splitted), "cells"))
   result <- list()
   result$matched <- do.call(rbind, lapply(splitted, primitivePSM))
   rownames(result$matched) <- NULL
@@ -120,8 +126,10 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
 }
 
 primitivePSM <- function(patients) {
-  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, ties=FALSE, version="fast", distance.tolerance=0.001)
+  print("Matching")
+  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, ties=FALSE, version="fast", distance.tolerance=0.001, calipher=0.2)
   timingTag("matching")
+  print("Finished Matching")
   if(!is.list(matched)) {
     return(NULL)
   }
@@ -185,10 +193,10 @@ text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE
 
 print("outputting")
 options(scipen=10)
-treatmentMean <- round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-treatmentMedian <- round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-controlMean <- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
-controlMedian <- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
+treatmentMean <- round(mean(matched$score.treated),4)
+treatmentMedian <- round(median(matched$score.treated),4)
+controlMean <- round(mean(matched$score.control),4)
+controlMedian <- round(median(matched$score.control),4)
 scoreDiffMean <- round(mean(abs(matched$score.treated - matched$score.control)), 4)
 
 stats["pnums.treated"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])

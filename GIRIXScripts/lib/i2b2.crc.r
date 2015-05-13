@@ -11,7 +11,7 @@ i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   FROM i2b2demodata.concept_dimension
   WHERE (%s)"
   
-  concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
+  concept_condition <- paste(paste("concept_path LIKE '", escape(concepts), "%'", sep=""), collapse=" OR ")
   return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
 }
 
@@ -31,7 +31,7 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d))) observations
   GROUP BY patient_num, concept_cd_sub"
-  concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
+  concept_condition <- paste(paste("concept_path LIKE '", escape(concepts), "%'", sep=""), collapse=" OR ")
   interval <- lapply(interval, posixltToPSQLDate)
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
 }

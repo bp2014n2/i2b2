@@ -104,7 +104,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
     }
     splitted <- gender
   }
-  if (age) {    
+  if (age) {  
     age <- list()
     for(patients in splitted) {  
       age <- c(age, splitByAge(patients))
@@ -112,9 +112,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
     splitted <- age
   }
   result <- list()
-  for(patients in splitted) {
-    result$matched <- rbind2(result$matched, primitivePSM(patients))
-  }
+  result$matched <- do.call(rbind, lapply(splitted, primitivePSM))
   rownames(result$matched) <- NULL
   result$probabilities <- cBind(patient_num=probabilities$patient_num, probabilities=probabilities$probability, target.vector)
   return(result)

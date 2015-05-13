@@ -9,6 +9,7 @@ if(!exists('girix.input')) {
 source("../lib/i2b2.r", chdir=TRUE)
 source("../lib/dataPrep.r", chdir=TRUE)
 source("logic.r")
+source("costs_chart.r")
 
 time.query <- 0
 timings <- c()
@@ -144,6 +145,8 @@ rownames(matchedPatients) <- c()
 
 print(matchedPatients[1:2,])
 print(validationParams)
+
+costs_chart(costsPerQuarter.control, costsPerQuarter.treated)
 
 girix.output[["Matched patients"]] <- head(matchedPatients, n=100)
 #"Verbose labels of columns: patient number (treatment group), Propensity Score, 

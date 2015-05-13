@@ -223,19 +223,29 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 			}
 			// force a redraw
 			i2b2.CRC.ctrlr.currentQueryStatus.refreshStatus();
+			//i2b2.CRC.view.graphs.clearGraphs('making graphs ...');
 		}
 		
 		
 		// fire off the ajax calls
 		i2b2.CRC.ajax.getQueryInstanceList_fromQueryMasterId("CRC:QueryStatus", {qm_key_value: self.QM.id}, scopedCallbackQI);
 
-}
+
+                // make graph - snm0
+								//alert("HERE WITH THIS:\n" + sCompiledResultsTest); //snm0 
+		//i2b2.CRC.view.graphs.createGraphs("infoQueryStatusChart", i2b2.CRC.view.graphs.returnTestString(false)), false);  // single site testing
+		//i2b2.CRC.view.graphs.createGraphs("infoQueryStatusChart", i2b2.CRC.view.graphs.returnTestString(true), true);  // multisite testing
+
+
+    }  // end of private_pollStatus
 	
 	function private_refresh_status() {
-		
+		var sCompiledResultsTest = "";  // snm0 - this is the text for the graph display
 				// callback processor to check the Query Instance
 		var scopedCallbackQRSI = new i2b2_scopedCallback();
 		scopedCallbackQRSI.scope = self;
+		// This is where each breakdown in the results is obtained
+		// each breakdown comes through here separately
 		scopedCallbackQRSI.callback = function(results) {
 			if (results.error) {
 				alert(results.errorMsg);
@@ -247,9 +257,10 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 				var l = ri_list.length;
 				for (var i=0; i<l; i++) {
 					var temp = ri_list[i];
+					// get the query name for display in the box
 					var description = i2b2.h.XPath(temp, 'descendant-or-self::description')[0].firstChild.nodeValue;
 					self.dispDIV.innerHTML += "<div style=\"clear: both;  padding-top: 10px; font-weight: bold;\">" + description + "</div>";					
-
+					sCompiledResultsTest += description + '\n';  //snm0
 				} 
 				var crc_xml = results.refXML.getElementsByTagName('crc_xml_result');
 				l = crc_xml.length;
@@ -272,10 +283,15 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 						{
 							var value = params[i2].firstChild.nodeValue;							
 						}
+						// display a line of results in the status box
 						self.dispDIV.innerHTML += "<div style=\"clear: both; margin-left: 20px; float: left; height: 16px; line-height: 16px;\">" + params[i2].getAttribute("column") + ": <font color=\"#0000dd\">" + value  + "</font></div>";
+						sCompiledResultsTest += params[i2].getAttribute("column") + " : " + value + "\n"; //snm0
 					}
 					var ri_id = i2b2.h.XPath(temp, 'descendant-or-self::result_instance_id')[0].firstChild.nodeValue;
 				}
+				//alert(sCompiledResultsTest); //snm0 
+				i2b2.CRC.view.graphs.createGraphs("infoQueryStatusChart", sCompiledResultsTest, i2b2.CRC.view.graphs.bIsSHRINE);
+				if (i2b2.CRC.view.graphs.bisGTIE8) i2b2.CRC.view.status.selectTab('graphs');
 				//self.dispDIV.innerHTML += this.dispMsg;
 			}
 		}
@@ -314,6 +330,7 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 			var rec = self.QRS[i];			
 			if (rec.QRS_time) {
 				var t = '<font color="';
+				// display status of query in box
 				switch(rec.QRS_Status) {
 					case "ERROR":
 						self.dispDIV.innerHTML += '<div style="clear:both; height:16px; line-height:16px; "><div style="float:left; font-weight:bold; height:16px; line-height:16px; ">'+rec.title+'</div><div style="float:right; height:16px; line-height:16px; "><font color="#dd0000">ERROR</font></div>';
@@ -430,7 +447,8 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 							var value =  i2b2.h.XPath(xml_v, 'descendant::total_time_second/text()/..')[i2].firstChild.nodeValue;							
 						}					
 					self.dispDIV.innerHTML += '<div style="margin-left:20px; clear:both; line-height:16px; ">' + i2b2.h.XPath(xml_v, 'descendant::name/text()/..')[i2].firstChild.nodeValue + '<font color="#0000dd">: ' + value + ' secs</font></div>';
-	
+					//snm0
+					//alert('<div style="margin-left:20px; clear:both; line-height:16px; ">' + i2b2.h.XPath(xml_v, 'descendant::name/text()/..')[i2].firstChild.nodeValue + '<font color="#0000dd">: ' + value + ' secs</font></div>');
 					//self.dispDIV.innerHTML += '<div style="float: left; height: 16px; margin-right: 100px; line-height: 16px;"><font color="#0000dd">: ' + i2b2.h.XPath(xml_v, 'descendant::total_time_second/text()/..')[i2].firstChild.nodeValue + ' secs</font></div>';
 					} catch (e) {}
 				}
@@ -449,6 +467,8 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 				private_refreshInterrupt = false;
 			} catch (e) {}
 		}
+		
+
 	}
 
 	

@@ -170,8 +170,8 @@ public class QueryProcessorUtil {
 		//Start queues
 		
 		//TURN OFF QUEUE
-		//pqMedium.start();
-		//pqLarge.start();
+		pqMedium.start();
+		pqLarge.start();
 
 	}
 

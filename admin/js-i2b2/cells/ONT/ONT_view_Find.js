@@ -17,6 +17,7 @@ i2b2.ONT.view.find.visible = false;
 i2b2.ONT.view.find.modifier = false;
 this.currentTab = 'names';
 
+
 // redefine the option functions
 // ================================================================================================== //
 i2b2.ONT.view.find.showOptions = function(subScreen) {
@@ -52,10 +53,14 @@ i2b2.ONT.view.find.showOptions = function(subScreen) {
 		this.modalOptions.render(document.body);
 	}
 	this.modalOptions.show();
-	// load settings
-	$('ONTFINDMaxQryDisp').value = this.params.max;
-	$('ONTFINDshowSynonyms').checked = parseBoolean(!this.params.synonyms);
-	$('ONTFINDshowHiddens').checked = parseBoolean(this.params.hiddens);			
+	// load settings from html
+	i2b2.ONT.view['find'].params.max = parseInt($('ONTFINDMaxQryDisp').value,10);
+	i2b2.ONT.view['find'].params.synonyms = $('ONTFINDshowSynonyms').checked;
+	i2b2.ONT.view['find'].params.hiddens = $('ONTFINDshowHiddens').checked;
+
+	//$('ONTFINDMaxQryDisp').value = this.params.max;
+	//$('ONTFINDshowSynonyms').checked = parseBoolean(this.params.synonyms);
+	//$('ONTFINDshowHiddens').checked = parseBoolean(this.params.hiddens);			
 }
 
 
@@ -107,6 +112,11 @@ i2b2.ONT.view.find.PopulateCategories = function() {
 	// clear the list first
 	while( tns.hasChildNodes() ) { tns.removeChild( tns.lastChild ); }
 	// add the default option
+	//Load from HTML
+	i2b2.ONT.view['find'].params.max = parseInt($('ONTFINDMaxQryDisp').value,10);
+	i2b2.ONT.view['find'].params.synonyms = $('ONTFINDshowSynonyms').checked;
+	i2b2.ONT.view['find'].params.hiddens = $('ONTFINDshowHiddens').checked;
+
 	var tno = document.createElement('OPTION');
 	tno.setAttribute('value', '[[[ALL]]]');
 	var tnt = document.createTextNode('Any Category');
@@ -159,9 +169,9 @@ i2b2.ONT.view.find.Resize = function(e) {
     i2b2.ONT.view['find'].params.hiddens = $('ONTFINDshowHiddens').checked;	
 
     var viewObj = i2b2.ONT.view.main;
-	var ds = document.viewport.getDimensions();
-	var w = ds.width;
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 	if (w < 840) {w = 840;}
 	if (h < 517) {h = 517;}
 	switch(i2b2.hive.MasterView.getViewMode()) {
@@ -227,8 +237,8 @@ i2b2.ONT.view.find.Resize = function(e) {
 i2b2.ONT.view.find.ResizeHeight = function() {
 	// this function provides the resize functionality needed for this screen
 	var viewObj = i2b2.ONT.view.main;
-	var ds = document.viewport.getDimensions();
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 	if (h < 517) {h = 517;}
 	switch(i2b2.hive.MasterView.getViewMode()) {
 		case "Patients":

@@ -321,9 +321,13 @@ i2b2.CRC.view.QT.ZoomView = function() {
 
 // ================================================================================================== //
 i2b2.CRC.view.QT.Resize = function(e) {
-	var ds = document.viewport.getDimensions();
-	var w = ds.width;
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+	//var w = ds.width;
+	//var h = ds.height
+    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+	
 	if (w < 840) {w = 840;}
 	if (h < 517) {h = 517;}
 	
@@ -334,10 +338,10 @@ i2b2.CRC.view.QT.Resize = function(e) {
 	
 	$('crcQueryToolBox').style.left = w-550;
 	if (i2b2.WORK && i2b2.WORK.isLoaded) {
-		var z = h - 400; //392 + 44 - 17 - 25;
+		var z = h - 438; //392 + 44 - 17 - 25;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196 - 44; }	
 	} else {
-		var z = h - 392 - 17 - 25;
+		var z = h - 348;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196; }
 	}
 	// display the topic selector bar if we are in SHRINE-mode
@@ -357,7 +361,9 @@ i2b2.CRC.view.QT.Resize = function(e) {
 //================================================================================================== //
 i2b2.CRC.view.QT.splitterDragged = function()
 {
-	var viewPortDim = document.viewport.getDimensions();
+	//var viewPortDim = document.viewport.getDimensions();
+	var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+
 	var splitter = $( i2b2.hive.mySplitter.name );	
 	var CRCQT = $("crcQueryToolBox");
 	var CRCQTBodyBox = $("crcQueryToolBox.bodyBox");
@@ -377,7 +383,7 @@ i2b2.CRC.view.QT.splitterDragged = function()
 	var CRCQueryPanels 			= $("crcQryToolPanels");
 	var CRCinnerQueryPanel		= $("crc.innerQueryPanel");
 	var CRCtemoralBuilder		= $("crc.temoralBuilder");
-	var basicWidth					= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
+	var basicWidth					= parseInt(w) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
 
 	/* Title, buttons, and panels */		
 	CRCQT.style.left				= parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3 + "px";
@@ -479,15 +485,18 @@ i2b2.CRC.view.QT.splitterDragged = function()
 
 //================================================================================================== //
 i2b2.CRC.view.QT.ResizeHeight = function() {
-	var ds = document.viewport.getDimensions();
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+	//var h = ds.height;
+	//var h = window.document.documentElement.clientHeight;
+	var h = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+	
 	if (h < 517) {h = 517;}
 	// resize our visual components
 	if (i2b2.WORK && i2b2.WORK.isLoaded) {
-		var z = h - 400;
+		var z = h - 438;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196 - 44; }	
 	} else {
-		var z = h - 434;
+		var z = h - 472;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196; }
 	}
 	// display the topic selector bar if we are in SHRINE-mode
@@ -1008,6 +1017,12 @@ i2b2.events.afterCellInit.subscribe(
 					var sText = oMenuItem.cfg.getProperty("text");
 				}
 				
+				if (sValue != "TEMPORAL") {
+					var dm = i2b2.CRC.model.queryCurrent;
+					for (var k=0; k<dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length; k++) {
+						dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][k].timing = sValue;
+					}
+				}
 				
 				//var sText = oMenuItem.cfg.getProperty("text");
 				

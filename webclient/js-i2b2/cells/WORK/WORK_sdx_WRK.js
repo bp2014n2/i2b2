@@ -271,9 +271,13 @@ i2b2.sdx.TypeControllers.WRK.RenderHTML= function(sdxData, options, targetDiv) {
 			newOptions.icon = "sdx_WORK_XML.gif";
 			break;
 	}
+
+	
 	newOptions.title = sdxData.origData.name;
 	if (sdxCode) {
 		var sdxDataNode = i2b2.sdx.Master.EncapsulateData(sdxCode, o);
+		sdxDataNode.origData.name = options.title;
+		sdxDataNode.sdxInfo.sdxDisplayName = options.title;
 		sdxData.sdxUnderlyingPackage = sdxDataNode;
 		subclassHTML = i2b2.sdx.Master.RenderHTML(targetDiv, sdxDataNode, newOptions);
 	}
@@ -366,9 +370,13 @@ i2b2.sdx.TypeControllers.WRK.DragDrop.prototype.alignElWithMouse = function(el, 
 	} else {
 		var posX = (oCoord.x + this.deltaSetXY[0]);
 		var posY = (oCoord.y + this.deltaSetXY[1]);
-		var scrSize = document.viewport.getDimensions();
-		var maxX = parseInt(scrSize.width-25-160);
-		var maxY = parseInt(scrSize.height-25);
+		//var scrSize = document.viewport.getDimensions();
+
+	    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+		var maxX = parseInt(w-25-160);
+		var maxY = parseInt(h-25);
 		if (posX > maxX) {posX = maxX;}
 		if (posX < 6) {posX = 6;}
 		if (posY > maxY) {posY = maxY;}

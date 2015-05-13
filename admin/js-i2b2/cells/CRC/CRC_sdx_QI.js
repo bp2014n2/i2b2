@@ -541,9 +541,12 @@ i2b2.sdx.TypeControllers.QI.DragDrop.prototype.alignElWithMouse = function(el, i
 	} else {
 		var posX = (oCoord.x + this.deltaSetXY[0]);
 		var posY = (oCoord.y + this.deltaSetXY[1]);
-		var scrSize = document.viewport.getDimensions();
-		var maxX = parseInt(scrSize.width-25-160);
-		var maxY = parseInt(scrSize.height-25);
+		//var scrSize = document.viewport.getDimensions();
+		var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+		var maxX = parseInt(w-25-160);
+		var maxY = parseInt(h-25);
 		if (posX > maxX) {posX = maxX;}
 		if (posX < 6) {posX = 6;}
 		if (posY > maxY) {posY = maxY;}

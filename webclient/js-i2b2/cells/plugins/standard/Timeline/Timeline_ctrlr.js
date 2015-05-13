@@ -84,7 +84,19 @@ i2b2.Timeline.conceptDropped = function(sdxData, showDialog) {
 	i2b2.Timeline.model.concepts.push(sdxData);
 	
 					var cdetails = i2b2.ONT.ajax.GetTermInfo("CRC:QueryTool", {concept_key_value:sdxData.origData.key, ont_synonym_records: true, ont_hidden_records: true} );
-									var c = i2b2.h.XPath(cdetails.refXML, 'descendant::concept');
+					
+					try { new ActiveXObject ("MSXML2.DOMDocument.6.0"); isActiveXSupported =  true; } catch (e) { isActiveXSupported =  false; }
+	
+					if (isActiveXSupported) {
+						//Internet Explorer
+						xmlDocRet = new ActiveXObject("Microsoft.XMLDOM");
+						xmlDocRet.async = "false";
+						xmlDocRet.loadXML(cdetails.msgResponse);
+						xmlDocRet.setProperty("SelectionLanguage", "XPath");
+						var c = i2b2.h.XPath(xmlDocRet, 'descendant::concept');						
+					} else {										
+						var c = i2b2.h.XPath(cdetails.refXML, 'descendant::concept');
+					}
 					if (c.length > 0) {
 							sdxData.origData.xmlOrig = c[0];					
 					 }	
@@ -281,8 +293,19 @@ i2b2.Timeline.showObservation = function(localkey) {
 				"\nobserver_id: " + t.observer_id + "<br />" +
 				"\nstart_date: " + t.start_date_key;
 				
+	if ( i2b2.h.getXNodeVal(results.refXML, 'end_date') != undefined)
+		disp +=  "<br />\nend_date:" +	i2b2.h.getXNodeVal(results.refXML, 'end_date') ;	
 	if ( i2b2.h.getXNodeVal(results.refXML, 'tval_char') != undefined)
 			disp +=  "<br />\ntval_char:" +	i2b2.h.getXNodeVal(results.refXML, 'tval_char') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'nval_num') != undefined)
+			disp +=  "<br />\nnval_num:" +	i2b2.h.getXNodeVal(results.refXML, 'nval_num') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'valueflag_cd') != undefined)
+			disp +=  "<br />\nvalueflag_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'valueflag_cd') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'units_cd') != undefined)
+			disp +=  "<br />\nunits_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'units_cd') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'modifier_cd') != undefined)
+		disp +=  "<br />\nmodifier_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'modifier_cd') ;	
+			
 	if (i2b2.Timeline.model.pData != undefined)
 	{
 		disp += "<hr/><pre>" + i2b2.Timeline.model.pData + "</pre>";	

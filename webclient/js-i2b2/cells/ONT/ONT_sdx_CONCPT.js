@@ -61,7 +61,7 @@ i2b2.sdx.TypeControllers.CONCPT.RenderHTML= function(sdxData, options, targetDiv
 	if (sdxData.origData.hasChildren.substring(1,0) === "C"){
 		// render as category
 		icon = 'root';
-		//sDD = '';
+		sDD = '';
 		sIG = ' isGroup="Y"';
 		bCanExp = true;
 	} else if (sdxData.origData.hasChildren.substring(1,0) === "F")  {
@@ -164,7 +164,7 @@ i2b2.sdx.TypeControllers.CONCPT.RenderHTML= function(sdxData, options, targetDiv
 	}
 	
 	// **** Render the HTML ***
-	var retHtml = '<DIV id="' + id + '" '+ v_tooltip + sMainEvents + ' style="white-space:nowrap;cursor:pointer;">';
+	var retHtml = '<DIV id="' + id + '" '+ v_tooltip + sMainEvents + ' style="cursor:pointer;">';
 	retHtml += '<DIV ';
 	if (Object.isString(options.cssClass)) {
 		retHtml += ' class="'+options.cssClass+'" ';
@@ -730,9 +730,12 @@ i2b2.sdx.TypeControllers.CONCPT.DragDrop.prototype.alignElWithMouse = function(e
 	} else {
 		var posX = (oCoord.x + this.deltaSetXY[0]);
 		var posY = (oCoord.y + this.deltaSetXY[1]);
-		var scrSize = document.viewport.getDimensions();
-		var maxX = parseInt(scrSize.width-25-160);
-		var maxY = parseInt(scrSize.height-25);
+		//var scrSize = document.viewport.getDimensions();
+		var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+		var maxX = parseInt(w-25-160);
+		var maxY = parseInt(h-25);
 		if (posX > maxX) {posX = maxX;}
 		if (posX < 6) {posX = 6;}
 		if (posY > maxY) {posY = maxY;}
@@ -756,7 +759,7 @@ i2b2.sdx.TypeControllers.CONCPT.DragDrop.prototype.onDragDrop = function(e, id) 
 	// retreive the concept data from the dragged element
 	draggedData = this.yuiTreeNode.data.i2b2_SDX;
 	// exit if we are a root node
-	//if ((draggedData.origData.hasChildren=="CA") || (draggedData.origData.hasChildren=="OA") || (draggedData.origData.hasChildren=="OAE"))  { return false; }
+	if ((draggedData.origData.hasChildren=="CA") || (draggedData.origData.hasChildren=="OA") || (draggedData.origData.hasChildren=="OAE"))  { return false; }
 	i2b2.sdx.Master.ProcessDrop(draggedData, id);
 };
 

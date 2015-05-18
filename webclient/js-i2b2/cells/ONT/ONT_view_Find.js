@@ -169,9 +169,9 @@ i2b2.ONT.view.find.Resize = function(e) {
     i2b2.ONT.view['find'].params.hiddens = $('ONTFINDshowHiddens').checked;	
 
     var viewObj = i2b2.ONT.view.main;
-	var ds = document.viewport.getDimensions();
-	var w = ds.width;
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 	if (w < 840) {w = 840;}
 	if (h < 517) {h = 517;}
 	switch(i2b2.hive.MasterView.getViewMode()) {
@@ -237,8 +237,8 @@ i2b2.ONT.view.find.Resize = function(e) {
 i2b2.ONT.view.find.ResizeHeight = function() {
 	// this function provides the resize functionality needed for this screen
 	var viewObj = i2b2.ONT.view.main;
-	var ds = document.viewport.getDimensions();
-	var h = ds.height;
+	//var ds = document.viewport.getDimensions();
+    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 	if (h < 517) {h = 517;}
 	switch(i2b2.hive.MasterView.getViewMode()) {
 		case "Patients":

@@ -32,7 +32,11 @@ delete i2b2.protoObjhack;
 // ================================================================================================== //
 i2b2.h.parseXml = function(xmlString){
 	var xmlDocRet = false;
-	if (typeof window.ActiveXObject != "undefined" && new window.ActiveXObject("Microsoft.XMLDOM")) {  
+	var isActiveXSupported = false;
+
+	try { new ActiveXObject ("MSXML2.DOMDocument.6.0"); isActiveXSupported =  true; } catch (e) { isActiveXSupported =  false; }
+
+	if (isActiveXSupported) {
 		//Internet Explorer
 		xmlDocRet = new ActiveXObject("Microsoft.XMLDOM");
 		xmlDocRet.async = "false";
@@ -43,25 +47,7 @@ i2b2.h.parseXml = function(xmlString){
 		parser = new DOMParser();
 		xmlDocRet = parser.parseFromString(xmlString, "text/xml");
 	}
-	/* oring
-	try //Internet Explorer
-	{
-		xmlDocRet = new ActiveXObject("Microsoft.XMLDOM");
-		xmlDocRet.async = "false";
-		xmlDocRet.loadXML(xmlString);
-		xmlDocRet.setProperty("SelectionLanguage", "XPath");
-	} 
-	catch (e) {
-		try //Firefox, Mozilla, Opera, etc.
-		{
-			parser = new DOMParser();
-			xmlDocRet = parser.parseFromString(xmlString, "text/xml");
-		} 
-		catch (e) {
-			console.error(e.message)
-		}
-	}
-	*/
+
 	return xmlDocRet;
 };
 
@@ -73,7 +59,7 @@ i2b2.h.XPath = function(xmlDoc, xPath) {
 		return retArray;
 	}
 	try {
-		if (window.ActiveXObject) {
+		if (window.ActiveXObject  || "ActiveXObject" in window) {
 			// Microsoft's XPath implementation
 			// HACK: setProperty attempts execution when placed in IF statements' test condition, forced to use try-catch
 			try {  
@@ -82,7 +68,7 @@ i2b2.h.XPath = function(xmlDoc, xPath) {
 				try {
 					xmlDoc.ownerDocument.setProperty("SelectionLanguage", "XPath");
 				} catch(e) {}
-			}
+			} 
 			retArray = xmlDoc.selectNodes(xPath);
 		}
 		else if (document.implementation && document.implementation.createDocument) {
@@ -226,8 +212,10 @@ i2b2.h.EscapeTemplateVars = function(refTemplateVals, arryIgnoreVars) {
 i2b2.h.LoadingMask = {
 	show: function() {
 		var sz = document.viewport.getDimensions();
-		var w = sz.width;
-		var h = sz.height;
+
+    		var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+    		var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
 		if (w < 840) {w = 840;}
 		if (h < 517) {h = 517;}
 		var mn = $('topMask');

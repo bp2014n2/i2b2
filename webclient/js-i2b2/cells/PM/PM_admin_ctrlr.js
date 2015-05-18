@@ -27,9 +27,13 @@ i2b2.PM.view.admin.yuiTreeNodeAPPROVALS = false;
 i2b2.PM.view.admin.yuiTreeNodeCELLS = false;
 i2b2.PM.view.admin.Resize = function(e){
 //	var t = $('pmNavTreeview');
-	var ds = document.viewport.getDimensions();
-	var w = ds.width;
-	var h = ds.height-50;
+	//var ds = document.viewport.getDimensions();
+	
+	var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+	h = h - 50;
+	//var w = ds.width;
+	//var h = ds.height-50;
 	//if (w < 840) { w = 840; }
 	if (h < 170) { h = 170; }	
 	$('pmNavTreeview').style.height = h - 47;

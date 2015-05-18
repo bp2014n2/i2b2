@@ -10,6 +10,9 @@
 
 package edu.harvard.i2b2.pm.ws;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.pm.datavo.i2b2message.ResponseMessageType;
@@ -21,7 +24,6 @@ import edu.harvard.i2b2.pm.ws.MessageFactory;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.axiom.om.OMElement;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,7 +41,15 @@ public class PMService {
 	
 	public OMElement getVersion(OMElement getPMDataElement)
 	throws I2B2Exception, JAXBUtilException {
-		log.debug("Received Request PDO Element " + getPMDataElement);
+		
+		Pattern p = Pattern.compile("<password>.+</password>");
+		Matcher m = p.matcher(getPMDataElement.toString());
+		String outString = m.replaceAll("<password>*********</password>");
+	
+		p = Pattern.compile(">.+</ns9:set_password>");
+		m = p.matcher(outString);
+		outString = m.replaceAll(">*********</ns9:set_password>");
+		log.debug("Received Request PM Element " + outString);
 
 		OMElement returnElement = null;
 
@@ -133,8 +143,7 @@ public class PMService {
         ExecutorRunnable er = new ExecutorRunnable();        
         return er.execute(new ServicesHandler(servicesMsg), waitTime);
         */
-		log.debug("Received Request PDO Element " + getPMDataElement);
-
+		
 		OMElement returnElement = null;
 
 
@@ -143,6 +152,16 @@ public class PMService {
 			throw new I2B2Exception("Incoming PM request is null");
 		}
 
+		Pattern p = Pattern.compile("<password>.+</password>");
+		Matcher m = p.matcher(getPMDataElement.toString());
+		String outString = m.replaceAll("<password>*********</password>");
+	
+		p = Pattern.compile(">.+</ns9:set_password>");
+		m = p.matcher(outString);
+		outString = m.replaceAll(">*********</ns9:set_password>");
+		log.debug("Received Request PM Element " + outString);
+
+		
 		log.debug("Begin getting servicesMsg");
 		ServicesMessage servicesMsg = new ServicesMessage(getPMDataElement.toString());
 		long waitTime = 0;

@@ -5,6 +5,7 @@
 //		"CRC_ajax.js",
 		"CRC_ctrlr_Dates.js",
 		"CRC_ctrlr_History.js",
+		"CRC_ctrlr_Find.js",
 		"CRC_ctrlr_QryPanel.js",
 		"CRC_ctrlr_QryTool.js",
 		"CRC_ctrlr_QryStatus.js",
@@ -17,7 +18,9 @@
 		"CRC_sdx_QDEF.js",
 		"CRC_sdx_QGDEF.js",
 		"CRC_view_History.js",
+		"CRC_view_Find.js",
 		"CRC_view_QryTool.js",
+		"CRC_view_Graphs.js",
 		"CRC_view_Status.js",
 		"CRC_view_modLabRange.js",
 		"i2b2_msgs.js"

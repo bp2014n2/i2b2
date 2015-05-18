@@ -146,11 +146,14 @@ i2b2.CRC.ctrlr.dateConstraint = {
 		this.whichDate = whichDate;
 		// display everything
 		$("calendarDiv").show();
-		var viewdim = document.viewport.getDimensions();
+		
+	 	var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
 		$("calendarDivMask").style.top = "0px";
 		$("calendarDivMask").style.left = "0px";
-		$("calendarDivMask").style.width = (viewdim.width - 10) + "px";
-		$("calendarDivMask").style.height = (viewdim.height - 10) + "px";
+		$("calendarDivMask").style.width = (w - 10) + "px";
+		$("calendarDivMask").style.height = (h - 10) + "px";
 		$("calendarDivMask").show();
 		this.DateConstrainCal.render(document.body);
 	},

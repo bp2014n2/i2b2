@@ -33,6 +33,7 @@ i2b2.ONT.ctrlr.FindBy = {
 		treeObj.draw();
 		i2b2.ONT.ctrlr.FindBy.ButtonOn();
 		setTimeout(function(){i2b2.ONT.ctrlr.FindBy.doNameSearch(search_info);},0);
+	
 		//i2b2.ONT.ctrlr.FindBy.doNameSearch(search_info);
 		}
 	},
@@ -70,6 +71,8 @@ i2b2.ONT.ctrlr.FindBy = {
 		}
 		inSearchData.Strategy = s;
 		
+		
+
 		// special client processing to search all categories
 		var searchCats = [];
 		if (inSearchData.Category == "[[[ALL]]]") {
@@ -100,34 +103,35 @@ i2b2.ONT.ctrlr.FindBy = {
 		i2b2.ONT.view.find.modifier = false;
 		i2b2.ONT.view.find.Resize();
 		
+		 $('ontFindNameButtonWorking').innerHTML = "Searching...";
+		var scopedCallback = new i2b2_scopedCallback();
+		scopedCallback.scope = this;
+		// define our callback function
+		scopedCallback.callback = function(results)
+		{
+			// THIS function is used to process the AJAX results of the getChild call
+			//		results data object contains the following attributes:
+			//			refXML: xmlDomObject <--- for data processing
+			//			msgRequest: xml (string)
+			//			msgResponse: xml (string)
+			//			error: boolean
+			//			errorStatus: string [only with error=true]
+			//			errorMsg: string [only with error=true]
+
 		//Create a new treeobject so it does not append 
 		//treeObj = new YAHOO.widget.TreeView("ontSearchNamesResults");
-		treeObj = i2b2.ONT.view.find.yuiTreeName;
-		 treeObj.removeChildren(treeObj.getRoot());
-		treeObj.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
+		var treeObj = i2b2.ONT.view.find.yuiTreeName;
+		// treeObj.removeChildren(treeObj.getRoot());
+		//treeObj.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
 		// register the treeview with the SDX subsystem to be a container for CONCPT objects
 		i2b2.sdx.Master.AttachType("ontSearchNamesResults","CONCPT");
 		
 		var jsTreeObjPath = 'i2b2.ONT.view.find.yuiTreeName';
 		var tmpNode;
 
-		// add AJAX options
-		var searchOptions = {};
-		searchOptions.ont_max_records = "max='"+i2b2.ONT.view['find'].params.max+"' ";
-		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
-		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
-		searchOptions.ont_search_strategy = inSearchData.Strategy;
-		searchOptions.ont_search_string = inSearchData.SearchStr;
-			
 		i2b2.ONT.ctrlr.FindBy.ButtonOn();
 		// fire multiple AJAX calls
-		l = searchCats.length;
-		var totalCount = 0;
-		for (var i=0; i<l; i++) {
-			searchOptions.ont_category = searchCats[i];
-			var results = i2b2.ONT.ajax.GetNameInfo("ONT:FindBy", searchOptions);
-
-			
+	
 			
 						//Determine if a error occured
 			// <result_status>  <status type="ERROR">MAX_EXCEEDED</status>  </result_status> 
@@ -154,7 +158,11 @@ i2b2.ONT.ctrlr.FindBy = {
 				var o = new Object;
 				o.xmlOrig = c[i2];
 				o.name = i2b2.h.getXNodeVal(c[i2],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
+				o.hasChildren =  i2b2.h.getXNodeVal(c[i2],'visualattributes');
+				if (o.hasChildren != undefined && o.hasChildren.length > 1)
+				{
+					o.hasChildren = o.hasChildren.substring(0,2)
+				}
 				o.level = i2b2.h.getXNodeVal(c[i2],'level');
 				o.key = i2b2.h.getXNodeVal(c[i2],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i2],'tooltip');
@@ -180,18 +188,38 @@ i2b2.ONT.ctrlr.FindBy = {
 				};
 				var sdxRenderData = i2b2.sdx.Master.RenderHTML(treeObj.id, sdxDataNode, renderOptions);
 				i2b2.sdx.Master.AppendTreeNode(treeObj, treeObj.root, sdxRenderData);
-			}
+			//}
 			// redraw treeview
+				treeObj.draw();
 
-			treeObj.draw();
+			}
+				// $('ontFindNameButtonWorking').innerHTML = treeObj.getRoot().children.length + " Found";
+
+			//document.getElementById('ontFindNameButtonWorking').style.display = 'none';
+
 		}
 		
-		if (totalCount == 0)
-		{
-			alert("No Records Found");
-		}
 	
-		document.getElementById('ontFindNameButtonWorking').style.display = 'none';
+		// add AJAX options
+		var searchOptions = {};
+		searchOptions.ont_max_records = "max='"+i2b2.ONT.view['find'].params.max+"' ";
+		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
+		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
+		searchOptions.ont_search_strategy = inSearchData.Strategy;
+		searchOptions.ont_search_string = inSearchData.SearchStr;
+			
+				l = searchCats.length;
+		var totalCount = 0;
+		for (var i=0; i<l; i++) {
+			searchOptions.ont_category = searchCats[i];
+	
+			 
+			i2b2.ONT.ajax.GetNameInfo("ONT:FindBy", searchOptions, scopedCallback);
+	
+	setTimeout(function(){ $('ontFindNameButtonWorking').innerHTML = ""; }, 3000);
+
+		}
+
 
 	},
 
@@ -205,6 +233,13 @@ i2b2.ONT.ctrlr.FindBy = {
 		if (search_info.SearchStr.length < 3 && searchBy != "all") {
 			alert("Search string must be at least 3 characters.");
 		} else {
+			
+				treeObj = i2b2.ONT.view.find.yuiTreeModifier;
+				treeObj.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
+				
+								var tvRoot = treeObj.getRoot();
+			treeObj.removeChildren(tvRoot);
+			treeObj.draw();
 		search_info.Strategy = f.ontFindStrategy.options[f.ontFindStrategy.selectedIndex].value;
 		search_info.SearchBy = searchBy;
 		i2b2.ONT.ctrlr.FindBy.doModifierSearch(search_info);
@@ -261,41 +296,34 @@ i2b2.ONT.ctrlr.FindBy = {
 		
 		//Create a new treeobject so it does not append 
 		//treeObj = new YAHOO.widget.TreeView("ontSearchNamesResults");
-		treeObj = i2b2.ONT.view.find.yuiTreeModifier;
-				treeObj.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
+	
 		// register the treeview with the SDX subsystem to be a container for CONCPT objects
 		i2b2.sdx.Master.AttachType("ontSearchModifiersResults","CONCPT");
 		
+				// $('ontFindNameButtonWorking').innerHTML = "0 Found";
+		 $('ontFindModiferButtonWorking').innerHTML = "Searching...";
+
 		var jsTreeObjPath = 'i2b2.ONT.view.find.yuiTreeModifier';
 		var tmpNode;
 
-		// add AJAX options
-		var searchOptions = {};
-		searchOptions.ont_max_records = "max='"+i2b2.ONT.view['find'].params.max+"' ";
-		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
-		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
-		searchOptions.ont_search_strategy = inSearchData.Strategy;
-		searchOptions.ont_search_string = inSearchData.SearchStr;
-		searchOptions.concept_key_value =  i2b2.ONT.view.find.contextRecord.sdxInfo.sdxKeyValue;
-		searchOptions.modifier_key_value =  i2b2.ONT.view.find.contextRecord.sdxInfo.sdxKeyValue;
-		searchOptions.modifier_applied_path =  i2b2.ONT.view.find.contextRecord.origData.dim_code + "%";
-		searchOptions.ont_search_by = inSearchData.SearchBy;
-		
-		document.getElementById('ontFindNameButtonWorking').style.display = 'block';
-		// fire multiple AJAX calls
-		l = searchCats.length;
-		var totalCount = 0;
-		for (var i=0; i<l; i++) {
-			searchOptions.ont_category = searchCats[i];
-			if (inSearchData.SearchBy == "name") {
-				var results = i2b2.ONT.ajax.GetModifierNameInfo("ONT:FindBy", searchOptions);
-			} else if (inSearchData.SearchBy == "code") {
-				var results = i2b2.ONT.ajax.GetModifierCodeInfo("ONT:FindBy", searchOptions);
-			} else {
-				 $('ontFormFindModifier').ontFindModifierMatch.value = "";
-				var results = i2b2.ONT.ajax.GetModifiers("ONT:FindBy", searchOptions);
-			}
+
+	// scope our callback function
+		var scopedCallback = new i2b2_scopedCallback();
+		scopedCallback.scope = this;
+		// define our callback function
+		scopedCallback.callback = function(results)
+		{
+			// THIS function is used to process the AJAX results of the getChild call
+			//		results data object contains the following attributes:
+			//			refXML: xmlDomObject <--- for data processing
+			//			msgRequest: xml (string)
+			//			msgResponse: xml (string)
+			//			error: boolean
+			//			errorStatus: string [only with error=true]
+			//			errorMsg: string [only with error=true]
 			
+		// fire multiple AJAX calls
+		
 						//Determine if a error occured
 			// <result_status>  <status type="ERROR">MAX_EXCEEDED</status>  </result_status> 
 			var s = i2b2.h.XPath( results.refXML, 'descendant::result_status/status[@type="ERROR"]');
@@ -313,19 +341,22 @@ i2b2.ONT.ctrlr.FindBy = {
 				}
 			} 
 		
-				var tvRoot = treeObj.getRoot();
-			treeObj.removeChildren(tvRoot);
+		    var treeObj = i2b2.ONT.view.find.yuiTreeModifier;
+			//	var tvRoot = treeObj.getRoot();
+			//treeObj.removeChildren(tvRoot);
 
 			// display the results
 			var c = results.refXML.getElementsByTagName('modifier');
-			totalCount = totalCount + c.length;
+			//totalCount = totalCount + c.length;
 			for(var i2=0; i2<1*c.length; i2++) {
 				var o = new Object;
 				o.xmlOrig = c[i2];
 				o.isModifier = true;
 				o.parent =  i2b2.ONT.view.find.contextRecord.origData;
 				o.name = i2b2.h.getXNodeVal(c[i2],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
+				o.hasChildren = "";
+				if ((c[i2],'visualattributes') != undefined && (c[i2],'visualattributes').length > 1)
+					o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
 				o.level = i2b2.h.getXNodeVal(c[i2],'level');
 				o.key = i2b2.h.getXNodeVal(c[i2],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i2],'tooltip');
@@ -351,18 +382,48 @@ i2b2.ONT.ctrlr.FindBy = {
 				};
 				var sdxRenderData = i2b2.sdx.Master.RenderHTML(treeObj.id, sdxDataNode, renderOptions);
 				i2b2.sdx.Master.AppendTreeNode(treeObj, treeObj.root, sdxRenderData);
-			}
+			//}
 			// redraw treeview
 
 			treeObj.draw();
+			 $('ontFindModiferButtonWorking').innerHTML = "";//treeObj.getRoot().children.length + " Found";
+
 		}
-		
-		if (totalCount == 0)
-		{
-			alert("No Records Found");
-		}
+	}
+
+//		if (totalCount == 0)
+//		{
+//			alert("No Records Found");
+//		}
 	
-		document.getElementById('ontFindNameButtonWorking').style.display = 'none';
+	
+	// add AJAX options
+		var searchOptions = {};
+		searchOptions.ont_max_records = "max='"+i2b2.ONT.view['find'].params.max+"' ";
+		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
+		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
+		searchOptions.ont_search_strategy = inSearchData.Strategy;
+		searchOptions.ont_search_string = inSearchData.SearchStr;
+		searchOptions.concept_key_value =  i2b2.ONT.view.find.contextRecord.sdxInfo.sdxKeyValue;
+		searchOptions.modifier_key_value =  i2b2.ONT.view.find.contextRecord.sdxInfo.sdxKeyValue;
+		searchOptions.modifier_applied_path =  i2b2.ONT.view.find.contextRecord.origData.dim_code + "%";
+		searchOptions.ont_search_by = inSearchData.SearchBy;
+	
+		l = searchCats.length;
+		var totalCount = 0;
+		for (var i=0; i<l; i++) {
+			searchOptions.ont_category = searchCats[i];
+			if (inSearchData.SearchBy == "name") {
+				i2b2.ONT.ajax.GetModifierNameInfo("ONT:FindBy", searchOptions, scopedCallback);
+			} else if (inSearchData.SearchBy == "code") {
+				i2b2.ONT.ajax.GetModifierCodeInfo("ONT:FindBy", searchOptions, scopedCallback);
+			} else {
+				 $('ontFormFindModifier').ontFindModifierMatch.value = "";
+				i2b2.ONT.ajax.GetModifiers("ONT:FindBy", searchOptions, scopedCallback);
+			}
+	
+
+		}
 
 	},
 
@@ -373,7 +434,7 @@ i2b2.ONT.ctrlr.FindBy = {
 		var f = $('ontFormFindCode');
 		var search_info = {};
 		search_info.SearchStr = f.ontFindCodeMatch.value;
-		search_info.Coding = f.ontFindCoding.options[f.ontFindCoding.selectedIndex].value;
+		search_info.Coding =  f.ontFindCoding.options[f.ontFindCoding.selectedIndex].value ;
 		i2b2.ONT.ctrlr.FindBy.doCodeSearch(search_info);
 	},
 
@@ -399,6 +460,12 @@ i2b2.ONT.ctrlr.FindBy = {
 		
 		document.getElementById('ontFindCodeButtonWorking').style.display = 'block';
 
+
+			//delete old search results
+			var treeObj = i2b2.ONT.view.find.yuiTreeCode;
+			var tvRoot = treeObj.getRoot();
+			treeObj.removeChildren(tvRoot);
+			treeObj.draw();
 
 		 $('ontFormFindModifier').ontFindModifierMatch.value = "";
 		i2b2.ONT.view.find.yuiTreeModifier.removeChildren(i2b2.ONT.view.find.yuiTreeModifier.getRoot());
@@ -429,14 +496,15 @@ i2b2.ONT.ctrlr.FindBy = {
 			i2b2.ONT.view.find.queryRequest = results.msgRequest;			
 			i2b2.ONT.view.find.queryResponse = results.msgResponse;
 			//delete old search results
-			var tvRoot = treeObj.getRoot();
-			treeObj.removeChildren(tvRoot);
+			//var tvRoot = treeObj.getRoot();
+			//treeObj.removeChildren(tvRoot);
 			var c = results.refXML.getElementsByTagName('concept');
 			for(var i=0; i<1*c.length; i++) {
 				var o = new Object;
 				o.xmlOrig = c[i];
 				o.name = i2b2.h.getXNodeVal(c[i],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i],'visualattributes').substring(0,2);
+				if ((c[i],'visualattributes') != undefined && (c[i],'visualattributes').length > 1)
+					o.hasChildren = i2b2.h.getXNodeVal(c[i],'visualattributes').substring(0,2);
 				o.level = i2b2.h.getXNodeVal(c[i],'level');
 				o.key = i2b2.h.getXNodeVal(c[i],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i],'tooltip');
@@ -479,7 +547,7 @@ i2b2.ONT.ctrlr.FindBy = {
 		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
 		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
 		searchOptions.ont_search_strategy = "exact";
-		searchOptions.ont_search_coding = inSearchData.Coding;
+		searchOptions.ont_search_coding = (inSearchData.Coding == 'undefined'  ? '' : inSearchData.Coding);
 		searchOptions.ont_search_string = inSearchData.SearchStr;
 		i2b2.ONT.ajax.GetCodeInfo("ONT:FindBy", searchOptions, scopedCallback);
 	}

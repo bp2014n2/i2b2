@@ -154,7 +154,11 @@ i2b2.ONT.ctrlr.FindBy = {
 				var o = new Object;
 				o.xmlOrig = c[i2];
 				o.name = i2b2.h.getXNodeVal(c[i2],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
+				o.hasChildren =  i2b2.h.getXNodeVal(c[i2],'visualattributes');
+				if (o.hasChildren !== undefined && o.hasChildren.length > 1)
+				{
+					o.hasChildren = o.hasChildren.substring(0,2)
+				}
 				o.level = i2b2.h.getXNodeVal(c[i2],'level');
 				o.key = i2b2.h.getXNodeVal(c[i2],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i2],'tooltip');
@@ -325,7 +329,9 @@ i2b2.ONT.ctrlr.FindBy = {
 				o.isModifier = true;
 				o.parent =  i2b2.ONT.view.find.contextRecord.origData;
 				o.name = i2b2.h.getXNodeVal(c[i2],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
+				o.hasChildren = "";
+				if ((c[i2],'visualattributes') !== undefined && (c[i2],'visualattributes').length > 1)
+					o.hasChildren = i2b2.h.getXNodeVal(c[i2],'visualattributes').substring(0,2);
 				o.level = i2b2.h.getXNodeVal(c[i2],'level');
 				o.key = i2b2.h.getXNodeVal(c[i2],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i2],'tooltip');
@@ -373,7 +379,7 @@ i2b2.ONT.ctrlr.FindBy = {
 		var f = $('ontFormFindCode');
 		var search_info = {};
 		search_info.SearchStr = f.ontFindCodeMatch.value;
-		search_info.Coding = f.ontFindCoding.options[f.ontFindCoding.selectedIndex].value;
+		search_info.Coding = (f.ontFindCoding.options[f.ontFindCoding.selectedIndex].value == 'undefined' ? '' : f.ontFindCoding.options[f.ontFindCoding.selectedIndex].value) ;
 		i2b2.ONT.ctrlr.FindBy.doCodeSearch(search_info);
 	},
 
@@ -436,7 +442,8 @@ i2b2.ONT.ctrlr.FindBy = {
 				var o = new Object;
 				o.xmlOrig = c[i];
 				o.name = i2b2.h.getXNodeVal(c[i],'name');
-				o.hasChildren = i2b2.h.getXNodeVal(c[i],'visualattributes').substring(0,2);
+				if ((c[i2],'visualattributes') !== undefined && (c[i2],'visualattributes').length > 1)
+					o.hasChildren = i2b2.h.getXNodeVal(c[i],'visualattributes').substring(0,2);
 				o.level = i2b2.h.getXNodeVal(c[i],'level');
 				o.key = i2b2.h.getXNodeVal(c[i],'key');
 				o.tooltip = i2b2.h.getXNodeVal(c[i],'tooltip');
@@ -479,7 +486,7 @@ i2b2.ONT.ctrlr.FindBy = {
 		searchOptions.ont_synonym_records = i2b2.ONT.view['find'].params.synonyms;
 		searchOptions.ont_hidden_records = i2b2.ONT.view['find'].params.hiddens;
 		searchOptions.ont_search_strategy = "exact";
-		searchOptions.ont_search_coding = inSearchData.Coding;
+		searchOptions.ont_search_coding = (inSearchData.Coding == 'undefined'  ? '' : inSearchData.Coding);
 		searchOptions.ont_search_string = inSearchData.SearchStr;
 		i2b2.ONT.ajax.GetCodeInfo("ONT:FindBy", searchOptions, scopedCallback);
 	}

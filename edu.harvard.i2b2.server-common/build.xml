@@ -1,7 +1,6 @@
 <project basedir="." default="all" name="i2b2Common">
 
 	<property name="Name" value="i2b2Common" />
-	<property environment="env"/>
 	<import file="common_build.xml" />
 
 	<target name="all" depends="dist">

@@ -109,7 +109,7 @@ public class ServicesHandler extends RequestHandler {
 				log.debug("Did not find user: " + username);
 				saveLoginAttempt(pmDb, username, "NONEXIST");
 
-				throw new Exception ("Username or password does not exist");
+				throw new Exception ("Username does not exist");
 			}
 
 			// Handle all internal classnames.  Also for backward compatibility need to call it NTLM.
@@ -164,13 +164,13 @@ public class ServicesHandler extends RequestHandler {
 					if	(!(user.getPassword().getValue().substring(1)).equals(password))
 					{
 						saveLoginAttempt(pmDb, username, "BADPASSWORD");
-						throw new Exception ("Username or password does not exist");
+						throw new Exception ("Current password is incorrect");
 					}
 				}				
 				else if (!user.getPassword().getValue().equals(PMUtil.getInstance().getHashedPassword(password)))
 				{
 					saveLoginAttempt(pmDb, username, "BADPASSWORD");
-					throw new Exception ("Username or password does not exist");
+					throw new Exception ("Current password is incorrect");
 
 				}
 			}
@@ -179,7 +179,7 @@ public class ServicesHandler extends RequestHandler {
 				saveLoginAttempt(pmDb, username, "NONEXIST");
 
 				log .debug("Did not find user: " + username + " with password: " + PMUtil.getInstance().getHashedPassword(password) );
-				throw new Exception ("Username or password does not exist");
+				throw new Exception ("Username does not exist");
 			}
 
 			//passwordManagerService.validateSuppliedPassword(user, rmt.getPassword());
@@ -335,7 +335,7 @@ public class ServicesHandler extends RequestHandler {
 				if (user == null)
 				{
 					log.debug("Did not find user: " + rmt.getUsername());
-					throw new Exception ("Username or password does not exist");
+					throw new Exception ("Username does not exist");
 				}
 				//check the password
 
@@ -1256,7 +1256,7 @@ public class ServicesHandler extends RequestHandler {
 
 			//user = userManagerService.getUserByUserName(k.getUsername());
 			if (user == null)
-				throw new Exception ("Username or password does not exist");
+				throw new Exception ("Username does not exist");
 
 
 			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
@@ -2006,15 +2006,6 @@ public class ServicesHandler extends RequestHandler {
 								ParamType cellParam =(ParamType)it2.next();			
 								cell.getParam().add(cellParam);		
 							}
-							//Remove exisitng cell if exists
-							CellDataType foundCell = null;
-
-							for (CellDataType c :  aType.getCellData()) {
-								if (c.getId().equals(cell.getId()))
-									foundCell = c;
-							}
-							if (foundCell != null)
-								aType.getCellData().remove(foundCell);
 
 							aType.getCellData().add(cell);					
 						}  

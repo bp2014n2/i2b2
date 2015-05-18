@@ -88,10 +88,10 @@ plotProbabilities <- function(probabilities, maxY) {
 
 exec <- function() {
   model.interval.tmp <- eval(parse(text=girix.input['Model observations interval']))
-  model.interval <- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
-  model.patient_set <- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
+  model.interval <<- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
+  model.patient_set <<- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
   
-  model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
+  model.target.interval.tmp <- eval(parse(text=girix.input['Target observations interval']))
   model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
   target.concept.path <- girix.input['Target concept']
   target.concept.name <- i2b2$ont$getConceptName(target.concept.path)
@@ -100,11 +100,11 @@ exec <- function() {
   newdata.interval <- list(start=i2b2DateToPOSIXlt(newdata.interval.tmp['Start']), end=i2b2DateToPOSIXlt(newdata.interval.tmp['End']))
   newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi(girix.input['New Patient set']), -1)
   
-  features.filter <- c("\\ATC\\", "\\ICD\\")
-  features.level <- strtoi(girix.input['Feature level'])
+  features.filter <<- c("\\ATC\\", "\\ICD\\")
+  features.level <<- strtoi(girix.input['Feature level'])
   
-  features <- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
-  model.patients <- i2b2$crc$getPatients(patient_set=model.patient_set)
+  features <<- i2b2$crc$getConcepts(concepts=features.filter, level=features.level)
+  model.patients <<- i2b2$crc$getPatients(patient_set=model.patient_set)
   if(nrow(model.patients) == 0) {
     failScript('No Patients in model')
     return()

@@ -94,6 +94,10 @@ exec <- function() {
   model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
   model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
   target.concept.path <- girix.input['Target concept']
+  if(substr(target.concept.path, 1, 1) != '\\') {
+    failScript("Concept not supported")
+    return()
+  }
   target.concept.name <- i2b2$ont$getConceptName(target.concept.path)
   
   newdata.interval.tmp <- eval(parse(text=girix.input['Prediction observations interval']))

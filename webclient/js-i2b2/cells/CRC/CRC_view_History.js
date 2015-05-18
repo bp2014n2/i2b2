@@ -94,6 +94,24 @@ i2b2.CRC.view.history.ToggleNode = function(divTarg, divTreeID) {
 	tvNode.toggle();
 }
 
+i2b2.CRC.view.history.selectTab = function(tabCode) {
+	// toggle between the Navigate and Find Terms tabs
+	switch (tabCode) {
+		case "find":
+			$('crctabFind').addClassName('active');
+			$('crctabNavigate').removeClassName('active');
+			$('crcNavDisp').hide();
+			$('crcFindDisp').show();
+		break;
+		case "nav":
+			$('crctabNavigate').addClassName('active');
+			$('crctabFind').removeClassName('active');
+			$('crcFindDisp').hide();
+			$('crcNavDisp').show();
+		break;
+	}
+}
+
 // ================================================================================================== //
 i2b2.CRC.view.history.Resize = function(e) {
 	// this function provides the resize functionality needed for this screen
@@ -101,9 +119,9 @@ i2b2.CRC.view.history.Resize = function(e) {
 	var ve = $('crcHistoryBox');
 	if (viewObj.visible) {
 		ve.show();
-		var ds = document.viewport.getDimensions();
-		var w = ds.width;
-		var h = ds.height;
+		// var ds = document.viewport.getDimensions();
+	    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 		if (w < 840) {w = 840;}
 		if (h < 517) {h = 517;}
 		ve = ve.style;
@@ -115,10 +133,12 @@ i2b2.CRC.view.history.Resize = function(e) {
 					ve.width = Math.max(initBrowserViewPortDim.width-rightSideWidth, 0);
 					ve.top = h-196+44;
 					$('crcHistoryData').style.height = '100px';
+					$('crcSearchNamesResults').style.height = '72px';
 				} else {
 					ve.width = w-578;
 					ve.top = h-196;
 					$('crcHistoryData').style.height = '144px';
+					$('crcSearchNamesResults').style.height = '116px';
 				}
 				break;
 			case "Analysis":
@@ -128,19 +148,23 @@ i2b2.CRC.view.history.Resize = function(e) {
 					ve.width = w;
 					ve.top = h-196+44;
 					$('crcHistoryData').style.height = '100px';
+					$('crcSearchNamesResults').style.height = '72px';					
 				} else {
 					w = parseInt(w/3)-10;
 					ve.width = w;
 					ve.top = h-196;
 					$('crcHistoryData').style.height = '144px';
+					$('crcSearchNamesResults').style.height = '116px';
 				}
 				break;
 		}
 		if (viewObj.isZoomed) {
 			ve.top = '';
 			$('crcHistoryData').style.height = h-97; 
+			$('crcSearchNamesResults').style.height = h-125;			
 		}
 		$$('DIV#crcHistoryBox DIV#crcHistoryData')[0].style.width = (parseInt(ve.width)-24) + 'px';
+		$$('DIV#crcHistoryBox DIV#crcSearchNamesResults')[0].style.width = (parseInt(ve.width)-24) + 'px';		
 	} else {
 		ve.hide();
 	}
@@ -157,6 +181,7 @@ i2b2.CRC.view.history.splitterDragged = function()
 	var CRCHist = $("crcHistoryBox");
 	CRCHist.style.width	= Math.max((parseInt(splitter.style.left) - CRCHist.offsetLeft - 3), 0) + "px";
 	$$('DIV#crcHistoryBox DIV#crcHistoryData')[0].style.width = Math.max((parseInt(CRCHist.style.width)-24), 0) + 'px';
+	$$('DIV#crcHistoryBox DIV#crcSearchNamesResults')[0].style.width = Math.max((parseInt(CRCHist.style.width)-24), 0) + 'px';
 }
 
 //================================================================================================== //
@@ -166,8 +191,8 @@ i2b2.CRC.view.history.ResizeHeight = function() {
 	var ve = $('crcHistoryBox');
 	if (viewObj.visible) {
 		ve.show();
-		var ds = document.viewport.getDimensions();
-		var h = ds.height;
+		// var ds = document.viewport.getDimensions();
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 		if (h < 517) {h = 517;}
 		ve = ve.style;
 		// resize our visual components
@@ -177,9 +202,11 @@ i2b2.CRC.view.history.ResizeHeight = function() {
 					// make room for the workspace window
 					ve.top = h-196+44;
 					$('crcHistoryData').style.height = '100px';
+					$('crcSearchNamesResults').style.height = '72px';
 				} else {
 					ve.top = h-196;
 					$('crcHistoryData').style.height = '144px';
+					$('crcSearchNamesResults').style.height = '144px';
 				}
 				break;
 			case "Analysis":
@@ -187,15 +214,18 @@ i2b2.CRC.view.history.ResizeHeight = function() {
 					// make room for the workspace window
 					ve.top = h-196+44;
 					$('crcHistoryData').style.height = '100px';
+					$('crcSearchNamesResults').style.height = '72px';
 				} else {
 					ve.top = h-196;
 					$('crcHistoryData').style.height = '144px';
+					$('crcSearchNamesResults').style.height = '144px';
 				}
 				break;
 		}
 		if (viewObj.isZoomed) {
 			ve.top = '';
 			$('crcHistoryData').style.height = h-97; 
+			$('crcSearchNamesResults').style.height = h-125; 
 		}
 	} else {
 		ve.hide();
@@ -355,6 +385,19 @@ i2b2.events.afterCellInit.subscribe(
 				i2b2.sdx.Master.AttachType("crcHistoryData","PR");
 
 			}
+                        // initialize treeview
+                        if (!thisview.yuiFindTree) {
+                                thisview.yuiFindTree = new YAHOO.widget.TreeView("crcSearchNamesResults");
+                                thisview.yuiFindTree.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
+                                // register the treeview with the SDX subsystem to be a container for QM, QI, PRS, PRC objects
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","QM");
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","QI");
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","ENS");
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","PRC");
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","PRS");
+                                i2b2.sdx.Master.AttachType("crcSearchNamesResults","PR");
+
+			}			
 			// we need to make sure everything is loaded
 			setTimeout("i2b2.CRC.ctrlr.history.Refresh();",300);			
 			
@@ -423,12 +466,53 @@ i2b2.events.afterCellInit.subscribe(
 			i2b2.sdx.Master.getChildRecords(sdxParentNode, scopedCallback);
 		}));
 
+                 i2b2.sdx.Master.setHandlerCustom('crcSearchNamesResults', 'QM', 'LoadChildrenFromTreeview', (function(node, onCompleteCallback) {
+                        var scopedCallback = new i2b2_scopedCallback();
+                        scopedCallback.scope = node.data.i2b2_SDX;
+                        scopedCallback.callback = function(cellResult) {
+                                var cl_node = node;
+                                var cl_onCompleteCB = onCompleteCallback;
+                                // THIS function is used to process the AJAX results of the getChild call
+                                //              results data object contains the following attributes:
+                                //                      refXML: xmlDomObject <--- for data processing
+                                //                      msgRequest: xml (string)
+                                //                      msgResponse: xml (string)
+                                //                      error: boolean
+                                //                      errorStatus: string [only with error=true]
+                                //                      errorMsg: string [only with error=true]
+                // <THIS IS WHY WE ARE CREATING CUSTOMER HANDLERS FOR THE Query Tool CONTROL!>
+                                                i2b2.CRC.view.history.queryResponse = cellResult.msgResponse;
+                                                i2b2.CRC.view.history.queryRequest = cellResult.msgRequest;
+                                                i2b2.CRC.view.history.queryUrl = cellResult.msgUrl;
+                // </THIS IS WHY WE ARE CREATING CUSTOMER HANDLERS FOR THE QueryTool CONTROL!>                                  
+                                for(var i1=0; i1<1*cellResult.results.length; i1++) {
+                                        var o = cellResult.results[i1];
+                                        var renderOptions = {
+                                                title: o.origData.title,
+                                                dragdrop: "i2b2.sdx.TypeControllers.QI.AttachDrag2Data",
+                                                dblclick: "i2b2.CRC.view.history.ToggleNode(this,'"+cl_node.tree.id+"')",
+                                                icon: "sdx_CRC_QI.gif",
+                                                iconExp: "sdx_CRC_QI_exp.gif"
+                                        };
+                                        var sdxRenderData = i2b2.sdx.Master.RenderHTML(cl_node.tree.id, o, renderOptions);
+                                        i2b2.sdx.Master.AppendTreeNode(cl_node.tree, cl_node, sdxRenderData);
+                                }
+                                // handle the YUI treeview      
+                                if (getObjectClass(cl_onCompleteCB)=='i2b2_scopedCallback') {
+                                        cl_onCompleteCB.callback.call(cl_onCompleteCB.scope, cellResult);
+                                } else {
+                                        cl_onCompleteCB(cellResult);
+                                }
+                        }
+                        var sdxParentNode = node.data.i2b2_SDX;
+                        i2b2.sdx.Master.getChildRecords(sdxParentNode, scopedCallback);
+                }));
 // -------------------------------------------------------
 		
 			i2b2.CRC.view.history.ContextMenu = new YAHOO.widget.ContextMenu( 
 					"divContextMenu-History",  
 					{ lazyload: true,
-					trigger: $('crcHistoryBox'), 
+					trigger: $('crcNavDisp'), 
 					itemdata: [
 						{ text: "Rename", 	onclick: { fn: i2b2.CRC.view.history.doRename } },
 						{ text: "Delete", 		onclick: { fn: i2b2.CRC.view.history.doDelete } },
@@ -449,8 +533,10 @@ i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
 	this.visible = true;
 	if (i2b2.WORK && i2b2.WORK.isLoaded) {
 		$('crcHistoryData').style.height = '100px';
+		$('crcSearchNamesResults').style.height = '72px';
 	} else {
 		$('crcHistoryData').style.height = '144px';
+		$('crcSearchNamesResults').style.height = '116px';
 	}
 	$('crcHistoryBox').show();
 	this.Resize();
@@ -470,8 +556,10 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 				this.visible = true;
 				if (i2b2.WORK && i2b2.WORK.isLoaded) {
 					$('crcHistoryData').style.height = '100px';
+					$('crcSearchNamesResults').style.height = '72px';
 				} else {
 					$('crcHistoryData').style.height = '144px';
+					$('crcSearchNamesResults').style.height = '116px';
 				}
 				$('crcHistoryBox').show();
 				//this.Resize(); // tdw9

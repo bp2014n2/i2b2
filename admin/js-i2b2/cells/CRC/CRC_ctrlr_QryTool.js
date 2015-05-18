@@ -27,6 +27,7 @@ function QueryToolController() {
 	this.panelControllers[0] = new i2b2_PanelController(this);
 	this.panelControllers[1] = new i2b2_PanelController(this);
 	this.panelControllers[2] = new i2b2_PanelController(this);
+	this.sCompiledResultsTest = "";  // snm0 - this is the text for the graph display
 // ================================================================================================== //
 	this.doSetQueryName = function(inName) {
 		this.queryIsDirty = true;
@@ -52,6 +53,7 @@ function QueryToolController() {
 		this.queryIsDirty = true;
 		this.hasModifier = false;
 		$('infoQueryStatusText').innerHTML = "";
+		$('infoQueryStatusChart').innerHTML = "";
 		$('crc.temoralBuilder').hide();		
 		$('crc.innerQueryPanel').show();
 		this.panelControllers[0].refTitle.innerHTML =  'Group 1';
@@ -61,6 +63,7 @@ function QueryToolController() {
 		$('temporalbuilders').innerHTML = "";
 		this.tenporalBuilders = -1;
 		this.doAddTemporal();
+		this.sCompiledResultsTest = "";  // snm0 - this is the text for the graph display
 	}
 
 // ================================================================================================== //
@@ -242,13 +245,23 @@ function QueryToolController() {
 								
 								// WE MUST QUERY THE ONT CELL TO BE ABLE TO DISPLAY THE TREE STRUCTURE CORRECTLY
 	
-									var o = new Object;
-									o.level = i2b2.h.getXNodeVal(pi[i2],'hlevel');
-									o.name = i2b2.h.getXNodeVal(pi[i2],'item_name');
-									o.key = i2b2.h.getXNodeVal(pi[i2],'item_key');
-									o.synonym_cd = i2b2.h.getXNodeVal(pi[i2],'item_is_synonym');
-									o.tooltip = i2b2.h.getXNodeVal(pi[i2],'tooltip');
-									o.hasChildren = i2b2.h.getXNodeVal(pi[i2],'item_icon');
+                                    var o = new Object;
+                                    o.level = i2b2.h.getXNodeVal(pi[i2],'hlevel');
+                                    o.name = i2b2.h.getXNodeVal(pi[i2],'item_name');
+                                    o.tooltip = i2b2.h.getXNodeVal(pi[i2],'tooltip');
+
+                                     // nw096 - If string starts with path \\, lookup path in Ontology cell
+                                    if(o.name.slice(0, 2) == '\\\\'){
+                                     var results = i2b2.ONT.ajax.GetTermInfo("ONT", {ont_max_records:'max="1"', ont_synonym_records:'false', ont_hidden_records: 'false', concept_key_value: o.name}).parse();
+                                       if(results.model.length > 0){
+                                           o.name = results.model[0].origData.name;
+                                           o.tooltip = results.model[0].origData.tooltip;
+                                        }
+                                     }
+
+                                     o.key = i2b2.h.getXNodeVal(pi[i2],'item_key');
+                                     o.synonym_cd = i2b2.h.getXNodeVal(pi[i2],'item_is_synonym');
+                                      o.hasChildren = i2b2.h.getXNodeVal(pi[i2],'item_icon');									
 									
 									//o.xmlOrig = c;
 									
@@ -273,6 +286,8 @@ function QueryToolController() {
 												} else {
 													o.LabValues.Value = t;
 												}
+												o.LabValues.UnitsCtrl = i2b2.h.getXNodeVal(lvd,"value_unit_of_measure");										
+
 												break;
 											case "STRING":
 												o.LabValues.MatchBy = "VALUE";
@@ -337,7 +352,7 @@ function QueryToolController() {
 												var t = i2b2.h.getXNodeVal(lvd,"value_constraint");
 												o.ModValues = {};
 												o.ModValues.NumericOp = i2b2.h.getXNodeVal(lvd,"value_operator");
-												o.ModValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");								
+												o.ModValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");	
 												switch(o.ModValues.GeneralValueType) {
 													case "NUMBER":
 														o.ModValues.MatchBy = "VALUE";
@@ -349,6 +364,7 @@ function QueryToolController() {
 														} else {
 															o.ModValues.Value = t;
 														}
+														o.ModValues.UnitsCtrl = i2b2.h.getXNodeVal(lvd,"value_unit_of_measure");	
 														break;
 													case "STRING":
 														o.ModValues.MatchBy = "VALUE";
@@ -980,7 +996,7 @@ function QueryToolController() {
 										s += '\t\t\t\t<value_type>TEXT</value_type>\n';
 										s += '\t\t\t\t<value_constraint>'+sEnum+'</value_constraint>\n';
 										s += '\t\t\t\t<value_operator>IN</value_operator>\n';								
-									} else if (lvd.GeneralValueType=="STRING") {
+									 } else if ((lvd.GeneralValueType=="STRING") || (lvd.GeneralValueType=="TEXT")){
 										s += '\t\t\t\t<value_type>TEXT</value_type>\n';
 										s += '\t\t\t\t<value_operator>'+lvd.StringOp+'</value_operator>\n';
 										s += '\t\t\t\t<value_constraint><![CDATA['+i2b2.h.Escape(lvd.ValueString)+']]></value_constraint>\n';
@@ -1240,11 +1256,13 @@ function QueryToolController() {
 		}
 	
 	
-				// this is a private function that is used by all QueryStatus object instances to check their status
+		// this is a private function that is used by all QueryStatus object instances to check their status
+		// this is mostly used for display for previous queries when they are dragged over
 		// callback processor to check the Query Instance
 		var scopedCallbackQRSI = new i2b2_scopedCallback();
 		scopedCallbackQRSI.scope = this;
 		scopedCallbackQRSI.callback = function(results) {
+			//var sCompiledResultsTest = "";  // snm0 - this is the text for the graph display
 			if (results.error) {
 				alert(results.errorMsg);
 				return;
@@ -1256,7 +1274,8 @@ function QueryToolController() {
 				for (var i=0; i<l; i++) {
 					var temp = ri_list[i];
 					var description = i2b2.h.XPath(temp, 'descendant-or-self::description')[0].firstChild.nodeValue;
-					$('infoQueryStatusText').innerHTML += "<div style=\"clear: both;   padding-top: 10px; font-weight: bold;\">" + description + "</div>";					
+					$('infoQueryStatusText').innerHTML += "<div style=\"clear: both;   padding-top: 10px; font-weight: bold;\">" + description + "</div>";
+					i2b2.CRC.ctrlr.QT.sCompiledResultsTest += description + '\n';  //snm0					
 
 				} 
 				var crc_xml = results.refXML.getElementsByTagName('crc_xml_result');
@@ -1273,9 +1292,10 @@ function QueryToolController() {
 
 					var params = i2b2.h.XPath(xml_v, 'descendant::data[@column]/text()/..');
 					for (var i2 = 0; i2 < params.length; i2++) {
-						var name = params[i2].getAttribute("name");
+						var name = params[i2].getAttribute("name"); // snm0 - here for prev query
 					//	$('infoQueryStatusText').innerHTML += "<div style=\"margin-left: 20px; clear: both; height: 16px; line-height: 16px;\">";
 						$('infoQueryStatusText').innerHTML += "<div style=\"clear: both; margin-left: 20px; float: left; height: 16px; line-height: 16px;\">" + params[i2].getAttribute("column") +  ": <font color=\"#0000dd\">" + params[i2].firstChild.nodeValue + "" +  (i2b2.PM.model.userRoles.indexOf("DATA_LDS") == -1 ? "&plusmn;3" : "")  +   "</font></div>";
+						i2b2.CRC.ctrlr.QT.sCompiledResultsTest += params[i2].getAttribute("column") + " : " + params[i2].firstChild.nodeValue + "" +  (i2b2.PM.model.userRoles.indexOf("DATA_LDS") == -1 ? "&plusmn;3" : "") + "\n"; //snm0						
 					//$('infoQueryStatusText').innerHTML += "</div>";						//i2b2.h.XPath(newxml, 'descendant-or-self::result/data')[0].firstChild.nodeValue;
 
 					}
@@ -1283,7 +1303,9 @@ function QueryToolController() {
 
 					var ri_id = i2b2.h.XPath(temp, 'descendant-or-self::result_instance_id')[0].firstChild.nodeValue;
 						
-			
+				//alert(i2b2.CRC.ctrlr.QT.sCompiledResultsTest); //snm0 
+				i2b2.CRC.view.graphs.createGraphs("infoQueryStatusChart", i2b2.CRC.ctrlr.QT.sCompiledResultsTest, i2b2.CRC.view.graphs.bIsSHRINE);
+				if (i2b2.CRC.view.graphs.bisGTIE8) i2b2.CRC.view.status.selectTab('graphs');			
 				}
 			}
 		}
@@ -1475,6 +1497,60 @@ function QueryToolController() {
 			$('panelScrollLast').src = dir+"QryTool_b_last_hide.gif";
 		}
 	},
+	
+	
+ // =====================================================================================================//
+ 	/***************
+ 	 * Zoom Query - nw096
+ 	 ****************/
+ 	this.doZoomQuery = function() {
+ 		i2b2.CRC.ctrlr.QT.doUnZoomQuery();
+ 		$('infoQueryStatusText').style.height = '600px';
+ 		$('infoQueryStatusText').style.width = '700px';
+ 		$('infoQueryStatusText').style.top = '50%';
+ 		$('infoQueryStatusText').style.left = '50%';
+ 		$('infoQueryStatusText').style.position = 'fixed';
+ 		$('infoQueryStatusText').style.zIndex = '99999';
+ 		$('infoQueryStatusText').style.marginTop = '-300px';
+ 		$('infoQueryStatusText').style.marginLeft = '-350px';
+ 		
+ 		document.onclick = check;
+ 		
+ 		function check(e){
+ 			var target = (e && e.target) || (event && event.srcElement); 
+ 			var queryStatusDiv = document.getElementById("infoQueryStatusText"); 
+ 			var dropdownMenu = document.getElementById("menu-dropdown"); 
+ 
+ 
+ 			if (checkParent(target, "infoQueryStatusText")) {
+ 
+ 			} else {
+ 				i2b2.CRC.ctrlr.QT.doUnZoomQuery();
+ 			}
+ 		}
+ 		  
+ 		function checkParent(t,id) {
+ 			while(t.parentNode) { 
+ 				if( t == document.getElementById(id) ) {return true;} 
+ 				t = t.parentNode;
+ 			} 
+ 			return false;
+ 		}
+ 
+ 	}
+ 	
+ 	this.doUnZoomQuery = function() {
+ 		$('infoQueryStatusText').style.height = '100px';
+ 		$('infoQueryStatusText').style.width = '';
+ 		$('infoQueryStatusText').style.top = '';
+ 		$('infoQueryStatusText').style.left = '';
+ 		$('infoQueryStatusText').style.position = '';
+ 		$('infoQueryStatusText').style.zIndex = '';
+ 		$('infoQueryStatusText').style.marginTop = '';
+ 		$('infoQueryStatusText').style.marginLeft = '';
+ 		
+ 		document.onclick = null;
+ 	}
 // =====================================================================================================//
 	/***************
 	 * Print Query

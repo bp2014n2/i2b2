@@ -155,6 +155,7 @@ i2b2.PM._processUserConfig = function (data) {
 		var code = projs[i].getAttribute('id');
 		i2b2.PM.model.projects[code] = {};
 		i2b2.PM.model.projects[code].name = i2b2.h.getXNodeVal(projs[i], 'name');
+		i2b2.PM.model.projects[code].path = i2b2.h.getXNodeVal(projs[i], 'path');
 		var roledetails = i2b2.h.XPath(projs[i], 'descendant-or-self::role');
 		i2b2.PM.model.projects[code].roles = {};
 		/*
@@ -540,10 +541,30 @@ i2b2.PM._processLaunchFramework = function() {
 				var cellRef = i2b2.hive.cfg.lstCells[cellKey];
 				cellRef.serverLoaded = true;
 				// load the rest of the info provided by the server
-				var x = i2b2.h.XPath(oXML, "//cell_data[@id='"+cellKey+"']")[0];
-				cellRef.name = i2b2.h.getXNodeVal(x, "name");
-				cellRef.url = i2b2.h.getXNodeVal(x, "url");
-				cellRef.xmlStr = i2b2.h.Xml2String(x);
+				var  y = i2b2.h.XPath(oXML, "//cell_data[@id='"+cellKey+"']");
+				
+				for (var i=y.length; i>=0; i--)
+				{
+					
+						var  x = i2b2.h.XPath(oXML, "//cell_data[@id='"+cellKey+"']")[i-1];
+				
+					if ( i2b2.h.getXNodeVal(x, "project_path") == i2b2.PM.model.projects[i2b2.PM.model.login_project].path )
+					{
+					cellRef.name = i2b2.h.getXNodeVal(x, "name");
+					cellRef.project_path = i2b2.h.getXNodeVal(x, "project_path");
+					cellRef.url = i2b2.h.getXNodeVal(x, "url");
+					cellRef.xmlStr = i2b2.h.Xml2String(x);
+					}
+				}
+				
+				if (!cellRef.name)
+				{
+					var  x = i2b2.h.XPath(oXML, "//cell_data[@id='"+cellKey+"']")[0];
+					cellRef.name = i2b2.h.getXNodeVal(x, "name");
+					cellRef.project_path = i2b2.h.getXNodeVal(x, "project_path");
+					cellRef.url = i2b2.h.getXNodeVal(x, "url");
+					cellRef.xmlStr = i2b2.h.Xml2String(x);	
+				}
 				// params
 				var x = i2b2.h.XPath(oXML, "//cell_data[@id='"+cellKey+"']/param[@name]");
 				var l = x.length;

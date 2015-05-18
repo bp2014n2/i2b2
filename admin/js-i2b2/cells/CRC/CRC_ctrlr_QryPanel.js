@@ -172,7 +172,8 @@ function i2b2_PanelController(parentCtrlr) {
 
 // ================================================================================================== //
 	this._redrawButtons = function(pd) {
-				$('infoQueryStatusText').innerHTML = "";		
+		$('infoQueryStatusText').innerHTML = "";		
+		$('infoQueryStatusChart').innerHTML = "";
 
 		// set panel GUI according to data in the "pd" object
 		if (undefined===pd) { pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex]; }
@@ -444,6 +445,7 @@ function i2b2_PanelController(parentCtrlr) {
 // ================================================================================================== //
 	this.doTiming = function(sTiming) { 
 		$('infoQueryStatusText').innerHTML = "";	
+		$('infoQueryStatusChart').innerHTML = "";
 
 		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length==0) { return;}
 		var bVal;
@@ -575,18 +577,19 @@ function i2b2_PanelController(parentCtrlr) {
 					switch(values.MatchBy) {
 								case "FLAG":
 								//mm ??not sure tvChildren[i].html = ' = '+i2b2.h.Escape(values.ValueFlag) + "</div></div>";
+									title = ' = '+i2b2.h.Escape(values.ValueFlag);
 									break;
 								case "VALUE":
-									if (values.GeneralValueType== "LARGESTRING") {
-										title = "";
-									} else if ((values.GeneralValueType=="ENUM") || (values.GeneralValueType=="TEXT")) {
+                                    if ((values.GeneralValueType== "LARGESTRING") || (values.GeneralValueType=="TEXT")) {
+                                        title = ' = ("' + values.ValueString +'")';
+                                    } else if (values.GeneralValueType=="ENUM") { 
 										try {
 											var sEnum = [];
 											for (var i2=0;i2<values.ValueEnum.length;i2++) {
 												sEnum.push(i2b2.h.Escape(values.ValueEnum[i2]));
 											}
 											sEnum = sEnum.join("\", \"");
-											sEnum = ' =  ('+sEnum+')';
+											sEnum = ' =  ("'+sEnum+'")';
 											//tvChildren[i].html =  sEnum + "</div></div>"
 											title = sEnum;
 										} catch (e) {
@@ -617,6 +620,10 @@ function i2b2_PanelController(parentCtrlr) {
 												break;	
 											}
 											title =   numericOp +i2b2.h.Escape(values.Value);
+											if (!Object.isUndefined(values.UnitsCtrl))
+											{
+												title += " " + values.UnitsCtrl;				
+											}
 										}
 									}
 									break;
@@ -789,6 +796,8 @@ function i2b2_PanelController(parentCtrlr) {
 	this._deleteConcept = function(htmlID) {
 		var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		$('infoQueryStatusText').innerHTML = "";
+		$('infoQueryStatusChart').innerHTML = "";
+
 		if (undefined===htmlID) { return; } 
 		// remove the node in the treeview
 		var tvChildren = pd.tvRootNode.children
@@ -809,7 +818,8 @@ function i2b2_PanelController(parentCtrlr) {
 
 // ================================================================================================== //
 	this._renameConcept = function(key, isModifier, pd) {
-				$('infoQueryStatusText').innerHTML = "";
+		$('infoQueryStatusText').innerHTML = "";
+		$('infoQueryStatusChart').innerHTML = "";
 
 		//var pd = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
 		// remove the concept from panel
@@ -974,6 +984,7 @@ function i2b2_PanelController(parentCtrlr) {
 // ================================================================================================== //
 	this.doDelete = function() { 
 		$('infoQueryStatusText').innerHTML = "";
+		$('infoQueryStatusChart').innerHTML = "";
 		// function fired when the [X] icon for the GUI panel is clicked
 		i2b2.CRC.ctrlr.QT.panelDelete(this.panelCurrentIndex);
 		// redraw the panels 

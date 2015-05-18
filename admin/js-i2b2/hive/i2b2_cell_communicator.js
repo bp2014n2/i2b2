@@ -162,10 +162,10 @@ i2b2.hive.communicatorFactory = function(cellCode){
 		}
 
 		commOptions.postBody = sMessage;
-		if (commOptions.asynchronous) {
+		//if (commOptions.asynchronous) {
 			commOptions.onSuccess = this._defaultCallbackOK;
 			commOptions.onFailure = this._defaultCallbackFAIL;
-		}
+		//}
 		var tmp = Object.keys(commOptions);
 		tmp = tmp.without("asynchronous");
 		tmp = tmp.without("contentType");
@@ -193,11 +193,36 @@ i2b2.hive.communicatorFactory = function(cellCode){
 		console.groupEnd();
 		execBubble.timeSent = new Date();
 		commOptions.i2b2_execBubble = execBubble;
+		
+		
+		var myCallback = {
+				  success: function(o) {
+					  o.request = {};
+					  o.request.options = {}
+					  o.request.options.i2b2_execBubble = commOptions.i2b2_execBubble;
+					  
+					  retCommObj._defaultCallbackOK(o);
+
+					  var t = 1;
+				  
+				  /* success handler code */},
+				  failure: function(o) {
+
+					  o.request = {};
+					  o.request.options = {}
+					  o.request.options.i2b2_execBubble = commOptions.i2b2_execBubble;
+					  retCommObj._defaultCallbackFAIL(o);
+					  /* failure handler code */},
+		};
+		
+		var transaction = YAHOO.util.Connect.asyncRequest(
+				  'POST', sProxy_Url, myCallback, commOptions.postBody);
+		
 		if (commOptions.asynchronous) {
 			// perform an ASYNC query 
-			new Ajax.Request(sProxy_Url, commOptions);
+		//	new Ajax.Request(sProxy_Url, commOptions);
 			return true;
-		} else {
+		} else { 
 			// perform a SYNC query 
 			var ajaxresult = new Ajax.Request(sProxy_Url, commOptions);	
 			var transport = ajaxresult.transport;
@@ -281,7 +306,7 @@ i2b2.hive.communicatorFactory = function(cellCode){
 			error: false
 		};
 		// check the status from the message
-		var xmlRecv = transport.responseXML;
+		var xmlRecv = null; //transport.responseXML;
 		if ((!xmlRecv)&&(transport.responseText.length)) {
 			xmlRecv = i2b2.h.parseXml(transport.responseText);
 		}
@@ -325,6 +350,7 @@ i2b2.hive.communicatorFactory = function(cellCode){
 			execBubble.self._SniffMsg.fire(sniffPackage);
 		}
 		// return results to caller
+		if (origCallback !== undefined )
 		if (getObjectClass(origCallback)=='i2b2_scopedCallback') {
 			origCallback.callback.call(origCallback.scope, cbMsg);
 		} else {
@@ -362,6 +388,7 @@ i2b2.hive.communicatorFactory = function(cellCode){
 			execBubble.self._SniffMsg.fire(sniffPackage);
 		}
 		// return results to caller
+		if (origCallback !== undefined)
 		if (getObjectClass(origCallback)=='i2b2_scopedCallback') {
 			origCallback.callback.call(origCallback.scope, cbMsg);
 		} else {

@@ -87,16 +87,20 @@ plotProbabilities <- function(probabilities, maxY) {
 }
 
 exec <- function() {
-  model.interval.tmp <- eval(parse(text=girix.input['Model interval']))
+  model.interval.tmp <- eval(parse(text=girix.input['Model observations interval']))
   model.interval <- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
   model.patient_set <- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
   
   model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
   model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
   target.concept.path <- girix.input['Target concept']
+  if(substr(target.concept.path, 1, 1) != '\\') {
+    failScript("Concept not supported")
+    return()
+  }
   target.concept.name <- i2b2$ont$getConceptName(target.concept.path)
   
-  newdata.interval.tmp <- eval(parse(text=girix.input['Prediction interval']))
+  newdata.interval.tmp <- eval(parse(text=girix.input['Prediction observations interval']))
   newdata.interval <- list(start=i2b2DateToPOSIXlt(newdata.interval.tmp['Start']), end=i2b2DateToPOSIXlt(newdata.interval.tmp['End']))
   newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi(girix.input['New Patient set']), -1)
   

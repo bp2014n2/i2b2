@@ -33,7 +33,7 @@
 			</items>
 		</input>
 		<input>
-			<name>Model interval</name>
+			<name>Model observations interval</name>
 			<description>Interval for observations for our model patients</description>
 			<type>interval</type>
 			<dates>
@@ -89,8 +89,8 @@
 			<type>patient_set</type>
 		</input>
 		<input>
-			<name>Prediction interval</name>
-			<description>Interval for observations for our prediction patients</description>
+			<name>Prediction observations interval</name>
+			<description>Prediction will be targeted with same time interval as between model observations and target interval</description>
 			<type>interval</type>
 			<dates>
 				<date>

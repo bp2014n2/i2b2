@@ -1,7 +1,7 @@
 .sdxDefaultCONCPT {
 	font-family:arial,helvetica;
 	font-size:12px;
-	white-space:nowrap;
+	/* white-space:nowrap; */
 	vertical-align:bottom;
 	zcursor:pointer;
 }

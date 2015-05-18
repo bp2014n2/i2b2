@@ -23,11 +23,14 @@ i2b2.PLUGINMGR.view.list.visible = false;
 //================================================================================================== //
 i2b2.PLUGINMGR.view.list.splitterDragged = function()
 {
-	var viewPortDim = document.viewport.getDimensions();
+	//var viewPortDim = document.viewport.getDimensions();
+	
+	var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	
 	var splitter = $( i2b2.hive.mySplitter.name );
 	var pluginListBox = $("anaPluginListBox");
 	
-	var basicWidth	= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
+	var basicWidth	= parseInt(w) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
 
 	pluginListBox.style.left				= parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3 + "px";
 	pluginListBox.style.width				= Math.max(basicWidth - 24, 0) + "px";	
@@ -37,8 +40,11 @@ i2b2.PLUGINMGR.view.list.splitterDragged = function()
 i2b2.PLUGINMGR.view.list.ResizeHeight = function(e) {
 	var viewObj = i2b2.PLUGINMGR.view.list;
 	if (viewObj.visible) {
-		var ds = document.viewport.getDimensions();
-		var h = ds.height;
+		//var ds = document.viewport.getDimensions();
+		
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+		//var h = ds.height;
 		if (h < 517) {h = 517;}	
 		// resize our visual components
 		var ve = $('anaPluginListBox').style;
@@ -69,9 +75,13 @@ i2b2.PLUGINMGR.view.list.ResizeHeight = function(e) {
 i2b2.PLUGINMGR.view.list.Resize = function(e) {
 	var viewObj = i2b2.PLUGINMGR.view.list;
 	if (viewObj.visible) {
-		var ds = document.viewport.getDimensions();
-		var w = ds.width;
-		var h = ds.height;
+		
+	    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+		//var ds = document.viewport.getDimensions();
+		//var w = ds.width;
+		//var h = ds.height;
 		if (w < 840) {w = 840;}
 		if (h < 517) {h = 517;}	
 		// resize our visual components

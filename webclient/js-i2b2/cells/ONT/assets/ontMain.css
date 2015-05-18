@@ -88,10 +88,16 @@ DIV#ontMainBox DIV.findSubFrame {
 }
 #ontFindNameButtonWorking {
 	float:left;
-	width:25px;
+	width:70px;
 	height:16px;
 	position:relative;
 }
+
+#ontFindModiferButtonWorking {
+	padding-left: 10px;
+}
+
+
 
 .ontFindButton {
 	position:relative;

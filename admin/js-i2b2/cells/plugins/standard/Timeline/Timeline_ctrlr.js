@@ -281,8 +281,21 @@ i2b2.Timeline.showObservation = function(localkey) {
 				"\nobserver_id: " + t.observer_id + "<br />" +
 				"\nstart_date: " + t.start_date_key;
 				
+	if ( i2b2.h.getXNodeVal(results.refXML, 'end_date') != undefined)
+		disp +=  "<br />\end_date:" +	i2b2.h.getXNodeVal(results.refXML, 'end_date') ;	
 	if ( i2b2.h.getXNodeVal(results.refXML, 'tval_char') != undefined)
 			disp +=  "<br />\ntval_char:" +	i2b2.h.getXNodeVal(results.refXML, 'tval_char') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'nval_num') != undefined)
+			disp +=  "<br />\nnval_num:" +	i2b2.h.getXNodeVal(results.refXML, 'nval_num') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'valueflag_cd') != undefined)
+			disp +=  "<br />\nvalueflag_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'valueflag_cd') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'units_cd') != undefined)
+			disp +=  "<br />\nunits_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'units_cd') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'instance_num') != undefined)
+		disp +=  "<br />\instance_num:" +	i2b2.h.getXNodeVal(results.refXML, 'instance_num') ;	
+	if ( i2b2.h.getXNodeVal(results.refXML, 'modifier_cd') != undefined)
+		disp +=  "<br />\modifier_cd:" +	i2b2.h.getXNodeVal(results.refXML, 'modifier_cd') ;	
+			
 	if (i2b2.Timeline.model.pData != undefined)
 	{
 		disp += "<hr/><pre>" + i2b2.Timeline.model.pData + "</pre>";	

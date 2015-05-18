@@ -9,6 +9,25 @@ i2b2.WORK.view.main = new i2b2Base_cellViewController(i2b2.WORK, 'main');
 i2b2.WORK.view.main.visible = false;
 
 
+i2b2.WORK.view.main.Refresh = function(e){
+    $("refWorkQS").setStyle({
+        display:'none'
+    });
+    $("refWork2QS").setStyle({
+        display:'inline'
+    });
+    
+    
+    
+    
+    $("refWork2QS").setStyle({
+        display:'none'
+    });
+    $("refWorkQS").setStyle({
+        display:'inline'
+    });
+
+},
 // ================================================================================================== //
 i2b2.WORK.view.main.Resize = function(e){
     // this function provides the resize functionality needed for this screen
@@ -16,9 +35,9 @@ i2b2.WORK.view.main.Resize = function(e){
 	var t = $('wrkWorkplace');
     if (viewObj.visible) {
 		$('wrkWorkplace').show();
-        var ds = document.viewport.getDimensions();
-        var w = ds.width;
-        var h = ds.height;
+        //var ds = document.viewport.getDimensions();
+        var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+        var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 		if (w < 840) { w = 840; }
 		if (h < 517) { h = 517; }
 		// resize our visual components
@@ -65,8 +84,8 @@ i2b2.WORK.view.main.ResizeHeight = function(){
 	var t = $('wrkWorkplace');
     if (viewObj.visible) {
 		$('wrkWorkplace').show();
-        var ds = document.viewport.getDimensions();
-        var h = ds.height;
+        //var ds = document.viewport.getDimensions();
+        var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 		if (h < 517) { h = 517; }
 		// resize our visual components
 		if (viewObj.isZoomed) {
@@ -494,6 +513,108 @@ i2b2.WORK.view.main.TreeviewLoader = function(tv_node, onCompleteCallback){
 i2b2.WORK.view.main.DropHandler = function(a1, a2, a3, a4, a5, a6){
     alert("i2b2.WORK.view.main.DropHandler() received a drop event");
 }
+
+i2b2.WORK.view.main.refreshTree = function() {
+
+	var thisview = i2b2.WORK.view.main;
+    // initialize treeview
+	thisview.yuiTree = null;
+    if (!thisview.yuiTree) {
+        thisview.yuiTree = new YAHOO.widget.TreeView("wrkTreeview");
+        thisview.yuiTree.setDynamicLoad(i2b2.WORK.view.main.TreeviewLoader, 1);
+        var yuiRootNode = thisview.yuiTree.getRoot();
+        // register the treeview with the SDX subsystem to be a container for QM, QI, PRS, CONCPT and WORK objects
+        var optDD = {
+            dropTarget: false
+        };
+        i2b2.sdx.Master.AttachType("wrkTreeview", "QM", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "QI");
+        i2b2.sdx.Master.AttachType("wrkTreeview", "PRC", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "PRS", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "ENS", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "PR", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "CONCPT", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "QDEF", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "QGDEF", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "XML", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "WRK");
+        
+        var funcNull = function(){
+            return true;
+        };
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QM", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRC", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRS", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "ENS", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PR", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "CONCPT", "LoadChildrenFromTreeview", funcNull)
+;
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QDEF", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QGDEF", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "XML", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "WRK", "LoadChildrenFromTreeview", funcNull);
+        
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QM", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRC", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRS", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "ENS", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PR", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "CONCPT", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QDEF", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QGDEF", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "XML", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "WRK", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        
+        // create initial loader display routine
+        var scopedCallback = new i2b2_scopedCallback();
+        scopedCallback.scope = i2b2.WORK;
+        scopedCallback.callback = function(results){
+			i2b2.WORK.view.main.queryResponse = results.msgResponse;
+			i2b2.WORK.view.main.queryRequest = results.msgRequest;
+            var nlst = i2b2.h.XPath(results.refXML, "//folder[name and share_id and index and visual_attributes]");
+            var yuiRoot = i2b2.WORK.view.main.yuiTree.getRoot();
+            for (var i = 0; i < nlst.length; i++) {
+                var s = nlst[i];
+                var nodeData = {};
+                nodeData.xmlOrig = s;
+                nodeData.index = i2b2.h.getXNodeVal(s, "index");
+                nodeData.key = nodeData.index;
+                nodeData.name = i2b2.h.getXNodeVal(s, "name");
+                nodeData.annotation = i2b2.h.getXNodeVal(s, "tooltip");
+                nodeData.share_id = i2b2.h.getXNodeVal(s, "share_id");
+                nodeData.visual = String(i2b2.h.getXNodeVal(s, "visual_attributes")).strip();
+                nodeData.encapType = i2b2.h.getXNodeVal(s, "work_xml_i2b2_type");
+                nodeData.isRoot = true;
+                // create new root node
+                i2b2.WORK.view.main._generateTvNode(nodeData.name, nodeData, yuiRoot);
+            }
+            // render tree
+            i2b2.WORK.view.main.yuiTree.draw();
+			$('refreshWorkImg').src = "assets/images/refreshButton.JPG";
+
+        };
+				$('refreshWorkImg').src="assets/images/spin.gif";		
+
+        // ajax communicator call
+		if (i2b2.PM.model.userRoles.indexOf("MANAGER") == -1) {		
+			i2b2.WORK.ajax.getFoldersByUserId("WORK:Workplace", {}, scopedCallback);
+		} else {
+	        i2b2.WORK.ajax.getFoldersByProject("WORK:Workplace", {}, scopedCallback);
+		}
+    }
+    // -------------------------------------------------------
+    i2b2.WORK.view.main.ContextMenu = new YAHOO.widget.ContextMenu("divContextMenu-Workplace", {
+		zIndex: 5000,
+        lazyload: true,
+        trigger: $('wrkTreeview'),
+        itemdata: []
+    });
+	
+    i2b2.WORK.view.main.ContextMenu.subscribe("triggerContextMenu", i2b2.WORK.view.main.ContextMenuPreprocess);
+    i2b2.WORK.view.main.ContextMenu.subscribe("beforeShow", i2b2.WORK.view.main.ContextMenuPreprocess);
+
+}
+
 
 
 

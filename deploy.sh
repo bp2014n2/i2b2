@@ -26,4 +26,5 @@ cd ../de.hpi.i2b2.girix
 ant jboss_deploy
 result=$((result + $?))
 cd ..
+cp -r webclient/ /var/www/html/
 exit $result

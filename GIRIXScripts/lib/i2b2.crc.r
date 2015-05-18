@@ -43,8 +43,8 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
       SELECT concept_cd
-      FROM i2b2demodata.concept_dimension
-      WHERE concept_path LIKE '%s%%')
+      FROM i2b2demodata.%s
+      WHERE %s %s %s)
     AND (start_date >= '%s' AND start_date <= '%s')
     AND (TRUE = %s
     OR patient_num IN (
@@ -53,7 +53,12 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
       WHERE result_instance_id = %d))) observations
   GROUP BY patient_num"
   interval <- lapply(interval, posixltToPSQLDate)
-  return(executeCRCQuery(queries.observations, escape(concept.path), interval$start, interval$end, patient_set < 0, patient_set))
+  lookup <<- i2b2$ont$getTableAndColumn(concept.path)
+  table <- lookup$c_tablename
+  column <- lookup$c_columnname
+  operator <- lookup$c_operator
+  parameter <- ifelse(lookup$c_columndatatype == 'T', paste0("'", escape(concept.path), "%'"), concept.path)
+  return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
 i2b2$crc$getPatients <- function(patient_set=-1) {

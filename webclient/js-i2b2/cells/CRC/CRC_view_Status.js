@@ -3,7 +3,7 @@
  * @inherits 	i2b2.CRC.view
  * @namespace	i2b2.CRC.view.status
  * @author 		Nick Benik, Griffin Weber MD PhD
- * @version 	1.3
+ * @version 	1.7.05
  * ----------------------------------------------------------------------------------------
  * updated 9-15-08: RC4 launch [Nick Benik]
  */
@@ -34,15 +34,32 @@ i2b2.CRC.view.status.showDisplay = function() {
 	// set us as active
 	$('infoQueryStatusText').parentNode.parentNode.select('DIV.tabBox.tabQueryStatus')[0].addClassName('active');
 	$('infoQueryStatusText').show();
+	$('infoQueryStatusChart').hide();
 }
-
+// ================================================================================================== //
+i2b2.CRC.view.status.selectTab = function(tabCode) {
+	// toggle between the Navigate and Find Terms tabs
+	switch (tabCode) {
+		case "graphs":
+			this.currentTab = 'graphs';
+			this.cellRoot.view['status'].hideDisplay();
+			this.cellRoot.view['graphs'].showDisplay();
+		break;
+		case "status":
+			this.currentTab = 'status';
+			this.cellRoot.view['status'].showDisplay();
+			this.cellRoot.view['graphs'].hideDisplay();
+		break;
+	}
+}
 // ================================================================================================== //
 i2b2.CRC.view.status.Resize = function(e) {
 	var viewObj = i2b2.CRC.view.status;
 	if (viewObj.visible) {
-		var ds = document.viewport.getDimensions();
-		var w = ds.width;
-		var h = ds.height;
+		//var ds = document.viewport.getDimensions();
+ 	    var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+ 	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
 		if (w < 840) {w = 840;}
 		if (h < 517) {h = 517;}
 		
@@ -58,15 +75,16 @@ i2b2.CRC.view.status.Resize = function(e) {
 				//ve.left = w-550;
 				//ve.width = 524;
 				if (i2b2.WORK && i2b2.WORK.isLoaded) {
-					$('infoQueryStatusText').style.height = '100px';
+					$('infoQueryStatusText').style.height = '146px';  // 100;
 					if (YAHOO.env.ua.ie > 0) {  
-						ve.top = h-135; //196+44;
+						ve.top = h-172-26;//h-155-26; //196+44 (135);
 					} else {
-						ve.top = h-152; //196+44;
+						ve.top = h-172-26; //196+44 (152);
 					}
 				} else {
-					$('infoQueryStatusText').style.height = '144px';
-					ve.top = h-196;
+					$('infoQueryStatusText').style.height = '190px'; // 144;
+					//ve.top = h-206;  // 186;
+					ve.top = h-216-26;  // 196;
 				}
 				break;
 			default:
@@ -81,11 +99,12 @@ i2b2.CRC.view.status.Resize = function(e) {
 //================================================================================================== //
 i2b2.CRC.view.status.splitterDragged = function()
 {
-	var viewPortDim = document.viewport.getDimensions();
+	//var viewPortDim = document.viewport.getDimensions();
+ 	var w =  window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
 	var splitter = $( i2b2.hive.mySplitter.name );	
 	var CRCStatus = $("crcStatusBox");
 	CRCStatus.style.left	= (parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3) + "px";
-	CRCStatus.style.width 	= Math.max(parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth) - 29, 0) + "px";
+	CRCStatus.style.width 	= Math.max(parseInt(w) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth) - 29, 0) + "px";
 }
 
 //================================================================================================== //
@@ -93,8 +112,8 @@ i2b2.CRC.view.status.ResizeHeight = function()
 {
 	var viewObj = i2b2.CRC.view.status;
 	if (viewObj.visible) {
-		var ds = document.viewport.getDimensions();
-		var h = ds.height;
+		///var ds = document.viewport.getDimensions();
+ 	    var h =  window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
 		if (h < 517) {h = 517;}
 		// resize our visual components
 		var ve = $('crcStatusBox');
@@ -104,13 +123,13 @@ i2b2.CRC.view.status.ResizeHeight = function()
 				ve = ve.style;
 				if (i2b2.WORK && i2b2.WORK.isLoaded) 
 				{
-					$('infoQueryStatusText').style.height = '100px';
-					ve.top = h-152; //196+44;
+					$('infoQueryStatusText').style.height = '146px';
+					ve.top = h-198;
 				} 
 				else 
 				{
-					$('infoQueryStatusText').style.height = '144px';
-					ve.top = h-196;
+					$('infoQueryStatusText').style.height = '190px';
+					ve.top = h-242;
 				}
 				break;
 			default:
@@ -118,7 +137,6 @@ i2b2.CRC.view.status.ResizeHeight = function()
 		}
 	}
 }
-
 // ================================================================================================== //
 i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
 // -------------------------------------------------------
@@ -184,6 +202,26 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 	//this.Resize();		// tdw9
 }),'',i2b2.CRC.view.status);
 
+/*********************************************************************************
+   FUNCTION bisGTIE8 
+   function to specifically test for internet explorer gt 8 or any other browser 
+	which returns "true"
+   usage if bisGTIE8 then ...
+**********************************************************************************/
+var bisGTIE8 = (function(){
+	try {
+		if ( document.addEventListener ) {
+			//alert("you got IE9 or greater (or a modern browser)");
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	catch (e) {
+		return false;
+	}
+}());
 
 console.timeEnd('execute time');
 console.groupEnd();

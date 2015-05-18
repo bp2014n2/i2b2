@@ -149,7 +149,7 @@ public class ProcessQueue extends Thread{
 							if (queryInstanceId != 0 && (!isRunning)) {
 								isRunning = true;
 								log.debug("Running is " + isRunning);
-								log.debug("Working on in " + queryInstanceId + " in " + QueryManagerBeanUtil.MEDIUM_QUEUE);
+								log.info("Working on in " + queryInstanceId + " in " + QueryManagerBeanUtil.MEDIUM_QUEUE);
 
 
 
@@ -169,7 +169,7 @@ public class ProcessQueue extends Thread{
 
 								int waitTime = readTimeoutPropertyValue(queue) * 1000;
 
-								log.debug("Waittime for " + queue+ " is  " + waitTime);
+								log.info("Waittime for " + queue+ " is  " + waitTime);
 
 								synchronized (t) {
 									t.start();
@@ -191,7 +191,9 @@ public class ProcessQueue extends Thread{
 											} else { 
 												t.wait(); 
 											} 
-										} 									
+										} 
+										log.info("Finished on in " + queryInstanceId );
+
 										log.debug("Start waiting: " + startTime);
 										log.debug("End waiting: " +  System.currentTimeMillis() );
 										log.debug("Delta time: " + deltaTime);
@@ -275,7 +277,7 @@ public class ProcessQueue extends Thread{
 										e.printStackTrace();
 
 									} finally {
-										t.interrupt();
+										//t.interrupt();
 										//exec = null;
 										t = null;
 										isRunning = false;

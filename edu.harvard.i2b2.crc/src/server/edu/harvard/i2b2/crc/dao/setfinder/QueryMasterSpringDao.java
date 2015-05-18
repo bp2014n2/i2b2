@@ -178,8 +178,15 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 						DAOFactoryHelper.POSTGRESQL)) 
 					sql += " limit " + fetchSize;
 			}
-			queryMasterList = jdbcTemplate.query(sql,
-					new Object[] { userRequestType.getUsername(), str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper);
+			
+			if (roles != null && roles.contains("MANAGER"))
+				queryMasterList = jdbcTemplate.query(sql,
+						new Object[] { str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper);
+			else
+				queryMasterList = jdbcTemplate.query(sql,
+						new Object[] { userRequestType.getUsername(),  str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper);
+
+
 
 
 			sql = "select ";
@@ -244,9 +251,13 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 					sql += " limit " + fetchSize;
 
 			}
-			queryMasterList.addAll(jdbcTemplate.query(sql,
-					new Object[] { userRequestType.getUsername(), str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper));
-
+			
+			if (roles != null && roles.contains("MANAGER"))
+				queryMasterList.addAll(jdbcTemplate.query(sql,
+					new Object[] { str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper));
+			else
+				queryMasterList.addAll(jdbcTemplate.query(sql,
+						new Object[] {  userRequestType.getUsername(),   str.toLowerCase(), DELETE_NO_FLAG }, queryMasterMapper));
 
 			sql = " select ";
 			if (fetchSize > 0

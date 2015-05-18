@@ -19,3 +19,10 @@ i2b2$ont$getConceptNameForBasecode <- function(concept.cd) {
   WHERE c_basecode LIKE '%s'"
   return(executeONTQuery(query, concept.cd))
 }
+
+i2b2$ont$getTableAndColumn <- function(concept.path) {
+  query <- "SELECT c_tablename, c_columnname, c_columndatatype, c_operator
+  FROM i2b2metadata.eva_meta
+  WHERE c_fullname LIKE '%s'"
+  return(executeONTQuery(query, escape(concept.path)))
+}

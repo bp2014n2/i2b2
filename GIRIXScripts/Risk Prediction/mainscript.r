@@ -91,7 +91,7 @@ exec <- function() {
   model.interval <<- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
   model.patient_set <<- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
   
-  model.target.interval.tmp <- eval(parse(text=girix.input['Target observations interval']))
+  model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
   model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
   target.concept.path <- girix.input['Target concept']
   target.concept.name <- i2b2$ont$getConceptName(target.concept.path)

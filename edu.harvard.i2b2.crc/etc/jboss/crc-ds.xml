@@ -74,6 +74,23 @@
 			<share-prepared-statements>false</share-prepared-statements>
 		</statement>
 	</datasource>
+<!--<datasource jta="false" jndi-name="java:/QueryToolDemoDS"
+		pool-name="QueryToolDemoDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:hpcc://54.93.130.121:8010/</connection-url>
+		<driver-class>de.hpi.hpcc.main.HPCCDriver</driver-class>
+		<driver>jdbc-hpcc.jar</driver>
+		<security>
+			<user-name>user</user-name>
+			<password>pass</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>-->
 
 
 

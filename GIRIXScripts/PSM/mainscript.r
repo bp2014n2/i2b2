@@ -236,10 +236,15 @@ exec <- function() {
 	                                     "median of control scores",
 	                                     "mean of score difference"), 'Value')
   if(!is.null(matchedCosts)) {
-	  matchedPatients <- cbind(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
+	  matchedPatients <<- cbind(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
 					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))
   }
-  
+
+  	# sort according to score differences
+  	# to do: why are the entries in matchedPatients strings??
+  	scoreDifferences <<- abs(as.numeric(matchedPatients[,2]) - as.numeric(matchedPatients[,6]))
+  	matchedPatients <<- matchedPatients[order(scoreDifferences),]
+
 	colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
 	rownames(matchedPatients) <- c()

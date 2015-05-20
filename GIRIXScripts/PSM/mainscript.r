@@ -165,7 +165,10 @@ exec <- function() {
 		girix.input['Additional feature 4'],
 		girix.input['Additional feature 5'])
 
-	timingTag("Input Processing")
+	# debug
+	print("PatientSet IDs:") 
+	print(patientset.t.id)
+	print(patientset.c.id)
 
 	# i2b2 date format (MM/DD/YYYY)
 	interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
@@ -230,6 +233,7 @@ exec <- function() {
 #  }
   
 	validationParams <<- matrix(c(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean), ncol=5)
+	validationParams <- toString(validationParams)
 	colnames(validationParams) <- c("mean of treatment scores", "median of treatment scores", "mean of control scores", "median of control scores", "mean of score difference")
   if(!is.null(matchedCosts)) {
 	  matchedPatients <<- cbind(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
@@ -261,5 +265,5 @@ exec <- function() {
 
 exec()
 
-rm(girix.input, girix.concept.names, girix.events, girix.modifiers, girix.observations, girix.observers, girix.patients); gc()
-
+rm(girix.input, girix.concept.names, girix.events, girix.modifiers, girix.observations, girix.observers, girix.patients)
+gc()

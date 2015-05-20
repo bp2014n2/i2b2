@@ -20,7 +20,7 @@
 			<name>Control group</name>
 			<description>Drag the patient set you want to select as control group in here</description>
 			<type>patient_set</type>
-                      </input>
+            </input>
 		<input>
 			<name>Treatment Quarter</name>
 			<description>Select the date of the treatment you want to evaluate.</description>

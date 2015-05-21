@@ -95,40 +95,29 @@ rotational_dispersion <- function(hex,count,typeVal,scope,rotation) {
 }
 
 generateMonochromaticColors <- function(baseColor, count) {
+  if(count < 1) {
+    return(c())
+  } else if (count < 2) {
+    return(c(baseColor))
+  }
+
+  count <- floor(count)
   base <- baseColor
   colors <- c(baseColor) 
   rgbColor <- col2rgb(baseColor)
-  top <- 255 - max(rgbColor["red",], rgbColor["green",], rgbColor["blue",])
-  bottom <- min(rgbColor["red",], rgbColor["green",], rgbColor["blue",])
+  multi <- 2 * 1 / count
 
-  addGrayValue <- (top + bottom) / count
-  way <- 1
-
-  while(T){
-    rgbColor <- col2rgb(baseColor)
-
-    highest <- max(rgbColor["red",], rgbColor["green",], rgbColor["blue",])+addGrayValue*way
-    if(highest > 255) {
-      way <- -1
-      baseColor <- base
-    }
-
-    lowest <- min(rgbColor["red",], rgbColor["green",], rgbColor["blue",])+addGrayValue*way
-    if(lowest < 0) {
-      break
-    }
-
-    baseColor <- rgb(
-      (rgbColor["red",]+addGrayValue*way)/255, 
-      (rgbColor["green",]+addGrayValue*way)/255, 
-      (rgbColor["blue",]+addGrayValue*way)/255
+  for(i in 1:floor(count/2)){
+    colors <- c(
+      rgb(((255-rgbColor["red",])*multi*i)/255, 
+      ((255-rgbColor["green",])*multi*i)/255, 
+      ((255-rgbColor["blue",])*multi*i)/255),
+      colors, rgb(
+      (rgbColor["red",]*multi*i)/255, 
+      (rgbColor["green",]*multi*i)/255, 
+      (rgbColor["blue",]*multi*i)/255
+      )
     )
-
-    if(col2rgb(baseColor)["red",] > rgbColor["red",]) {
-       colors <- c(colors, c(baseColor))
-    } else {
-        colors <- c(c(baseColor), colors)
-    }
   }
 
   return(tail(colors, n=count))
@@ -139,10 +128,10 @@ complementColors <- function(baseColor, count) {
 }
 
 triadicColors <- function(baseColor, count) {
-  return(head(c(generateMonochromaticColors(triadic(baseColor)[1], floor(count/3)), generateMonochromaticColors(triadic(baseColor)[2], round(count/3)), generateMonochromaticColors(ceiling(baseColor)[3], floor(count/3))), n=count))
+  return(head(unique(c(generateMonochromaticColors(triadic(baseColor)[1], floor(count/3)), generateMonochromaticColors(triadic(baseColor)[2], round(count/3)), generateMonochromaticColors(ceiling(baseColor)[3], floor(count/3)))), n=count))
 }
 
 tetradicColors <- function(baseColor, count) {
-  return(head(c(generateMonochromaticColors(tetradic(baseColor)[1], floor(count/4)), generateMonochromaticColors(tetradic(baseColor)[2], round(count/4)), generateMonochromaticColors(tetradic(baseColor)[3], floor(count/2)), generateMonochromaticColors(tetradic(baseColor)[4], floor(count/4))), n=count))
+  return(head(unique(c(generateMonochromaticColors(tetradic(baseColor)[1], floor(count/4)), generateMonochromaticColors(tetradic(baseColor)[2], round(count/4)), generateMonochromaticColors(tetradic(baseColor)[3], floor(count/2)), generateMonochromaticColors(tetradic(baseColor)[4], floor(count/4)))), n=count))
 }
 

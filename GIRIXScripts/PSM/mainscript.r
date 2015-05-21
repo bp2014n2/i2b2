@@ -220,11 +220,11 @@ exec <- function() {
 
 	print("outputting")
 	options(scipen=10)
-	treatmentMean <<- round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-	treatmentMedian <<- round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4)
-	controlMean <<- round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
-	controlMedian <<- round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4)
-	scoreDiffMean <<- round(mean(abs(matched$score.treated - matched$score.control)), 4)
+	treatmentMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
+	treatmentMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
+	controlMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+	controlMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+	scoreDiffMean <<- toString(round(mean(abs(matched$score.treated - matched$score.control)), 4))
 
 	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
@@ -232,9 +232,9 @@ exec <- function() {
 #    stats["number of matches"] <- nrow(pnums.treated)
 #  }
   
-	validationParams <<- matrix(c(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean), ncol=5)
-	validationParams <- toString(validationParams)
-	colnames(validationParams) <- c("mean of treatment scores", "median of treatment scores", "mean of control scores", "median of control scores", "mean of score difference")
+	validationParams <<- data.frame(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean)
+	colnames(validationParams) <- c("mean of treatment scores", "median of treatment scores", "mean of control scores", "median of control scores", 
+									"mean of score difference")
   if(!is.null(matchedCosts)) {
 	  matchedPatients <<- cbind(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
 					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))

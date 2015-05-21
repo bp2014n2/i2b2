@@ -41,7 +41,7 @@ triadic <- function(hex) {
   return(rotational_dispersion(hex,3,"hue",360,0))
 }
 
-pentadic<- function(hex) {
+tetradic<- function(hex) {
   return(rotational_dispersion(hex,4,"hue",360,0))
 }
 

@@ -14,6 +14,12 @@ hs_err_pid*
 */classes
 */$*
 
+# newer rserve version
+./i2b2/start_rserve.sh
+
+# CRC build XML
+./i2b2/edu.harvard.i2b2.crc/etc/jboss/crc-ds.xml
+
 # hpcc server credentials
 ./i2b2/GIRIXScripts/lib/i2b2.crc.config_hpcc.r
 */HPCCJDBC.log*

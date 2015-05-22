@@ -128,10 +128,10 @@ complementColors <- function(baseColor, count) {
 }
 
 triadicColors <- function(baseColor, count) {
-  return(head(unique(c(generateMonochromaticColors(triadic(baseColor)[1], floor(count/3)), generateMonochromaticColors(triadic(baseColor)[2], round(count/3)), generateMonochromaticColors(ceiling(baseColor)[3], floor(count/3)))), n=count))
+  return(head(unique(c(generateMonochromaticColors(triadic(baseColor)[1], ceiling(count/3)), generateMonochromaticColors(triadic(baseColor)[2], round(count/3)), generateMonochromaticColors(ceiling(baseColor)[3], ceiling(count/3)))), n=count))
 }
 
 tetradicColors <- function(baseColor, count) {
-  return(head(unique(c(generateMonochromaticColors(tetradic(baseColor)[1], floor(count/4)), generateMonochromaticColors(tetradic(baseColor)[2], round(count/4)), generateMonochromaticColors(tetradic(baseColor)[3], floor(count/2)), generateMonochromaticColors(tetradic(baseColor)[4], floor(count/4)))), n=count))
+  return(head(unique(c(generateMonochromaticColors(tetradic(baseColor)[1], ceiling(count/3)), generateMonochromaticColors(tetradic(baseColor)[2], ceiling(count/3)), generateMonochromaticColors(tetradic(baseColor)[3], ceiling(count/3)), generateMonochromaticColors(tetradic(baseColor)[4], ceiling(count/3)))), n=count))
 }
 

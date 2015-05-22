@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="i2b2" default="all" basedir=".">
+	<description>
+		Master deploy script for i2b2
+	</description>
+
+	<target name="all" depends="pm, ont, crc, work, fr, im, girix, web">
+	</target>
+
+	<target name="com">
+		<ant dir="edu.harvard.i2b2.server-common/" target="deploy" />
+		<ant dir="edu.harvard.i2b2.server-common/" target="jboss_pre_deployment_setup" />
+	</target>
+
+	<target depends="com" name="pm">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.pm/" target="deploy" />
+	</target>
+
+	<target depends="com" name="ont">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.ontology/" target="deploy" />
+	</target>
+
+	<target depends="com" name="crc">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.crc/" target="deploy" />
+	</target>
+
+	<target depends="com" name="work">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.workplace/" target="deploy" />
+	</target>
+
+	<target depends="com" name="fr">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.fr/" target="deploy" />
+	</target>
+
+	<target depends="com" name="im">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.im/" target="deploy" />
+	</target>
+
+	<target depends="com" name="girix">
+		<ant dir="de.hpi.i2b2.girix/" target="jboss_deploy" />
+	</target>
+
+	<target name="web">
+		<copy todir="/var/www/html/webclient">
+			<fileset dir="webclient" />
+		</copy>
+	</target>
+
+</project>

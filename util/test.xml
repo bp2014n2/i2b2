@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="i2b2" default="all" basedir=".">
+<project name="i2b2" default="all" basedir="..">
 	<description>
 		Master test script for i2b2
 	</description>
 
-	<target name="all">
+	<target name="all" depends="core, girix, web" />
+	<target name="core">
 		<antcall target="pm" />
 		<antcall target="ont" />
 		<antcall target="crc" />
 		<antcall target="work" />
 		<antcall target="fr" />
 		<antcall target="im" />
-		<antcall target="girix" />
 	</target>
 
 	<target name="pm">
@@ -39,6 +39,10 @@
 	</target>
 
 	<target name="girix">
+		
+	</target>
+
+	<target name="web">
 		
 	</target>
 

@@ -21,14 +21,31 @@ sh set_env.sh
 . env.properties
 mkdir $HOME/log
 export LOG_FILE=$HOME/log/log.txt
-
 apt-get install -y ant
+
+echo "installing dependencies"
 progress &
 progPid=$!
 {
     cd $I2B2_HOME
     sh install.sh $*
+} >> $LOG_FILE
+echo "" ; kill -13 "$progPid";
+
+echo "building i2b2"
+progress &
+progPid=$!
+{
+    cd $I2B2_HOME
     sh build.sh $*
+} >> $LOG_FILE
+echo "" ; kill -13 "$progPid";
+
+echo "deploying i2b2"
+progress &
+progPid=$!
+{
+    cd $I2B2_HOME
     sh deploy.sh $*
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";

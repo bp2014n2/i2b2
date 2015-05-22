@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ant $*
+ant -f util/build.xml $*

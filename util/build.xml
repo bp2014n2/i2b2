@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="i2b2" default="all" basedir=".">
+<project name="i2b2" default="all" basedir="..">
 	<description>
 		Master build script for i2b2
 	</description>
 
-	<target name="all" depends="pm, ont, crc, work, fr, im, girix, web" />
+	<target name="all" depends="core, girix, web" />
+	<target name="core" depends="pm, ont, crc, work, fr, im" />
 
 	<target name="com">
 		<ant dir="edu.harvard.i2b2.server-common/" target="clean" />

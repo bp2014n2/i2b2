@@ -1,7 +1,9 @@
-sudo rm -rf /var/www/html/admin
-sudo rm -rf /var/www/html/webclient
+. env.properties
 
-sudo rm -rf ~/jboss
-sudo rm -rf ~/report
-sudo rm -rf ~/i2b2
-sudo rm -rf ~/log
+rm -rf $WWW_HOME/admin
+rm -rf $WWW_HOME/webclient
+
+rm -rf $JBOSS_HOME
+rm -rf $GIRIX_ASSETS
+rm -rf $I2B2_HOME
+rm -rf $HOME/log

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-ant -f test.xml $*
+ant -f build/test.xml $*
 exit 0

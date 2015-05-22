@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ant -f install.xml $*
+ant -f util/install.xml $*

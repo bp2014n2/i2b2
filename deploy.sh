@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ant -f deploy.xml $*
+ant -f util/deploy.xml $*

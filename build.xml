@@ -4,8 +4,7 @@
 		Master build script for i2b2
 	</description>
 
-	<target name="all" depends="pm, ont, crc, work, fr, im, girix">
-	</target>
+	<target name="all" depends="pm, ont, crc, work, fr, im, girix" />
 
 	<target name="com">
 		<ant dir="edu.harvard.i2b2.server-common/" target="clean" />

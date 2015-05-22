@@ -11,33 +11,34 @@
 		<antcall target="work" />
 		<antcall target="fr" />
 		<antcall target="im" />
+		<antcall target="girix" />
 	</target>
 
-	<target depends="com" name="pm">
+	<target name="pm">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.pm/" target="test" />
 	</target>
 
-	<target depends="com" name="ont">
+	<target name="ont">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.ontology/" target="test" />
 	</target>
 
-	<target depends="com" name="crc">
+	<target name="crc">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.crc/" target="test" />
 	</target>
 
-	<target depends="com" name="work">
+	<target name="work">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.workplace/" target="test" />
 	</target>
 
-	<target depends="com" name="fr">
+	<target name="fr">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.fr/" target="test" />
 	</target>
 
-	<target depends="com" name="im">
+	<target name="im">
 		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.im/" target="test" />
 	</target>
 
-	<target depends="com" name="girix">
+	<target name="girix">
 		
 	</target>
 

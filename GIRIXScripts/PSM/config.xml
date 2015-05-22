@@ -113,10 +113,16 @@
 			<name>Validation Parameters</name>
 			<description></description>
 		</output>
+
 		<output>
-			<name>Costs per year</name>
+			<name>Averaged costs per quarter (treatment group)</name>
 			<description></description>
 		</output>
+		<output>
+			<name>Averaged costs per quarter (control group)</name>
+			<description></description>
+		</output>
+
 		<output>
 			<name>Stats</name>
 			<description></description>

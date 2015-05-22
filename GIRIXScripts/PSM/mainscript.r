@@ -204,11 +204,11 @@ exec <- function() {
 	featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
 	timingTag("featureMatrix.c")
 
-	result <- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
+	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
-	probabilities <- result$probabilities
+	probabilities <<- result$probabilities
 
-	matched <- result$matched
+	matched <<- result$matched
 
 	timingTag("Matching")
 
@@ -224,7 +224,8 @@ exec <- function() {
 	treatmentMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
 	controlMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
 	controlMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
-	scoreDiffMean <<- toString(round(mean(abs(matched$score.treated - matched$score.control)), 4))
+	scoreDifferences <<- abs(matched$score.treated - matched$score.control)
+	scoreDiffMean <<- toString(round(mean(scoreDifferences), 4))
 
 	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
@@ -233,8 +234,8 @@ exec <- function() {
 #  }
   
 	validationParams <<- data.frame(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean)
-	colnames(validationParams) <- c("mean of treatment scores", "median of treatment scores", "mean of control scores", "median of control scores", 
-									"mean of score difference")
+	colnames(validationParams) <- c("arithmetic mean of treatment scores", "median of treatment scores", "arithmetic mean of control scores", "median of control scores", 
+									"arithmetic mean of score differences")
   if(!is.null(matchedCosts)) {
 	  matchedPatients <<- cbind(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
 					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))
@@ -242,7 +243,6 @@ exec <- function() {
 
   	# sort according to score differences
   	# to do: why are the entries in matchedPatients strings??
-  	scoreDifferences <<- abs(as.numeric(matchedPatients[,2]) - as.numeric(matchedPatients[,6]))
   	matchedPatients <<- matchedPatients[order(scoreDifferences),]
 
 	colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
@@ -256,7 +256,10 @@ exec <- function() {
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
 	girix.output[["Validation Parameters"]] <<- validationParams
-	girix.output[["Costs per year"]] <<- costsPerQuarter
+
+	girix.output[["Averaged costs per quarter (treatment group)"]] <<- costsPerQuarter.treated
+	girix.output[["Averaged costs per quarter (control group)"]] <<- costsPerQuarter.control
+
 	timingTag("Output")
 	girix.output[["Stats"]] <<- as.data.frame(stats)
 	girix.output[["Timing"]] <<- as.data.frame(timings)

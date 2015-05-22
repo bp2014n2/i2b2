@@ -188,8 +188,8 @@ exec <- function() {
 	}
 	timingTag("-")
 	features <- i2b2$crc$getConcepts(concepts=filter, level=level)
-	patientset.c <- i2b2$crc$getPatients(patient_set=patientset.c.id)
-	patientset.t <- i2b2$crc$getPatients(patient_set=patientset.t.id)
+	patientset.c <<- i2b2$crc$getPatients(patient_set=patientset.c.id)
+	patientset.t <<- i2b2$crc$getPatients(patient_set=patientset.t.id)
 	if(nrow(patientset.c) == 0) {
 	    failScript('Control group is empty')
 	    return()
@@ -198,22 +198,30 @@ exec <- function() {
 	    failScript('Target group is empty')
 	    return()
   	}
-
+  	# removes pnums that are in both groups and saves them for warning
+	pnums.excluded <<- intersect(patientset.c[,"patient_num"], patientset.t[,"patient_num"])
+	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% pnums.excluded),]
+	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% pnums.excluded),]
+  rownames(patientset.c) <<- 1:nrow(patientset.c)
+  rownames(patientset.t) <<- 1:nrow(patientset.t)
+  
+  print("before")  
 	featureMatrix.t <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
-	timingTag("featureMatrix.t")
+	print("pp1")
+  timingTag("featureMatrix.t")
 	featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
 	timingTag("featureMatrix.c")
-
+  print("after")
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
-
+  
 	matched <<- result$matched
 
 	timingTag("Matching")
 
 	print("preparing pnums") #debug
-	pnums.treated <<- matched$pnum.treated
+	pnums.treated <<- matched$pnum.treated # replace with patientset.t and .c
 	pnums.control <<- matched$pnum.control  # contains together with pnums.treated the matching information(order matters)
 
 	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id)
@@ -241,9 +249,9 @@ exec <- function() {
 					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))
   }
 
-  	# sort according to score differences
-  	# to do: why are the entries in matchedPatients strings??
-  	matchedPatients <<- matchedPatients[order(scoreDifferences),]
+  # sort according to score differences
+  # to do: why are the entries in matchedPatients strings??
+  matchedPatients <<- matchedPatients[order(scoreDifferences),]
 
 	colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
 						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
@@ -255,6 +263,7 @@ exec <- function() {
 	costs_chart(costsPerQuarter.control, costsPerQuarter.treated)
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
+	girix.output[["Matching description"]] <- paste("Omitted", length(pnums.excluded), "Patients, because they are in both treatment and control group")
 	girix.output[["Validation Parameters"]] <<- validationParams
 
 	girix.output[["Averaged costs per quarter (treatment group)"]] <<- costsPerQuarter.treated

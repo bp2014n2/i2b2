@@ -48,7 +48,7 @@
 			<fileset dir="webclient" />
 		</copy>
 		<chmod perm="777">
-			<fileset dir="/var/www/html/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/">
+			<fileset dir="/var/www/html/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/" />
 		</chmod>
 	</target>
 

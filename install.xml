@@ -7,7 +7,7 @@
 	<target name="all" depends="pm, ont, crc, work, fr, im, girix, web" />
 
 	<target name="com">
-		<exec dir="/install" executable="/bin/bash">
+		<exec dir="install" executable="/bin/bash">
     		<arg value="com.sh"/>
   		</exec>
 	</target>
@@ -37,13 +37,13 @@
 	</target>
 
 	<target depends="com" name="girix">
-		<exec dir="/install" executable="/bin/bash">
+		<exec dir="install" executable="/bin/bash">
     		<arg value="girix.sh"/>
   		</exec>
 	</target>
 
 	<target name="web">
-		<exec dir="/install" executable="/bin/bash">
+		<exec dir="install" executable="/bin/bash">
     		<arg value="web.sh"/>
   		</exec>
 	</target>

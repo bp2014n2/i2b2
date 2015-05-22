@@ -22,7 +22,7 @@ sh set_env.sh
 mkdir $HOME/log
 export LOG_FILE=$HOME/log/log.txt
 
-echo $*
+apt-get install -y ant
 progress &
 progPid=$!
 {

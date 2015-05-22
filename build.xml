@@ -45,7 +45,7 @@
 		<ant antfile="master_build.xml" dir="de.hpi.i2b2.girix/" target="build-all" />
 	</target>
 
-	<target depends="com" name="web">
+	<target name="web">
 		
 	</target>
 

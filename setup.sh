@@ -19,59 +19,19 @@ echo "######################"
 # setup environment
 sh set_env.sh
 . env.properties
-mkdir $GIRIX_ASSETS
-mkdir $JBOSS_HOME
 mkdir $HOME/log
 export LOG_FILE=$HOME/log/log.txt
 
-echo "Installing software"
+echo $*
 progress &
 progPid=$!
 {
     cd $I2B2_HOME
-    apt-get -y install apache2 libapache2-mod-php5 php5-curl openjdk-7-jdk ant curl unzip r-base libproj-dev libgdal-dev
-    /etc/init.d/apache2 restart
-    R CMD ./install_girix_packages.r
-    cp ./rserve.service /etc/init.d/rserve
-    update-rc.d rserve defaults
-    service rserve start
-}  >> $LOG_FILE 2>&1
-echo "" ; kill -13 "$progPid";
-
-echo "Setting up webserver"
-progress &
-progPid=$!
-{
-    cd $I2B2_HOME
-    mkdir $I2B2_HOME/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/
-    cp -r $I2B2_HOME/admin $WWW_HOME
-    cp -r $I2B2_HOME/webclient $WWW_HOME
-    chmod -R 777 $WWW_HOME/webclient/js-i2b2/cells/plugins/GIRIXPlugin/assets/userfiles/
-} >> $LOG_FILE
-echo "" ; kill -13 "$progPid";
-
-echo "Downloading jboss"
-progress &
-progPid=$!
-{
-    cd ~
-    curl -s -o ~/jboss.zip http://54.93.194.56/jboss.zip
-    unzip -d $JBOSS_HOME jboss.zip
-} >> $LOG_FILE
-echo "" ; kill -13 "$progPid";
-
-echo "Building cells"
-progress &
-progPid=$!
-{
-    cd $I2B2_HOME
+    sh install.sh $*
     sh build.sh $*
     sh deploy.sh $*
 } >> $LOG_FILE
 echo "" ; kill -13 "$progPid";
-
-echo "Cleaning up"
-rm -rf ~/jboss.zip
 
 clear;
 echo "Setup completed"

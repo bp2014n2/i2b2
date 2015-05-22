@@ -4,7 +4,7 @@
 		Master build script for i2b2
 	</description>
 
-	<target name="all" depends="pm, ont, crc, work, fr, im, girix" />
+	<target name="all" depends="pm, ont, crc, work, fr, im, girix, web" />
 
 	<target name="com">
 		<ant dir="edu.harvard.i2b2.server-common/" target="clean" />
@@ -43,6 +43,10 @@
 
 	<target depends="com" name="girix">
 		<ant antfile="master_build.xml" dir="de.hpi.i2b2.girix/" target="build-all" />
+	</target>
+
+	<target depends="com" name="web">
+		
 	</target>
 
 </project>

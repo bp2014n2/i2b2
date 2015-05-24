@@ -1,6 +1,8 @@
 #!/bin/bash
 
-. ../env.properties
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+. $DIR/../env.properties
 
 apt-get -y install openjdk-7-jdk unzip curl
 cd ~

@@ -20,9 +20,9 @@ git fetch
 if [ $# -ge 1 ]
 then
     git checkout $1
-else
-    git pull
 fi
+
+git pull
 
 # setup environment
 sh set_env.sh

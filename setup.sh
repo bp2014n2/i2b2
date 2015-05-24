@@ -53,5 +53,5 @@ echo "" ; kill -13 "$progPid";
 clear;
 echo "Setup completed"
 cd $I2B2_HOME
-sh deploy.sh $*
+sh info.sh $*
 

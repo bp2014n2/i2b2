@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./env.properties
+. env.properties
 sh config_db.sh $db_loc
 sed "s|\${env\.I2B2_HOME}|`echo $I2B2_HOME`|g" */build.properties -i
 sed "s|\${env\.WWW_LOC}|`echo $WWW_LOC`|g" */build.properties -i

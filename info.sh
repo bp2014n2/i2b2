@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ant -f util/info.xml $*
+ant -f util/info.xml -q -emacs $*

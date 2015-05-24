@@ -18,7 +18,7 @@ echo "######################"
 
 # setup environment
 sh set_env.sh
-. env.properties
+. ./env.properties
 mkdir $HOME/log
 export LOG_FILE=$HOME/log/log.txt
 apt-get install -y ant >> $LOG_FILE

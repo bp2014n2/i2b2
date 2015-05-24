@@ -13,6 +13,8 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   time.start <- proc.time()
   
   observations <- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
+  observations <- observations[observations[,"patient_num"] %in% patients,]
+#  rownames(observations) <- 1:nrow(observations)
   
   time.end <- proc.time()
   

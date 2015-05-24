@@ -61,7 +61,8 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
 }
 
 primitivePSM <- function(patients) {
-  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, ties=FALSE, version="fast", distance.tolerance=0.001)
+  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, 
+  				   ties=FALSE, version="fast", distance.tolerance=0.001)
   timingTag("matching")
   if(!is.list(matched)) {
     return(NULL)
@@ -198,6 +199,12 @@ exec <- function() {
 	    failScript('Target group is empty')
 	    return()
   	}
+  
+  	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
+	patientset.c <- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
+	patientset.t <- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
+	rownames(patientset.c) <- 1:nrow(patientset.c)
+	rownames(patientset.t) <- 1:nrow(patientset.t)
 
 	featureMatrix.t <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
 	timingTag("featureMatrix.t")

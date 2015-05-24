@@ -4,7 +4,8 @@
 		Master test script for i2b2
 	</description>
 
-	<target name="all" depends="core, girix, web" />
+	<target name="all" depends="app, web" />
+	<target name="app" depends="core, girix" />
 	<target name="core">
 		<antcall target="pm" />
 		<antcall target="ont" />

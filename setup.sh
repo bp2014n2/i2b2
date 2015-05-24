@@ -52,6 +52,6 @@ echo "" ; kill -13 "$progPid";
 
 clear;
 echo "Setup completed"
-echo "start jboss with the following command"
-echo "sudo sh `echo $JBOSS_HOME`/bin/standalone.sh -b 0.0.0.0"
+cd $I2B2_HOME
+sh deploy.sh $*
 

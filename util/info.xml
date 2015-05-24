@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="i2b2" default="all" basedir="..">
 	<description>
-		Master install script for i2b2
+		Master info script for i2b2
 	</description>
 
 	<target name="all" depends="app, web" />
@@ -9,45 +9,41 @@
 	<target name="core" depends="pm, ont, crc, work, fr, im" />
 
 	<target name="com">
-		<exec dir="install" executable="/bin/bash">
-    		<arg value="com.sh"/>
-  		</exec>
+		<echo>start jboss with the following command
+			sudo sh {$JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0
+		</echo>
 	</target>
 
 	<target depends="com" name="pm">
-
+		
 	</target>
 
 	<target depends="com" name="ont">
-
+		
 	</target>
 
 	<target depends="com" name="crc">
-
+		
 	</target>
 
 	<target depends="com" name="work">
-
+		
 	</target>
 
 	<target depends="com" name="fr">
-
+		
 	</target>
 
 	<target depends="com" name="im">
-
+		
 	</target>
 
 	<target depends="com" name="girix">
-		<exec dir="install" executable="/bin/bash">
-    		<arg value="girix.sh"/>
-  		</exec>
+		
 	</target>
 
 	<target name="web">
-		<exec dir="install" executable="/bin/bash">
-    		<arg value="web.sh"/>
-  		</exec>
+		
 	</target>
 
 </project>

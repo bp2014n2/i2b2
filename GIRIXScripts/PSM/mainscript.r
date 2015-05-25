@@ -199,33 +199,18 @@ exec <- function() {
 	    failScript('Target group is empty')
 	    return()
   	}
-<<<<<<< HEAD
   
   	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
-	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
-	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
+	patientset.c <- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
+	patientset.t <- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
 	rownames(patientset.c) <- 1:nrow(patientset.c)
 	rownames(patientset.t) <- 1:nrow(patientset.t)
 
-	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
-	timingTag("featureMatrix.t")
-	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
-=======
-  	# removes pnums that are in both groups and saves them for warning
-	pnums.excluded <<- intersect(patientset.c[,"patient_num"], patientset.t[,"patient_num"])
-	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% pnums.excluded),]
-	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% pnums.excluded),]
-  rownames(patientset.c) <<- 1:nrow(patientset.c)
-  rownames(patientset.t) <<- 1:nrow(patientset.t)
-  
-  print("before")  
 	featureMatrix.t <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
-	print("pp1")
-  timingTag("featureMatrix.t")
+	timingTag("featureMatrix.t")
 	featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
->>>>>>> 63131714ede8ee11ab8c4ed5ee1c42de1e0e7ba9
 	timingTag("featureMatrix.c")
-  print("after")
+
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
@@ -271,20 +256,13 @@ exec <- function() {
 						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
 	rownames(matchedPatients) <- c()
 
-	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 
-													"patients, because they are in both experimental and control group.")
-
 	print(matchedPatients[1:2,])
 	print(validationParams)
 
 	costs_chart(costsPerQuarter.control, costsPerQuarter.treated)
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
-<<<<<<< HEAD
 	girix.output[["Matching description"]] <<- matchDesc
-=======
-	girix.output[["Matching description"]] <- paste("Omitted", length(pnums.excluded), "Patients, because they are in both treatment and control group")
->>>>>>> 63131714ede8ee11ab8c4ed5ee1c42de1e0e7ba9
 	girix.output[["Validation Parameters"]] <<- validationParams
 
 	girix.output[["Averaged costs per quarter (treatment group)"]] <<- costsPerQuarter.treated

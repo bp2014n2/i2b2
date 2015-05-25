@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="i2b2" default="all" basedir="..">
+	<description>
+		Master info script for i2b2
+	</description>
+
+	<property file="env.properties"/>
+
+	<target name="all" depends="app, web" />
+	<target name="app" depends="core, girix" />
+	<target name="core" depends="pm, ont, crc, work, fr, im" />
+
+	<target name="com">
+		<echo>start jboss with the following command</echo>
+		<echo>sudo sh ${JBOSS_HOME}/bin/standalone.sh -b 0.0.0.0</echo>
+	</target>
+
+	<target depends="com" name="pm">
+		
+	</target>
+
+	<target depends="com" name="ont">
+		
+	</target>
+
+	<target depends="com" name="crc">
+		
+	</target>
+
+	<target depends="com" name="work">
+		
+	</target>
+
+	<target depends="com" name="fr">
+		
+	</target>
+
+	<target depends="com" name="im">
+		
+	</target>
+
+	<target depends="com" name="girix">
+		
+	</target>
+
+	<target name="web">
+		
+	</target>
+
+</project>

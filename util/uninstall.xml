@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="i2b2" default="all" basedir="..">
+	<description>
+		Master uninstall script for i2b2
+	</description>
+
+	<property file="env.properties"/>
+
+	<target name="all" depends="app, web">
+		<!--<delete dir="{$HOME}/log" />-->
+		<!--<delete dir="{$I2B2_HOME}" />-->
+	</target>
+	<target name="app" depends="com, core, girix">
+		<delete dir="${JBOSS_HOME}" />
+	</target>
+	<target name="core" depends="pm, ont, crc, work, fr, im" />
+
+	<target name="com">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/conf/axis2.xml" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/ojdbc6.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/sqljdbc4.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/postgresql-9.2-1002.jdbc4.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/jdbc-hpcc.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/ojdbc6.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/sqljdbc4.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/postgresql-9.2-1002.jdbc4.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/jdbc-hpcc.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/spring-2.0.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/apachelicence-2.0.txt" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/jdom.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/jdom-contrib.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/jdom-LICENSE.txt" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/jcifs-1.3.12.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/i2b2Common-core.jar" />
+	</target>
+
+	<target name="pm">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/ProjectManagement-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/ProjectManagement.aar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/pm-ds.xml" />
+	</target>
+
+	<target name="ont">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/Ontology-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/Ontology-Server.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/Ontology.aar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/ont-ds.xml" />
+		<delete dir="${JBOSS_HOME}/standalone/configuration/ontologyapp" />
+	</target>
+
+	<target name="crc">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/CRC-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/CRC-Server.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/CRC.aar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/crc-ds.xml" />
+		<delete dir="${JBOSS_HOME}/standalone/configuration/crcapp" />
+	</target>
+
+	<target name="work">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/Workplace-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/Workplace-Server.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/Workplace.aar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/work-ds.xml" />
+		<delete dir="${JBOSS_HOME}/standalone/configuration/workplaceapp" />
+	</target>
+
+	<target name="fr">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/FR-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/FR-Server.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/FR.aar" />
+		<delete dir="${JBOSS_HOME}/standalone/configuration/frapp" />
+	</target>
+
+	<target name="im">
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/IM-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/IM-Server.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/IM.aar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/im-ds.xml" />
+		<delete dir="${JBOSS_HOME}/standalone/configuration/imapp" />
+	</target>
+
+	<target name="girix">
+		<delete dir="{$GIRIX_ASSETS}" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/lib/GIRIX-core.jar" />
+		<delete file="${JBOSS_HOME}/standalone/deployments/i2b2.war/WEB-INF/services/GIRIX.aar" />
+	</target>
+
+	<target name="web">
+		<delete dir="${WWW_HOME}/admin" />
+		<delete dir="${WWW_HOME}/webclient" />
+	</target>
+
+</project>

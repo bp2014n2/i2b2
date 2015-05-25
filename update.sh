@@ -12,25 +12,23 @@ progress() {
 
 clear;
 echo "######################"
-echo "Running Setup"
+echo "Updating i2b2"
 echo "######################"
 
+git fetch
+
+if [ $# -ge 1 ]
+then
+    git checkout $1
+fi
+
+git pull
 
 # setup environment
 sh set_env.sh
 . ./env.properties
 mkdir -p $HOME/log
 export LOG_FILE=$HOME/log/log.txt
-apt-get install -y ant >> $LOG_FILE
-
-echo "installing dependencies"
-progress &
-progPid=$!
-{
-    cd $I2B2_HOME
-    sh install.sh $*
-} >> $LOG_FILE
-echo "" ; kill -13 "$progPid";
 
 echo "building i2b2"
 progress &
@@ -51,7 +49,6 @@ progPid=$!
 echo "" ; kill -13 "$progPid";
 
 clear;
-echo "Setup completed"
+echo "Update completed"
 cd $I2B2_HOME
 sh info.sh $*
-

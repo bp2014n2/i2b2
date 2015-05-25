@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="i2b2" default="all" basedir="..">
+	<description>
+		Master test script for i2b2
+	</description>
+
+	<property file="env.properties"/>
+
+	<target name="all" depends="app, web" />
+	<target name="app" depends="core, girix" />
+	<target name="core">
+		<antcall target="pm" />
+		<antcall target="ont" />
+		<antcall target="crc" />
+		<antcall target="work" />
+		<antcall target="fr" />
+		<antcall target="im" />
+	</target>
+
+	<target name="pm">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.pm/" target="test" />
+	</target>
+
+	<target name="ont">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.ontology/" target="test" />
+	</target>
+
+	<target name="crc">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.crc/" target="test" />
+	</target>
+
+	<target name="work">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.workplace/" target="test" />
+	</target>
+
+	<target name="fr">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.fr/" target="test" />
+	</target>
+
+	<target name="im">
+		<ant antfile="master_build.xml" dir="edu.harvard.i2b2.im/" target="test" />
+	</target>
+
+	<target name="girix">
+		
+	</target>
+
+	<target name="web">
+		
+	</target>
+
+</project>

@@ -201,14 +201,14 @@ exec <- function() {
   	}
   
   	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
-	patientset.c <- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
-	patientset.t <- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
+	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
+	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
 	rownames(patientset.c) <- 1:nrow(patientset.c)
 	rownames(patientset.t) <- 1:nrow(patientset.t)
 
-	featureMatrix.t <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
+	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
 	timingTag("featureMatrix.t")
-	featureMatrix.c <- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
+	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
 	timingTag("featureMatrix.c")
 
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
@@ -256,12 +256,16 @@ exec <- function() {
 						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
 	rownames(matchedPatients) <- c()
 
+	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 
+													"patients, because they are in both experimental and control group.")
+
 	print(matchedPatients[1:2,])
 	print(validationParams)
 
 	costs_chart(costsPerQuarter.control, costsPerQuarter.treated)
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
+	girix.output[["Matching description"]] <<- matchDesc
 	girix.output[["Validation Parameters"]] <<- validationParams
 
 	girix.output[["Averaged costs per quarter (treatment group)"]] <<- costsPerQuarter.treated

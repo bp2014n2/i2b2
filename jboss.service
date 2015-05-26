@@ -1,0 +1,57 @@
+#! /bin/bash
+
+### BEGIN INIT INFO
+# Provides:          JBOSS
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: JBOSS 4 EVA
+# Description:       JBOSS 4 EVA
+### END INIT INFO
+# Author: PH
+
+JBOSS_BIN=/home/ubuntu/jboss/bin
+JBOSS_START_SCRIPT=$JBOSS_BIN/standalone.sh 
+JBOSS_STOP_SCRIPT=$JBOSS_BIN/jboss-cli.sh
+export JAVA_HOME="/usr/lib/jvm/java-7-openjdk-amd64"
+export JBOSS_HOME="/home/ubuntu/jboss"
+
+
+ECHO=/bin/echo
+TEST=/usr/bin/test
+
+#$TEST -x $JBOSS_START_SCRIPT || exit 0
+#$TEST -x $JBOSS_STOP_SCRIPT || exit 0
+
+start(){
+    $ECHO "Starting JBoss"
+    sudo sh $JBOSS_START_SCRIPT -b 0.0.0.0 > /dev/null &
+    $ECHO "."
+}
+
+stop(){
+    $ECHO "Stopping JBoss"
+    sudo sh $JBOSS_STOP_SCRIPT --connect --command=:shutdown
+    $ECHO "."
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        sleep 30
+        start
+        ;;
+    *)
+        $ECHO "Usage: jboss (start|stop|restart)"
+        exit 1
+        ;;
+esac
+
+exit 0

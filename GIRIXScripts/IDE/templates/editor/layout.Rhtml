@@ -1,3 +1,13 @@
+<br><h1><a target="_blank" href="/webclient/assets/db-doku.pdf">Database API Documentation</a></h1>
+
+<div id="R-IDE-ID-FIELDS">
+<br>
+    <div class="concept"></div> 
+    <div class="patients"></div>
+<br>
+</div>
+
+
 <div id="editor" class="rplot">
   <!-- Title -->
   <h2>Code editor</h2>
@@ -33,6 +43,28 @@ setTimeout(function(){
         "width": 10,
         "height": 5
       }
+
+  conceptHandler = function(sdxData, droppedOnID) {
+    var fieldIndex = parseInt(droppedOnID.slice(17,19));
+    sdxData = sdxData[0];
+    setTimeout(function() { $("girix-CONCPTDROP-" + fieldIndex).innerHTML = "Concept Key: " + i2b2.h.Escape(sdxData.origData.dim_code)}, 0)
+    setTimeout(function() { $("girix-CONCPTDROP-" + fieldIndex).style.background = "#CFB"},0);
+    i2b2.GIRIXPlugin.model.prsDirty = true;
+  }
+
+  patientHandler = function(sdxData, droppedOnID) {
+    var fieldIndex = parseInt(droppedOnID.slice(14,17));
+    sdxData = sdxData[0];
+    setTimeout(function() { $("girix-PRSDROP-" + fieldIndex).innerHTML = "Patient Set ID : " + i2b2.h.Escape(sdxData.sdxInfo.sdxKeyValue);}, 0) + " (" + i2b2.h.Escape(sdxData.sdxInfo.sdxKeyValue) + ")" 
+    setTimeout(function() { $("girix-PRSDROP-" + fieldIndex).style.background = "#CFB"},0); 
+    i2b2.GIRIXPlugin.model.prsDirty = true;
+  }
+
+  // Setup
+  var conceptDiv = document.querySelector('.concept')
+  i2b2.GIRIXPlugin.createNewCONCDDField(conceptDiv, conceptHandler);
+  var patientsDiv = document.querySelector('.patients')
+  i2b2.GIRIXPlugin.createNewPSDDField(patientsDiv, patientHandler);
 
   // Reload function
   document.querySelector("#"+template+" .reloadButton").addEventListener("click", function() {

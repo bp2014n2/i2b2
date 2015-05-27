@@ -5,7 +5,15 @@ source("i2b2.crc.config.r")
 executeCRCQuery <- function(query, ...) {
   return(executeQuery(i2b2$crc$db, query, ...))
 }
- 
+
+#' Get the prefixes of all concepts that start with anything from the concepts list (all concepts by default)
+#' @param concepts list of concepts to be compared to. Defaults to empty, meaning any prefix.
+#' @param level Aggregates ICD codes, e.g. Level 3 = ICD:M54*, Level 1: ICD:M*
+#' @return list of distinct concept_cd prefixes
+#' @export
+#' @examples
+#' getConcepts()
+#' getConcepts(c('K'), 3)
 i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   queries.features <- "SELECT DISTINCT substring(concept_cd from 1 for %d) AS concept_cd_sub
   FROM i2b2demodata.concept_dimension
@@ -15,6 +23,16 @@ i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
 }
 
+#' Get all observations with specified properties
+#' @param interval specifies the time frame where the observations should come from
+#' @param concepts specifies a subset where the observations should come from. Default is any concept.
+#' @param level specifies ICD level to aggregate, e.g. Level 3 = ICD:M54*, Level 1: ICD:M*
+#' @param patient_set id of the desired patient set, defaults to -1
+#' @return list of observations with attributes patient_num, concept_cd_sub
+#' @export
+#' @examples
+#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\", "\\ATC\\"), level=3, patient_set=-1)
+#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\M00-M99\\M50-M54\\M54"), level=3, patient_set=-1)
 i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_set=-1) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
@@ -36,6 +54,14 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
+#' Get all observations for a specified concept with specified properties
+#' @param interval specifies the time frame where the observations should come from
+#' @param concept.path specifies the path for the concept where the observations should come from.
+#' @param patient_set id of the desired patient set, defaults to -1
+#' @return list of observations with attributes patient_num, concept_cd_sub, counts
+#' @export
+#' @examples
+#' getObservationsForConcept(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concept.path="\\ICD\\M00-M99\\M50-M54\\M54\\", patient_set=-1)
 i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1) {
   queries.observations <- "SELECT patient_num, count(*) AS counts
   FROM (
@@ -61,6 +87,12 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
   return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
+#' Get all patients of a patient set
+#' @param patient_set Id of the desired patient set 
+#' @return list of patients with patient_num, sex_cd, birth_date 
+#' @export
+#' @examples
+#' getPatients(patient_set=-1)
 i2b2$crc$getPatients <- function(patient_set=-1) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
@@ -73,6 +105,12 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
+#' Get the description of a patient set
+#' @param patient_set Id of the desired patient set 
+#' @return string with description of the patient set
+#' @export
+#' @examples
+#' getPatientSetDescription(patient_set=42)
 i2b2$crc$getPatientSetDescription <- function(patient_set) {
   queries.patient_set <- "SELECT description
     FROM i2b2demodata.qt_query_result_instance
@@ -81,6 +119,13 @@ i2b2$crc$getPatientSetDescription <- function(patient_set) {
   return(executeCRCQuery(queries.patient_set, patient_set)$description)
 }
 
+#' Get patients of a patient set with a limit to speed up development
+#' @param patient_set Id of the desired patient set 
+#' @param limit limit of patients to be returned
+#' @return list of patients with patient_num, sex_cd, birth_date 
+#' @export
+#' @examples
+#' getPatients(patient_set=-1, limit=100)
 i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
   queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
@@ -94,15 +139,16 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
-i2b2$crc$getPatientsLimitable <- function(patients_limit) {
-  queries.patients <- "SELECT patient_num, sex_cd, birth_date
-    FROM i2b2demodata.patient_dimension
-    WHERE patient_num < %d"
-  
-  return(executeCRCQuery(queries.patients, patients_limit))
-}
-
-i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, patients_limit) {
+#' Get observations with a limit to speed up development
+#' @param interval specifies start and end of the interval in a list
+#' @param concepts list of concepts for the observations
+#' @param level specifies the aggregation level of concepts
+#' @param patients_limit limit of observations to be returned
+#' @return list of observations with patient_num, concept_cd>sub, counts
+#' @export
+#' @examples
+#' getObservationsWithLimit(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\"), level=3, patients_limit=1000)
+i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, patients_limit) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
     SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
@@ -205,7 +251,7 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, con
 
 
 i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
-  queries.patients <- "SELECT statecityzip_path, COUNT(*)
+  queries.patients <- "SELECT statecityzip_path, COUNT(*) as counts
     FROM i2b2demodata.patient_dimension
     WHERE (TRUE = %s
     OR patient_num IN (

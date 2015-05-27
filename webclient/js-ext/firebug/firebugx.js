@@ -1,4 +1,5 @@
-if (!("console" in window) || !("firebug" in console))
+// deactivated, so console.log and others are available in Chrome
+if (false && (!("console" in window) || !("firebug" in console)))
 {
     var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml",
     "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];

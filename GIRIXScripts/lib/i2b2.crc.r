@@ -63,7 +63,7 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
 #' @examples
 #' getObservationsForConcept(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concept.path="\\ICD\\M00-M99\\M50-M54\\M54\\", patient_set=-1)
 i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1) {
-  queries.observations <- "SELECT patient_num, 'target' as concept_cd_sub, count(*) AS counts
+  queries.observations <- "SELECT patient_num, count(*) AS counts
   FROM (
     SELECT patient_num
     FROM i2b2demodata.observation_fact

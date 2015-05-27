@@ -34,7 +34,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
   target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
   featureMatrix <- rbind2(features.target,features.control)
   risk.type <- 'speedglm'
-  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)  
+  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)
   timingTag("log reg")
   probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
   splitted <- list()
@@ -165,6 +165,7 @@ exec <- function() {
 		girix.input['Additional feature 3'],
 		girix.input['Additional feature 4'],
 		girix.input['Additional feature 5'])
+	addFeatures <- addFeatures[addFeatures != '']
 
 	# debug
 	print("PatientSet IDs:") 
@@ -181,11 +182,6 @@ exec <- function() {
 	}
 	if(features["ATC"] == TRUE) {
 		filter <- append(filter, '\\ATC\\')
-	}
-	for(addFeature in addFeatures) {
-	  if(addFeature != '') {
-	    filter <- append(filter, addFeature)
-	  }
 	}
 	timingTag("-")
 	features <- i2b2$crc$getConcepts(concepts=filter, level=level)
@@ -206,9 +202,9 @@ exec <- function() {
 	rownames(patientset.c) <- 1:nrow(patientset.c)
 	rownames(patientset.t) <- 1:nrow(patientset.t)
 
-	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
+	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
 	timingTag("featureMatrix.t")
-	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
+	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter, addFeatures)
 	timingTag("featureMatrix.c")
 
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])

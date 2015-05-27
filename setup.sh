@@ -21,7 +21,6 @@ sh set_env.sh
 . ./env.properties
 mkdir -p $HOME/log
 export LOG_FILE=$HOME/log/log.txt
-apt-get install -y ant >> $LOG_FILE
 
 echo "installing dependencies"
 progress &

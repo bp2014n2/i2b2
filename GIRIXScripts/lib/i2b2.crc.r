@@ -87,6 +87,12 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
   return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
+#' Get all patients of a patient set
+#' @param patient_set Id of the desired patient set 
+#' @return list of patients with patient_num, sex_cd, birth_date 
+#' @export
+#' @examples
+#' getPatients(patient_set=-1)
 i2b2$crc$getPatients <- function(patient_set=-1) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
@@ -99,6 +105,12 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
+#' Get the description of a patient set
+#' @param patient_set Id of the desired patient set 
+#' @return string with description of the patient set
+#' @export
+#' @examples
+#' getPatientSetDescription(patient_set=42)
 i2b2$crc$getPatientSetDescription <- function(patient_set) {
   queries.patient_set <- "SELECT description
     FROM i2b2demodata.qt_query_result_instance
@@ -107,6 +119,13 @@ i2b2$crc$getPatientSetDescription <- function(patient_set) {
   return(executeCRCQuery(queries.patient_set, patient_set)$description)
 }
 
+#' Get patients of a patient set with a limit to speed up development
+#' @param patient_set Id of the desired patient set 
+#' @param limit limit of patients to be returned
+#' @return list of patients with patient_num, sex_cd, birth_date 
+#' @export
+#' @examples
+#' getPatients(patient_set=-1, limit=100)
 i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
   queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
@@ -120,15 +139,16 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
-i2b2$crc$getPatientsLimitable <- function(patients_limit) {
-  queries.patients <- "SELECT patient_num, sex_cd, birth_date
-    FROM i2b2demodata.patient_dimension
-    WHERE patient_num < %d"
-  
-  return(executeCRCQuery(queries.patients, patients_limit))
-}
-
-i2b2$crc$getObservationsLimitable <- function(interval, concepts=c(), level=3, patients_limit) {
+#' Get observations with a limit to speed up development
+#' @param interval specifies start and end of the interval in a list
+#' @param concepts list of concepts for the observations
+#' @param level specifies the aggregation level of concepts
+#' @param patients_limit limit of observations to be returned
+#' @return list of observations with patient_num, concept_cd>sub, counts
+#' @export
+#' @examples
+#' getObservationsWithLimit(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\"), level=3, patients_limit=1000)
+i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, patients_limit) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
     SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub

@@ -9,6 +9,7 @@ print_table <- function(name) {
 print.data.frame <- print_table
 print.matrix <- print_table
 
+attach(i2b2$crc)
 
 disable <- function(funcs) {
   for (i in 1:length(funcs)) {

@@ -205,7 +205,7 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, con
 
 
 i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
-  queries.patients <- "SELECT statecityzip_path, COUNT(*)
+  queries.patients <- "SELECT statecityzip_path, COUNT(*) as counts
     FROM i2b2demodata.patient_dimension
     WHERE (TRUE = %s
     OR patient_num IN (

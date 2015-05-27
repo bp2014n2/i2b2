@@ -47,7 +47,7 @@ setTimeout(function(){
   conceptHandler = function(sdxData, droppedOnID) {
     var fieldIndex = parseInt(droppedOnID.slice(17,19));
     sdxData = sdxData[0];
-    setTimeout(function() { $("girix-CONCPTDROP-" + fieldIndex).innerHTML = "Concept Key: " + i2b2.h.Escape(sdxData.sdxInfo.sdxKeyValue);}, 0) + " (" + i2b2.h.Escape(sdxData.sdxInfo.sdxKeyValue) + ")"
+    setTimeout(function() { $("girix-CONCPTDROP-" + fieldIndex).innerHTML = "Concept Key: " + i2b2.h.Escape(sdxData.origData.dim_code)}, 0)
     setTimeout(function() { $("girix-CONCPTDROP-" + fieldIndex).style.background = "#CFB"},0);
     i2b2.GIRIXPlugin.model.prsDirty = true;
   }

@@ -5,12 +5,12 @@ source("../lib/style.r")
 costs_chart <- function(control, treated) {
 
   par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
-  cost_chart(control)
-  cost_chart(treated)
+  cost_chart(control, "Control Group")
+  cost_chart(treated, "Treaded Group")
 
 }
 
-cost_chart <- function(group) {
+cost_chart <- function(group, name) {
   par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
 
   colors <- rev(tetradicColors(baseColor, 8))
@@ -27,5 +27,6 @@ cost_chart <- function(group) {
 
   stackpoly(group, main="",xaxlab=rep("", nrow(group)),border="white", stack=TRUE, axis2=F, col=colors)
 
+  legend("topright", name)
   legend("topleft", rev(names(group)), cex=0.95,border=F,bty="n",fill=colors)
 }

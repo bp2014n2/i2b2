@@ -199,7 +199,16 @@ i2b2$crc$getPatients <- function(patient_set=-1, silent=T) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set, silent=silent))
 }
 
-i2b2$crc$getPatientsForConcept <- function(patient_set=-1, concept.path) {
+#'
+#' Get all patients of a patient set that match a given concept
+#' @name getPatientsForConcept
+#' @param patient_set Id of the desired patient set 
+#' @param desired concept
+#' @return list of patients with patient_num, sex_cd, birth_date 
+#' @export
+#' @examples
+#' getPatients(patient_set=-1)
+i2b2$crc$getPatientsForConcept <- function(patient_set=-1, concept.path, silent=T) {
   queries.patients <- "SELECT DISTINCT patient_num
   FROM i2b2demodata.observation_fact
   WHERE concept_cd IN (
@@ -212,7 +221,7 @@ i2b2$crc$getPatientsForConcept <- function(patient_set=-1, concept.path) {
     FROM i2b2demodata.qt_patient_set_collection
     WHERE result_instance_id = %d))"
   
-  return(executeCRCQuery(queries.patients, escape(concept.path), patient_set < 0, patient_set)$patient_num)
+  return(executeCRCQuery(queries.patients, escape(concept.path), patient_set < 0, patient_set, silent=silent)$patient_num)
 }
 
 

@@ -2,8 +2,8 @@ i2b2$crc <- list()
 
 source("i2b2.crc.config.r")
 
-executeCRCQuery <- function(query, ...) {
-  return(executeQuery(i2b2$crc$db, query, ...))
+executeCRCQuery <- function(query, ..., silent=T) {
+  return(executeQuery(i2b2$crc$db, query, ..., silent=silent))
 }
 #' 
 #' Get the prefixes of all concepts that start with anything from the concepts list (all concepts by default)
@@ -15,13 +15,13 @@ executeCRCQuery <- function(query, ...) {
 #' @examples
 #' getConcepts()
 #' getConcepts(c('K'), 3)
-i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
+i2b2$crc$getConcepts <- function(concepts=c(), level=3, silent=T) {
   queries.features <- "SELECT DISTINCT substring(concept_cd from 1 for %d) AS concept_cd_sub
   FROM i2b2demodata.concept_dimension
   WHERE (%s)"
   
   concept_condition <- paste(paste("concept_path LIKE '", escape(concepts), "%'", sep=""), collapse=" OR ")
-  return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
+  return(executeCRCQuery(queries.features, level + 4, concept_condition, silent=silent)$concept_cd_sub)
 }
 
 #'
@@ -34,9 +34,11 @@ i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
 #' @return list of observations with attributes patient_num, concept_cd_sub
 #' @export
 #' @examples
-#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\", "\\ATC\\"), level=3, patient_set=-1)
-#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\M00-M99\\M50-M54\\M54"), level=3, patient_set=-1)
-i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_set=-1) {
+#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), 
+#'   concepts=c("\\ICD\\", "\\ATC\\"), level=3, patient_set=-1)
+#' getObservations(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), 
+#'   concepts=c("\\ICD\\M00-M99\\M50-M54\\M54"), level=3, patient_set=-1)
+i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_set=-1, silent=T) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
     SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
@@ -54,7 +56,7 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
   GROUP BY patient_num, concept_cd_sub"
   concept_condition <- paste(paste("concept_path LIKE '", escape(concepts), "%'", sep=""), collapse=" OR ")
   interval <- lapply(interval, posixltToPSQLDate)
-  return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set, silent=silent))
 }
 
 #'
@@ -66,8 +68,9 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
 #' @return list of observations with attributes patient_num, concept_cd_sub, counts
 #' @export
 #' @examples
-#' getObservationsForConcept(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concept.path="\\ICD\\M00-M99\\M50-M54\\M54\\", patient_set=-1)
-i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1) {
+#' getObservationsForConcept(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), 
+#'   concept.path="\\ICD\\M00-M99\\M50-M54\\M54\\", patient_set=-1)
+i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1, silent=T) {
   queries.observations <- "SELECT patient_num, count(*) AS counts
   FROM (
     SELECT patient_num
@@ -89,7 +92,7 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
   column <- lookup$c_columnname
   operator <- lookup$c_operator
   parameter <- ifelse(lookup$c_columndatatype == 'T', paste0("'", escape(concept.path), "%'"), concept.path)
-  return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set, silent=silent))
 }
 #'
 #' Get all patients of a patient set
@@ -99,7 +102,7 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
 #' @export
 #' @examples
 #' getPatients(patient_set=-1)
-i2b2$crc$getPatients <- function(patient_set=-1) {
+i2b2$crc$getPatients <- function(patient_set=-1, silent=T) {
   queries.patients <- "SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
     WHERE (TRUE = %s
@@ -108,7 +111,7 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d))"
   
-  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set, silent=silent))
 }
 
 #'
@@ -119,12 +122,12 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
 #' @export
 #' @examples
 #' getPatientSetDescription(patient_set=42)
-i2b2$crc$getPatientSetDescription <- function(patient_set) {
+i2b2$crc$getPatientSetDescription <- function(patient_set, silent=T) {
   queries.patient_set <- "SELECT description
     FROM i2b2demodata.qt_query_result_instance
     WHERE result_instance_id = %d"
   
-  return(executeCRCQuery(queries.patient_set, patient_set)$description)
+  return(executeCRCQuery(queries.patient_set, patient_set, silent=silent)$description)
 }
 
 #'
@@ -136,7 +139,7 @@ i2b2$crc$getPatientSetDescription <- function(patient_set) {
 #' @export
 #' @examples
 #' getPatients(patient_set=-1, limit=100)
-i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
+i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100, silent=T) {
   queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
     WHERE %s
@@ -146,7 +149,7 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
       WHERE result_instance_id = %d)
     LIMIT ", limit)
   
-  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set, silent=silent))
 }
 
 #' 
@@ -159,8 +162,9 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
 #' @return list of observations with patient_num, concept_cd>sub, counts
 #' @export
 #' @examples
-#' getObservationsWithLimit(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), concepts=c("\\ICD\\"), level=3, patients_limit=1000)
-i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, patients_limit) {
+#' getObservationsWithLimit(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), 
+#'   concepts=c("\\ICD\\"), level=3, patients_limit=1000)
+i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, patients_limit, silent=T) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (
     SELECT patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
@@ -172,10 +176,10 @@ i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, p
     AND patient_num < %d) observations
   GROUP BY patient_num, concept_cd_sub"
   concept_condition <- paste(paste("concept_cd LIKE '", concepts, "%'", sep=""), collapse=" OR ")
-  return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit))
+  return(executeCRCQuery(queries.observations, level + 4, concept_condition, patients_limit, silent=silent))
 }
 
-i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\'), silent=T) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num NOT IN
@@ -197,10 +201,10 @@ i2b2$crc$getVisitCountForPatientsWithoutObservation <- function(patient_set=-1, 
   ORDER BY visit_dimension.start_date"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set, silent=silent))
 }
 
-i2b2$crc$getPatientsCountWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getPatientsCountWithoutObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\'), silent=T) {
   queries.patientcount <- "SELECT COUNT(DISTINCT patient_num) as counts 
   FROM i2b2demodata.patient_dimension
   WHERE patient_num NOT IN (
@@ -216,10 +220,10 @@ i2b2$crc$getPatientsCountWithoutObservation <- function(patient_set=-1, concepts
     FROM i2b2demodata.qt_patient_set_collection
     WHERE result_instance_id = %d)) "
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set, silent=silent))
 } 
 
-i2b2$crc$getPatientsCountWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getPatientsCountWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\'), silent=T) {
   queries.patientcount <- "SELECT count(DISTINCT patient_num) as counts
     FROM i2b2demodata.observation_fact
     WHERE concept_cd IN (
@@ -233,10 +237,10 @@ i2b2$crc$getPatientsCountWithObservation <- function(patient_set=-1, concepts=c(
       WHERE result_instance_id = %d))"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patientcount, concept_condition, patient_set < 0, patient_set, silent=silent))
 } 
 
-i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\')) {
+i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, concepts=c('\\\\ICD\\\\M00-M99\\\\M91-M94\\\\M94\\\\'), silent=T) {
   queries.visitcount <- "SELECT visit_dimension.start_date, count(*) as counts
   FROM i2b2demodata.visit_dimension
   WHERE visit_dimension.patient_num IN
@@ -258,11 +262,11 @@ i2b2$crc$getVisitCountForPatientsWithObservation <- function(patient_set=-1, con
   ORDER BY visit_dimension.start_date"
   
   concept_condition <- paste("concept_path LIKE '", concepts, "%'", sep="")
-  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.visitcount, concept_condition, patient_set < 0, patient_set, silent=silent))
 }
 
 
-i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
+i2b2$crc$getPatientsWithPlz <- function(patient_set=-1, silent=T) {
   queries.patients <- "SELECT statecityzip_path, COUNT(*) as counts
     FROM i2b2demodata.patient_dimension
     WHERE (TRUE = %s
@@ -272,10 +276,10 @@ i2b2$crc$getPatientsWithPlz <- function(patient_set=-1) {
       WHERE result_instance_id = %d))
     GROUP BY statecityzip_path"
   
-  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+  return(executeCRCQuery(queries.patients, patient_set < 0, patient_set, silent=silent))
 }
 
-i2b2$crc$getAllYearCosts <- function(patient_set_ids) {
+i2b2$crc$getAllYearCosts <- function(patient_set_ids, silent=T) {
   # returns summe_aller_kosten for each patient in patient_set for every year
   # to do: integrate to lib dataPrep.r/data access <- peter (y...? <- marc)
 
@@ -288,6 +292,6 @@ i2b2$crc$getAllYearCosts <- function(patient_set_ids) {
 
   patient_condition <- paste(paste("result_instance_id = ", patient_set_ids, sep=""), collapse=" OR ")
 
-  result <- executeCRCQuery(query, patient_condition)
+  result <- executeCRCQuery(query, patient_condition, silent=silent)
   return(result)
 }

@@ -14,7 +14,7 @@ executeCRCQuery <- function(query, ..., silent=T) {
 #' @export
 #' @examples
 #' getConcepts()
-#' getConcepts(c('K'), 3)
+#' getConcepts(c('\\ICD\\M'), 3)
 i2b2$crc$getConcepts <- function(concepts=c(), level=3, silent=T) {
   queries.features <- "SELECT DISTINCT substring(concept_cd from 1 for %d) AS concept_cd_sub
   FROM i2b2demodata.concept_dimension

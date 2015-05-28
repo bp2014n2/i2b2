@@ -11,7 +11,7 @@ source("i2b2.ont.r")
 
 executeQuery <- function(config=list(), query, ...) {
 
-  final_query <- sprintf(strunwrap(query), ...)
+  final_query <<- sprintf(strunwrap(query), ...)
   print(final_query)
   con <- initializeConnection(config)
   result <- dbGetQuery(con, final_query)

@@ -36,6 +36,46 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
+i2b2$crc$getObservationsDependingOnTreatment <- function(treatment.path, concepts=c(), intervalLength.Years = 3, level=3, patient_set=-1) {
+  queries.observations <- "WITH p_date AS (SELECT patient_num, latest_tdate 
+  FROM ( 
+    SELECT patient_num, MIN(start_date) AS latest_tdate 
+    FROM i2b2demodata.observation_fact 
+    WHERE concept_cd IN ( 
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE concept_path LIKE '%s%%')
+    AND (TRUE = %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
+    GROUP BY patient_num) tdates)
+  SELECT patient_num, concept_cd_sub, count(*) AS counts
+    FROM (
+      SELECT obs.patient_num, substring(concept_cd from 1 for %d) AS concept_cd_sub
+      FROM (
+    SELECT patient_num, concept_cd, start_date
+    FROM i2b2demodata.observation_fact
+    WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE (%s))
+    AND (TRUE = %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))) obs
+      INNER JOIN p_date ON obs.patient_num = p_date.patient_num
+      AND (start_date >= p_date.latest_tdate - interval '%d years' AND start_date <= p_date.latest_tdate)) observations
+    GROUP BY patient_num, concept_cd_sub"
+
+#  treatment.path <<- paste0(treatment.path, "%%") 
+  concept_condition <<- paste(paste("concept_path LIKE '", escape(concepts), "%'", sep=""), collapse=" OR ")
+  return(executeCRCQuery(queries.observations, escape(treatment.path),
+    patient_set < 0, patient_set, level+4, concept_condition, patient_set < 0, patient_set, intervalLength.Years))
+}
+
 i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_set=-1) {
   queries.observations <- "SELECT patient_num, 'target' as concept_cd_sub, count(*) AS counts
   FROM (
@@ -71,6 +111,22 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
       WHERE result_instance_id = %d))"
   
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
+}
+
+i2b2$crc$getPatientsForConcept <- function(patient_set=-1, concept.path) {
+  queries.patients <- "SELECT DISTINCT patient_num
+  FROM i2b2demodata.observation_fact
+  WHERE concept_cd IN (
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE concept_path LIKE '%s%%')
+  AND (TRUE = %s
+  OR patient_num IN (
+    SELECT patient_num
+    FROM i2b2demodata.qt_patient_set_collection
+    WHERE result_instance_id = %d))"
+  
+  return(executeCRCQuery(queries.patients, escape(concept.path), patient_set < 0, patient_set)$patient_num)
 }
 
 i2b2$crc$getPatientSetDescription <- function(patient_set) {

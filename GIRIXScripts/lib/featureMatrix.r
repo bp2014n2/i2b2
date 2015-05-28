@@ -27,6 +27,27 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   return(feature_matrix)
 }
 
+generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, timeOfObservation, patients, patient_set=-1, features, filter, level=3, treatment.path) {
+  
+  time.start <- proc.time()
+
+  patients <<- patients
+  
+  observations <<- i2b2$crc$getObservationsDependingOnTreatment(treatment.path = treatment.path, concepts=filter, 
+                                                                intervalLength.Years = intervalLength.Years, patient_set=patient_set, level=level)
+  #observations <<- observations[observations[,"patient_num"] %in% patients,]
+  #rownames(observations) <- 1:nrow(observations)
+  
+  time.end <- proc.time()
+  
+  time.query <<- time.query + sum(c(time.end-time.start)[3])
+  
+  feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
+  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), timeOfObservation))
+  return(feature_matrix)
+}
+
+
 generateTargetVector <- function(interval, patients, patient_set=-1, concept.path) {
   
   time.start <- proc.time()

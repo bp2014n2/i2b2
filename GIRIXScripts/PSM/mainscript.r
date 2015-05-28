@@ -154,9 +154,11 @@ exec <- function() {
 	# girix input processing
 	patientset.t.id <- strtoi(girix.input['Treatment group'])
 	patientset.c.id <- strtoi(girix.input['Control group'])
-	treatmentDate <- eval(parse(text=girix.input['Treatment Quarter']))
+	treatment.path <<- girix.input['Automatic, individual treatment date determination']
+	treatmentDate <- eval(parse(text=girix.input['Treatment quarter']))
 	treatmentYear <<- treatmentDate["year"]
 	treatmentQuarter <<- treatmentDate["quarter"]
+	interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
 	features <- eval(parse(text=girix.input['Feature Selection']))
 	splitBy <- eval(parse(text=girix.input['Exact matching']))
 	level <- strtoi(girix.input['Feature level'])
@@ -171,10 +173,7 @@ exec <- function() {
 	print(patientset.t.id)
 	print(patientset.c.id)
 
-	# i2b2 date format (MM/DD/YYYY)
-	interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
 
-	print("getting featureMatrices")
 	filter <- c()
 	if(features["ICD"] == TRUE) {
 		filter <- append(filter, '\\ICD\\')
@@ -189,25 +188,41 @@ exec <- function() {
 	}
 	timingTag("-")
 	features <- i2b2$crc$getConcepts(concepts=filter, level=level)
-	patientset.c <- i2b2$crc$getPatients(patient_set=patientset.c.id)
-	patientset.t <- i2b2$crc$getPatients(patient_set=patientset.t.id)
+	patientset.c <<- i2b2$crc$getPatients(patient_set=patientset.c.id)
+  if (treatment.path != "") {
+    patientset.t.forConcept <<- i2b2$crc$getPatientsForConcept(patient_set=patientset.t.id, concept.path=treatment.path)
+  }
+  patientset.t  <<- i2b2$crc$getPatients(patient_set=patientset.t.id)
 	if(nrow(patientset.c) == 0) {
-	    failScript('Control group is empty')
+	    failScript(errorMessage='Control group is empty')
 	    return()
   	}
-	if(nrow(patientset.t) == 0) {
-	    failScript('Target group is empty')
+	if(length(patientset.t.forConcept) == 0) {
+  	  failScript(errorMessage='Treatment group is empty')
 	    return()
-  	}
-  
-  	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
-	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
+  }
+	
+	if (treatment.path != "") {
+    excludedPatientsOfTGroup <<- patientset.t[!(patientset.t[,"patient_num"] %in% patientset.t.forConcept),"patient_num"]
+	  patientset.t <- patientset.t[patientset.t[,"patient_num"] %in% patientset.t.forConcept,]
+	}
+  excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
+  patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
 	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
 	rownames(patientset.c) <- 1:nrow(patientset.c)
 	rownames(patientset.t) <- 1:nrow(patientset.t)
 
-	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
-	timingTag("featureMatrix.t")
+	print("querying featureMatrices")
+	if (treatment.path == "") {
+		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
+		timingTag("featureMatrix.t")
+	} else {
+    print("querying featureMatrixDependingOnTreatment")
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, patients=patientset.t, timeOfObservation=interval$end, 
+                                                                  patient_set=patientset.t.id, features=features, filter=filter, level=level, treatment.path=treatment.path)
+		timingTag("featureMatrix.t")
+	}
+	
 	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
 	timingTag("featureMatrix.c")
 
@@ -256,8 +271,11 @@ exec <- function() {
 						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
 	rownames(matchedPatients) <- c()
 
+
 	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 
-													"patients, because they are in both experimental and control group.")
+													" patients, because they are in both experimental and control group.")
+	matchDesc <<- paste(matchDesc, "\nWARNING: Left out ", length(excludedPatientsOfTGroup), " patients of XX patients in 
+						treatment group, because they actually did not receive the treatment")
 
 	print(matchedPatients[1:2,])
 	print(validationParams)

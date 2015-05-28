@@ -59,6 +59,10 @@ smoothedLine <- function(x, y) {
   lines(smooth.spline(xnna, ynna, spar=0.5, tol=0.01), lwd=2)
 }
 
+getYear <- function(date) {
+  return(as.Date(format(date, "%Y-01-01")))
+}
+
 getDate <- function(year, quarter) {
   month <- strtoi(quarter) * 3 - 2
   if (month < 10) {

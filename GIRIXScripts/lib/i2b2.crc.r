@@ -5,8 +5,9 @@ source("i2b2.crc.config.r")
 executeCRCQuery <- function(query, ...) {
   return(executeQuery(i2b2$crc$db, query, ...))
 }
-
+#' 
 #' Get the prefixes of all concepts that start with anything from the concepts list (all concepts by default)
+#' @name getConcepts
 #' @param concepts list of concepts to be compared to. Defaults to empty, meaning any prefix.
 #' @param level Aggregates ICD codes, e.g. Level 3 = ICD:M54*, Level 1: ICD:M*
 #' @return list of distinct concept_cd prefixes
@@ -23,7 +24,9 @@ i2b2$crc$getConcepts <- function(concepts=c(), level=3) {
   return(executeCRCQuery(queries.features, level + 4, concept_condition)$concept_cd_sub)
 }
 
+#'
 #' Get all observations with specified properties
+#' @name getObservations
 #' @param interval specifies the time frame where the observations should come from
 #' @param concepts specifies a subset where the observations should come from. Default is any concept.
 #' @param level specifies ICD level to aggregate, e.g. Level 3 = ICD:M54*, Level 1: ICD:M*
@@ -54,7 +57,9 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set))
 }
 
+#'
 #' Get all observations for a specified concept with specified properties
+#' @name GetObservationsForConcept
 #' @param interval specifies the time frame where the observations should come from
 #' @param concept.path specifies the path for the concept where the observations should come from.
 #' @param patient_set id of the desired patient set, defaults to -1
@@ -86,8 +91,9 @@ i2b2$crc$getObservationsForConcept <- function(interval, concept.path, patient_s
   parameter <- ifelse(lookup$c_columndatatype == 'T', paste0("'", escape(concept.path), "%'"), concept.path)
   return(executeCRCQuery(queries.observations, table, column, operator, parameter, interval$start, interval$end, patient_set < 0, patient_set))
 }
-
+#'
 #' Get all patients of a patient set
+#' @name getPatients
 #' @param patient_set Id of the desired patient set 
 #' @return list of patients with patient_num, sex_cd, birth_date 
 #' @export
@@ -105,7 +111,9 @@ i2b2$crc$getPatients <- function(patient_set=-1) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
+#'
 #' Get the description of a patient set
+#' @name GetPatientSetDescription
 #' @param patient_set Id of the desired patient set 
 #' @return string with description of the patient set
 #' @export
@@ -119,7 +127,9 @@ i2b2$crc$getPatientSetDescription <- function(patient_set) {
   return(executeCRCQuery(queries.patient_set, patient_set)$description)
 }
 
+#'
 #' Get patients of a patient set with a limit to speed up development
+#' @name getPatientsWithLimit
 #' @param patient_set Id of the desired patient set 
 #' @param limit limit of patients to be returned
 #' @return list of patients with patient_num, sex_cd, birth_date 
@@ -139,7 +149,9 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100) {
   return(executeCRCQuery(queries.patients, patient_set < 0, patient_set))
 }
 
+#' 
 #' Get observations with a limit to speed up development
+#' @name getObservationsWithLimit
 #' @param interval specifies start and end of the interval in a list
 #' @param concepts list of concepts for the observations
 #' @param level specifies the aggregation level of concepts

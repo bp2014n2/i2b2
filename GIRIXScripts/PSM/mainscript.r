@@ -223,22 +223,23 @@ exec <- function() {
 
 	print("outputting")
 	options(scipen=10)
-	treatmentMean <<- as.character(round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	treatmentMedian <<- as.character(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	controlMean <<- as.character(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
-	controlMedian <<- as.character(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+  treatmentscores <- probabilities[probabilities[,"target.vector"]==1,"probabilities"]
+	controlscores <- probabilities[probabilities[,"target.vector"]==0,"probabilities"]
 	scoreDifferences <<- abs(matched$score.treated - matched$score.control)
-	scoreDiffMean <<- as.character(round(mean(scoreDifferences), 4))
+  scores <- list(treatmentscores, controlscores, matched$score.treated, matched$score.control, scoreDifferences)
 
 	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
-#  if(!is.null(pnums.treated)) {
-#    stats["number of matches"] <- nrow(pnums.treated)
-#  }
+  #  if(!is.null(pnums.treated)) {
+  #    stats["number of matches"] <- nrow(pnums.treated)
+  #  }
+  means <- sapply(scores, mean)
+  medians <- sapply(scores, median)
+  validationParams <- data.frame(means, medians)
+  colnames(validationParams) <- c("mean of scores", "median of scores")
+  validationParams <- apply(validationParams, 2, function(x) as.character(round(x, 4)))
+  rownames(validationParams) <- c("Treatment Group", "Control Group", "Treatment Group Matched", "Control Group Matched", "Score Difference")
   
-	validationParams <<- data.frame(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean)
-	colnames(validationParams) <- c("arithmetic mean of treatment scores", "median of treatment scores", "arithmetic mean of control scores", "median of control scores", 
-									"arithmetic mean of score differences")
   if(!is.null(matchedCosts)) {
   	matchedPatients <- data.frame(
   	  as.character(round(scoreDifferences, 4)),

@@ -22,11 +22,13 @@ timingTag <- function(name) {
 }
 
 failScript <- function(errorMessage="Something went wrong") {
-	girix.output[["Matched patients"]] <- errorMessage
-	girix.output[["Validation Parameters"]] <- errorMessage
-	girix.output[["Costs per year"]] <- errorMessage
-	girix.output[["Stats"]] <- errorMessage
-	girix.output[["Timing"]] <- errorMessage
+	girix.output[["Matched patients"]] <<- errorMessage
+	girix.output[["Matching description"]] <<- errorMessage
+	girix.output[["Validation Parameters"]] <<- errorMessage
+	girix.output[["Averaged costs per quarter (treatment group)"]] <<- errorMessage
+	girix.output[["Averaged costs per quarter (control group)"]] <<- errorMessage
+	girix.output[["Stats"]] <<- errorMessage
+	girix.output[["Timing"]] <<- errorMessage
 }
 
 psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {  
@@ -195,24 +197,31 @@ exec <- function() {
 	  failScript('Target group is empty')
 	  return()
   }
-  
-  excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
-	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
-	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
-	rownames(patientset.c) <- 1:nrow(patientset.c)
-	rownames(patientset.t) <- 1:nrow(patientset.t)
 
 	featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
 	timingTag("featureMatrix.t")
 	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter, addFeatures)
 	timingTag("featureMatrix.c")
+	
+	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
+	patientset.c <<- patientset.c[!(patientset.c$patient_num %in% excludedPatients),]
+	patientset.t <<- patientset.t[!(patientset.t$patient_num %in% excludedPatients),]
+	rownames(patientset.c) <- NULL
+	rownames(patientset.t) <- NULL
+	featureMatrix.t <<-	featureMatrix.t[!(rownames(featureMatrix.t) %in% excludedPatients),]
+	featureMatrix.c <<- featureMatrix.c[!(rownames(featureMatrix.c) %in% excludedPatients),]
 
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
 
 	matched <<- result$matched
-
+	
+	if(is.null(matched)) {
+	  failScript('No matches found')
+	  return()
+	}
+  
 	timingTag("Matching")
 
 	print("preparing pnums") #debug
@@ -228,8 +237,10 @@ exec <- function() {
 	scoreDifferences <<- abs(matched$score.treated - matched$score.control)
   scores <- list(treatmentscores, controlscores, matched$score.treated, matched$score.control, scoreDifferences)
 
-	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
-	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
+	stats["treatment group"] <- nrow(treatmentscores)
+	stats["control group"] <- nrow(controlscores)
+	stats["treatment group matched"] <- length(unique(pnums.treated))
+	stats["control group matched"] <- length(unique(pnums.control))
   #  if(!is.null(pnums.treated)) {
   #    stats["number of matches"] <- nrow(pnums.treated)
   #  }

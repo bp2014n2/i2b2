@@ -8,13 +8,23 @@ generateObservationMatrix <- function(observations, features, patients) {
   return(m)
 }
 
-generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3) {
+generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, filter, level=3, addFeatures=c()) {
   
   time.start <- proc.time()
 
   patients <<- patients
   
   observations <<- i2b2$crc$getObservations(concepts=filter, interval=interval, patient_set=patient_set, level=level)
+  if(length(addFeatures < 0)) {
+    for(i in 1:length(addFeatures)) {
+      addFeature <- addFeatures[i]
+      obs <- i2b2$crc$getObservationsForConcept(concept.path=addFeature, interval=interval, patient_set=patient_set)
+      name <- names(addFeatures)[i]
+      obs$concept_cd_sub <- name
+      features <- append(features, name)
+      observations <- rbind2(observations, obs)
+    }
+  }
   #observations <<- observations[observations[,"patient_num"] %in% patients,]
   #rownames(observations) <- 1:nrow(observations)
   
@@ -53,6 +63,7 @@ generateTargetVector <- function(interval, patients, patient_set=-1, concept.pat
   time.start <- proc.time()
   
   observations <- i2b2$crc$getObservationsForConcept(concept.path=concept.path, interval=interval, patient_set=patient_set)
+  observations$concept_cd_sub <- 'target'
   
   time.end <- proc.time()
   

@@ -12,14 +12,6 @@
         </settings>
         <additionalInputs>
                 <input>
-                        <name>Patient set to work on</name>
-                        <type>headline</type>
-                </input>
-                <input>
-                        <name>Patient Set</name>
-                        <type>patient_set</type>
-                </input>
-	        <input>
 			<name>requestOutput</name>
 			<type>hidden</type>
 			<default>all</default>

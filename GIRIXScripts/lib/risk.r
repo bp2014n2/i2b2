@@ -60,6 +60,7 @@ risk$speedglm$fit <- function(model, target) {
 
 risk$speedglm$predict <- function(fit, newdata) {  
   
+  fit <- fit
   newdata <- cBind(1, newdata)
   colnames(newdata)[1] <- 'intercept'
   if(length(risk$speedglm$excl.ALL)>0){ 
@@ -67,6 +68,11 @@ risk$speedglm$predict <- function(fit, newdata) {
   }
   
   b <- coef(fit)
+  naCol <- which(is.na(b))
+  if(length(naCol) > 0) {
+    b <- b[-naCol]
+    newdata <- newdata[,-naCol]
+  }
   
   pb <- exp(-newdata%*%b)
   pb <- as.vector(1/(1+pb))

@@ -468,7 +468,7 @@ i2b2.GIRIXPlugin.aiconceptDropped = function(sdxData, droppedOnID) {
 };
 
 // Helper function: It creates & registers a new drag&drop field for a patient set
-i2b2.GIRIXPlugin.createNewPSDDField = function(container) {
+i2b2.GIRIXPlugin.createNewPSDDField = function(container, droppedHandler) {
         container = container || "girix-droptrgt-prs-fields";
 	// Increment highest field counter
 	var ind = ++i2b2.GIRIXPlugin.model.highestPSDDIndex;
@@ -486,12 +486,16 @@ i2b2.GIRIXPlugin.createNewPSDDField = function(container) {
 	i2b2.sdx.Master._sysData["girix-PRSDROP-" + ind] = {}; // hack to get an old dd field unregistered as there's no function for it...
 	var op_trgt = {dropTarget:true};
 	i2b2.sdx.Master.AttachType("girix-PRSDROP-" + ind, "PRS", op_trgt);
-	i2b2.sdx.Master.setHandlerCustom("girix-PRSDROP-" + ind, "PRS", "DropHandler", i2b2.GIRIXPlugin.prsDropped);
+        if(droppedHandler) {
+          i2b2.sdx.Master.setHandlerCustom("girix-PRSDROP-" + ind, "PRS", "DropHandler", droppedHandler);
+        } else {
+          i2b2.sdx.Master.setHandlerCustom("girix-PRSDROP-" + ind, "PRS", "DropHandler", i2b2.GIRIXPlugin.prsDropped);
+        }
 	console.log("Added new drag n drop field");
 };
 
 // Helper function: It creates & registers a new drag&drop field for a concept
-i2b2.GIRIXPlugin.createNewCONCDDField = function(container) {
+i2b2.GIRIXPlugin.createNewCONCDDField = function(container, droppedHandler) {
         container = container || $("girix-droptrgt-conc-fields")
 	// Increment highest field counter
 	var ind = ++i2b2.GIRIXPlugin.model.highestConcDDIndex;
@@ -508,7 +512,11 @@ i2b2.GIRIXPlugin.createNewCONCDDField = function(container) {
 	i2b2.sdx.Master._sysData["girix-CONCPTDROP-" + ind] = {}; // hack to get an old dd field unregistered as there's no function for it...
 	var op_trgt = {dropTarget:true};
 	i2b2.sdx.Master.AttachType("girix-CONCPTDROP-" + ind, "CONCPT", op_trgt);
-	i2b2.sdx.Master.setHandlerCustom("girix-CONCPTDROP-" + ind, "CONCPT", "DropHandler", i2b2.GIRIXPlugin.conceptDropped);
+        if(droppedHandler) {
+          i2b2.sdx.Master.setHandlerCustom("girix-CONCPTDROP-" + ind, "CONCPT", "DropHandler", droppedHandler);
+        } else {
+          i2b2.sdx.Master.setHandlerCustom("girix-CONCPTDROP-" + ind, "CONCPT", "DropHandler", i2b2.GIRIXPlugin.conceptDropped);
+        }
 };
 
 // Helper function: It clears all drag&drop fields and shows one initial concept & patient set dd field
@@ -850,11 +858,11 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 };
 
 i2b2.GIRIXPlugin.generateSessionKey = function() {
-	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "") + Date.now();
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].textContent.replace("SessionKey:", "") + Date.now();
 }
 
 i2b2.GIRIXPlugin.getSessionKey = function() {
-	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "");
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].textContent.replace("SessionKey:", "");
 }
 
 // This function processes and displays the results coming from the answer message

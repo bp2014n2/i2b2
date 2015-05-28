@@ -6,8 +6,8 @@ source("i2b2.r")
 DataPrep.generateFeatureMatrix <- function(patients_limit, filter=c("ATC:", "ICD:"), level=3) {
   features <- i2b2$crc$getConcepts(concepts=filter, level=level)
 
-  patients <- i2b2$crc$getPatientsLimitable(patients_limit=patients_limit)
-  observations <- i2b2$crc$getObservationsLimitable(concepts=filter, patients_limit=patients_limit, level=level)
+  patients <- i2b2$crc$getPatientsWithLimit(limit=patients_limit)
+  observations <- i2b2$crc$getObservationsWithLimit(concepts=filter, patients_limit=patients_limit, level=level)
   feature_matrix <- DataPrep.generateObservationMatrix(observations, features, patients$patient_num)
   feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), Sys.Date()))
   return(feature_matrix)

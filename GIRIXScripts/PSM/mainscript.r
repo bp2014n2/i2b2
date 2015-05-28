@@ -22,11 +22,13 @@ timingTag <- function(name) {
 }
 
 failScript <- function(errorMessage="Something went wrong") {
-	girix.output[["Matched patients"]] <- errorMessage
-	girix.output[["Validation Parameters"]] <- errorMessage
-	girix.output[["Costs per year"]] <- errorMessage
-	girix.output[["Stats"]] <- errorMessage
-	girix.output[["Timing"]] <- errorMessage
+	girix.output[["Matched patients"]] <<- errorMessage
+	girix.output[["Matching description"]] <<- errorMessage
+	girix.output[["Validation Parameters"]] <<- errorMessage
+	girix.output[["Averaged costs per quarter (treatment group)"]] <<- errorMessage
+	girix.output[["Averaged costs per quarter (control group)"]] <<- errorMessage
+	girix.output[["Stats"]] <<- errorMessage
+	girix.output[["Timing"]] <<- errorMessage
 }
 
 psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {  
@@ -34,7 +36,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
   target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
   featureMatrix <- rbind2(features.target,features.control)
   risk.type <- 'speedglm'
-  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)  
+  fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)
   timingTag("log reg")
   probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
   splitted <- list()
@@ -61,8 +63,8 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
 }
 
 primitivePSM <- function(patients) {
-  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=TRUE, 
-  				   ties=FALSE, version="fast", distance.tolerance=0.001)
+  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=FALSE, 
+  				   ties=FALSE, version="fast", caliper=0.2, replace=FALSE)
   timingTag("matching")
   if(!is.list(matched)) {
     return(NULL)
@@ -167,6 +169,7 @@ exec <- function() {
 		girix.input['Additional feature 3'],
 		girix.input['Additional feature 4'],
 		girix.input['Additional feature 5'])
+	addFeatures <- addFeatures[addFeatures != '']
 
 	# debug
 	print("PatientSet IDs:") 
@@ -180,11 +183,6 @@ exec <- function() {
 	}
 	if(features["ATC"] == TRUE) {
 		filter <- append(filter, '\\ATC\\')
-	}
-	for(addFeature in addFeatures) {
-	  if(addFeature != '') {
-	    filter <- append(filter, addFeature)
-	  }
 	}
 	timingTag("-")
 	features <- i2b2$crc$getConcepts(concepts=filter, level=level)
@@ -206,32 +204,36 @@ exec <- function() {
     excludedPatientsOfTGroup <<- patientset.t[!(patientset.t[,"patient_num"] %in% patientset.t.forConcept),"patient_num"]
 	  patientset.t <- patientset.t[patientset.t[,"patient_num"] %in% patientset.t.forConcept,]
 	}
-  excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
-  patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
-	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
-	rownames(patientset.c) <- 1:nrow(patientset.c)
-	rownames(patientset.t) <- 1:nrow(patientset.t)
 
 	print("querying featureMatrices")
 	if (treatment.path == "") {
-		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter)
-		timingTag("featureMatrix.t")
+		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
 	} else {
-    print("querying featureMatrixDependingOnTreatment")
-		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, patients=patientset.t, timeOfObservation=interval$end, 
-                                                                  patient_set=patientset.t.id, features=features, filter=filter, level=level, treatment.path=treatment.path)
-		timingTag("featureMatrix.t")
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
 	}
-	
-	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter)
+	timingTag("featureMatrix.t")
+	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter, addFeatures)
 	timingTag("featureMatrix.c")
+	
+	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
+	patientset.c <<- patientset.c[!(patientset.c$patient_num %in% excludedPatients),]
+	patientset.t <<- patientset.t[!(patientset.t$patient_num %in% excludedPatients),]
+	rownames(patientset.c) <- NULL
+	rownames(patientset.t) <- NULL
+	featureMatrix.t <<-	featureMatrix.t[!(rownames(featureMatrix.t) %in% excludedPatients),]
+	featureMatrix.c <<- featureMatrix.c[!(rownames(featureMatrix.c) %in% excludedPatients),]
 
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
 
 	matched <<- result$matched
-
+	
+	if(is.null(matched)) {
+	  failScript('No matches found')
+	  return()
+	}
+  
 	timingTag("Matching")
 
 	print("preparing pnums") #debug
@@ -242,34 +244,43 @@ exec <- function() {
 
 	print("outputting")
 	options(scipen=10)
-	treatmentMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	treatmentMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	controlMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
-	controlMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+  treatmentscores <- probabilities[probabilities[,"target.vector"]==1,"probabilities"]
+	controlscores <- probabilities[probabilities[,"target.vector"]==0,"probabilities"]
 	scoreDifferences <<- abs(matched$score.treated - matched$score.control)
-	scoreDiffMean <<- toString(round(mean(scoreDifferences), 4))
+  scores <- list(treatmentscores, controlscores, matched$score.treated, matched$score.control, scoreDifferences)
 
-	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
-	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
-#  if(!is.null(pnums.treated)) {
-#    stats["number of matches"] <- nrow(pnums.treated)
-#  }
+	stats["treatment group"] <- nrow(treatmentscores)
+	stats["control group"] <- nrow(controlscores)
+	stats["treatment group matched"] <- length(unique(pnums.treated))
+	stats["control group matched"] <- length(unique(pnums.control))
+  #  if(!is.null(pnums.treated)) {
+  #    stats["number of matches"] <- nrow(pnums.treated)
+  #  }
+  means <- sapply(scores, mean)
+  medians <- sapply(scores, median)
+  validationParams <- data.frame(means, medians)
+  colnames(validationParams) <- c("mean of scores", "median of scores")
+  validationParams <- apply(validationParams, 2, function(x) as.character(round(x, 4)))
+  rownames(validationParams) <- c("Treatment Group", "Control Group", "Treatment Group Matched", "Control Group Matched", "Score Difference")
   
-	validationParams <<- data.frame(treatmentMean, treatmentMedian, controlMean, controlMedian,scoreDiffMean)
-	colnames(validationParams) <- c("arithmetic mean of treatment scores", "median of treatment scores", "arithmetic mean of control scores", "median of control scores", 
-									"arithmetic mean of score differences")
   if(!is.null(matchedCosts)) {
-	matchedPatients <- data.frame(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
-					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))
+  	matchedPatients <- data.frame(
+  	  as.character(round(scoreDifferences, 4)),
+      pnums.treated,
+  	  round(matched$score.treated, 4),
+  	  round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2),
+  	  round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
+  		pnums.control,
+  		round(matched$score.control, 4),
+  		round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2),
+  		round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2)
+    )
   }
 
-  	# sort according to score differences
-  	# to do: why are the entries in matchedPatients strings??
-  	matchedPatients <<- matchedPatients[order(scoreDifferences),]
-
-	colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
-						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
-	rownames(matchedPatients) <- c()
+	colnames(matchedPatients) <- c("Score Difference", "Treatment group p_num", "Score Treatment", "Costs year before Treatment", "Costs treatment year Treatment", 
+						  "Control group p_num", "Score Control", "Costs year before Control", "Costs treatment year Control")
+	matchedPatients <- sort.data.frame(matchedPatients, which(colnames(matchedPatients) == 'Score Difference'))
+  matchedPatients <<- apply(matchedPatients, 2, as.character)
 
 
 	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 

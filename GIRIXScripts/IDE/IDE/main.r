@@ -12,7 +12,6 @@ source("../lib/i2b2.r", chdir=TRUE)
 
 generateOutput <- function() {
   params <<- fromJSON(girix.input["params"])
-  model.patient_set <<- ifelse(nchar(girix.input['Patient Set']) != 0, strtoi(girix.input['Patient Set']), -1)
 
   #Don't print warnings
   options(warn=-1)

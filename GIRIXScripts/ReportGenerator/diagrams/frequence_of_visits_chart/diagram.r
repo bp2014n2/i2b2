@@ -171,6 +171,9 @@ frequence_of_visits_main <- function() {
     patients$withObservation <- i2b2$crc$getPatientsCountWithObservation(patient_set=model.patient_set, concept=params$icd)
     patients$withoutObservation <- i2b2$crc$getPatientsCountWithoutObservation(patient_set=model.patient_set, concept=params$icd)
   }
+  if(patients$withObservation == 0 || patients$withoutObservation == 0) {
+    stop("Patient set empty!")
+  }
   frequence_of_visits(patients)
 }
 

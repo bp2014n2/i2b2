@@ -37,7 +37,7 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   return(feature_matrix)
 }
 
-generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, timeOfObservation, patients, patient_set=-1, features, filter, level=3, treatment.path) {
+generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, timeOfObservation, patients, patient_set=-1, features, filter, level=3, treatment.path, addFeatures=c()) {
   
   time.start <- proc.time()
 
@@ -45,6 +45,19 @@ generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, 
   
   observations <<- i2b2$crc$getObservationsDependingOnTreatment(treatment.path = treatment.path, concepts=filter, 
                                                                 intervalLength.Years = intervalLength.Years, patient_set=patient_set, level=level)
+  if(length(addFeatures < 0)) {
+    for(i in 1:length(addFeatures)) {
+      addFeature <- addFeatures[i]
+      obs <- i2b2$crc$getObservationsDependingOnTreatmentForConcept(concept.path=addFeature, intervalLength.Years=3, patient_set=patient_set)
+      name <- names(addFeatures)[i]
+      obs$concept_cd_sub <- name
+      features <- append(features, name)
+      observations <- rbind2(observations, obs)
+    }
+  }
+
+
+
   #observations <<- observations[observations[,"patient_num"] %in% patients,]
   #rownames(observations) <- 1:nrow(observations)
   

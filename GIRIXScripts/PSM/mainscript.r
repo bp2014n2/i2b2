@@ -64,7 +64,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
 
 primitivePSM <- function(patients) {
   matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=FALSE, 
-  				   ties=FALSE, version="fast", caliper=0.2, replace=FALSE)
+  				   ties=FALSE, version="fast", replace=FALSE) # params excluded due to no matches: caliper=0.2
   timingTag("matching")
   if(!is.list(matched)) {
     return(NULL)
@@ -102,6 +102,7 @@ splitByAge <- function(features) {
   return(gender)
 }
 
+## todo: !!RELIES ON GLOBAL VARIABLES!!
 queryCosts <- function(patientset.t.id, patientset.c.id) {
 	print("querying costs") #debug  
 	treatmentDate <- getDate(treatmentYear, treatmentQuarter)
@@ -207,9 +208,10 @@ exec <- function() {
 
 	print("querying featureMatrices")
 	if (treatment.path == "") {
-		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
+		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	} else {
-		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures)
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, treatment.path=treatment.path, level=level, patients=patientset.t, timeOfObservation=interval$end,  
+																	  patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	}
 	timingTag("featureMatrix.t")
 	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter, addFeatures)
@@ -223,6 +225,7 @@ exec <- function() {
 	featureMatrix.t <<-	featureMatrix.t[!(rownames(featureMatrix.t) %in% excludedPatients),]
 	featureMatrix.c <<- featureMatrix.c[!(rownames(featureMatrix.c) %in% excludedPatients),]
 
+  print("Matching")
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities

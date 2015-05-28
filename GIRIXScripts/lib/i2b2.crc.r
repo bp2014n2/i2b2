@@ -99,6 +99,51 @@ i2b2$crc$getObservationsDependingOnTreatment <- function(treatment.path, concept
     patient_set < 0, patient_set, level+4, concept_condition, patient_set < 0, patient_set, intervalLength.Years))
 }
 
+
+i2b2$crc$getObservationsDependingOnTreatmentForConcept <- function(treatment.path, concept.path, intervalLength.Years = 3, patient_set=-1) {
+  queries.observations <- "WITH p_date AS (SELECT patient_num, latest_tdate 
+  FROM ( 
+    SELECT patient_num, MIN(start_date) AS latest_tdate 
+    FROM i2b2demodata.observation_fact 
+    WHERE concept_cd IN ( 
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE concept_path LIKE '%s%%')
+    AND (TRUE = %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
+    GROUP BY patient_num) tdates)
+  SELECT obs.patient_num, count(*) AS counts
+    FROM (
+      SELECT patient_num, concept_cd, start_date
+      FROM i2b2demodata.observation_fact
+      WHERE concept_cd IN (
+        SELECT concept_cd
+        FROM i2b2demodata.concept_dimension
+        WHERE concept_path LIKE '%s%%'
+      )
+      AND (
+        TRUE = %s
+        OR patient_num IN (
+          SELECT patient_num
+          FROM i2b2demodata.qt_patient_set_collection
+          WHERE result_instance_id = %d
+        )
+      )
+    ) obs
+    INNER JOIN p_date ON obs.patient_num = p_date.patient_num
+    AND (
+      start_date >= p_date.latest_tdate - interval '%d years' AND start_date <= p_date.latest_tdate
+    ) 
+    GROUP BY obs.patient_num"
+
+#  treatment.path <<- paste0(treatment.path, "%%") 
+  return(executeCRCQuery(queries.observations, escape(treatment.path),
+    patient_set < 0, patient_set, escape(concept.path), patient_set < 0, patient_set, intervalLength.Years))
+}
+
 #'
 #' Get all observations for a specified concept with specified properties
 #' @name GetObservationsForConcept

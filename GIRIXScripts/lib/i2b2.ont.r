@@ -3,7 +3,7 @@ i2b2$ont <- list()
 source("i2b2.ont.config.r")
 
 executeONTQuery <- function(query, ..., silent=T) {
-  return(executeQuery(i2b2$ont$db, query, ...), silent=silent)
+  return(executeQuery(i2b2$ont$db, query, ..., silent=silent))
 }
 
 i2b2$ont$getConceptName <- function(concept.path, silent=T) {

@@ -5,12 +5,14 @@ source("../lib/style.r")
 costs_chart <- function(control, treated) {
 
   par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
-  cost_chart(treated, "Treatment Group")
-  cost_chart(control, "Control Group")
+  ymax <- max(treated$summe_aller_kosten, control$summe_aller_kosten)
+  
+  cost_chart(treated, "Treatment Group", ymax)
+  cost_chart(control, "Control Group", ymax)
 
 }
 
-cost_chart <- function(group, name) {
+cost_chart <- function(group, name, ymax) {
   par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
 
   colors <- rev(tetradicColors(baseColor, 8))
@@ -25,7 +27,7 @@ cost_chart <- function(group, name) {
 
   group <- group[order(sapply(group, var))]
 
-  stackpoly(group, main="",xaxlab=rep("", nrow(group)),border="white", stack=TRUE, axis2=F, col=colors)
+  stackpoly(group, main="",xaxlab=rep("", nrow(group)),border="white", stack=TRUE, axis2=F, col=colors, ylim=c(0,ymax))
 
   legend("topright", name)
   legend("topleft", rev(names(group)), cex=0.95,border=F,bty="n",fill=colors)

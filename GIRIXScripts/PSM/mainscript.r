@@ -25,8 +25,8 @@ failScript <- function(errorMessage="Something went wrong") {
 	girix.output[["Matched patients"]] <<- errorMessage
 	girix.output[["Matching description"]] <<- errorMessage
 	girix.output[["Validation Parameters"]] <<- errorMessage
-	girix.output[["Averaged costs per quarter (treatment group)"]] <<- errorMessage
-	girix.output[["Averaged costs per quarter (control group)"]] <<- errorMessage
+	girix.output[["Averaged costs per Year (treatment group)"]] <<- errorMessage
+	girix.output[["Averaged costs per Year (control group)"]] <<- errorMessage
 	girix.output[["Stats"]] <<- errorMessage
 	girix.output[["Timing"]] <<- errorMessage
 }
@@ -113,26 +113,34 @@ queryCosts <- function(patientset.t.id, patientset.c.id) {
 
 	costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
 	costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
+	costs[,"datum"] <- as.Date(costs[,"datum"])
 
-	costsPerQuarter.treated <<- aggregate(. ~ datum, data=costs.treated, mean)
-	costsPerQuarter.control <<- aggregate(. ~ datum, data=costs.control, mean)
-	costsPerQuarter <<- aggregate(. ~ datum, data=costs, mean)
+	costsPerQuater.treated <- aggregate(. ~ datum, data=costs.treated, mean)
+	costsPerQuater.control <- aggregate(. ~ datum, data=costs.control, mean)
+	costsPerQuater <- aggregate(. ~ datum, data=costs, mean)
+	
+	costsPerQuater.treated$patient_num <- NULL
+	costsPerQuater.control$patient_num <- NULL
+	costsPerQuater$patient_num <- NULL
+  
+	costsPerQuater.treated[,"datum"] <- getYear(costsPerQuater.treated[,"datum"])
+	costsPerQuater.control[,"datum"] <- getYear(costsPerQuater.control[,"datum"])
+	costsPerQuater[,"datum"] <- getYear(costsPerQuater[,"datum"])
+  
+	costsPerYear.treated <- aggregate(. ~ datum, data=costsPerQuater.treated, sum)
+	costsPerYear.control <- aggregate(. ~ datum, data=costsPerQuater.control, sum)
+	costsPerYear <- aggregate(. ~ datum, data=costsPerQuater, sum)
 
-	costsPerQuarter.treated$patient_num <<- NULL
-	costsPerQuarter.control$patient_num <<- NULL
-	costsPerQuarter$patient_num <<- NULL
+	costsToPlot.t <- costsPerYear.treated[,c("datum", "summe_aller_kosten")]
+	costsToPlot.c <- costsPerYear.control[,c("datum", "summe_aller_kosten")]
 
-	costsToPlot.t <- costsPerQuarter.treated[,c("datum", "summe_aller_kosten")]
-	costsToPlot.c <- costsPerQuarter.control[,c("datum", "summe_aller_kosten")]
-
-	plot(costsToPlot.t,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n")
+	ymax = max(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"])
+  plot(costsToPlot.t,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n",ylim=c(0,ymax))
 	lines(costsToPlot.c,type="l",col=accentColor[2])
-	lineHeight <- max(max(costsToPlot.t[,"summe_aller_kosten"]),max(costsToPlot.c[,"summe_aller_kosten"]))+20
-	arrows(as.Date(treatmentDate),-10,as.Date(treatmentDate),lineHeight,lwd=1.25,length=0,xpd=TRUE,col=darkGray)
-	text(as.Date(treatmentDate),lineHeight+10,"Treatment Date",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
-
-	text(max(costsToPlot.t[,"datum"]),lineHeight-10,"Treatment Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
-	text(max(costsToPlot.t[,"datum"]),lineHeight-20,"Control Group",adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
+	abline(v=as.Date(treatmentDate), lwd=1.25, col=darkGray)
+	mtext("Treatment Date", at=as.Date(treatmentDate),adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+	mtext("Treatment Group",adj=1,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
+	mtext("Control Group",adj=1,padj=2,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 	
 	matchedCosts <- list()
 
@@ -148,6 +156,8 @@ queryCosts <- function(patientset.t.id, patientset.c.id) {
 	row.names(matchedCosts$pY) <- matchedCosts$pY[,"patient_num"]
 	matchedCosts$tY <- aggregate(summe_aller_kosten ~ patient_num, data = matchedCosts$tY, sum)
 	row.names(matchedCosts$tY) <- matchedCosts$tY[,"patient_num"]
+	matchedCosts$controlPerYear <- costsPerYear.control
+	matchedCosts$treatedPerYear <- costsPerYear.treated
   
   return(matchedCosts)
 }
@@ -276,14 +286,14 @@ exec <- function() {
 	print(matchedPatients[1:2,])
 	print(validationParams)
 
-	costs_chart(costsPerQuarter.control, costsPerQuarter.treated)
+	costs_chart(matchedCosts$controlPerYear, matchedCosts$treatedPerYear)
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
 	girix.output[["Matching description"]] <<- matchDesc
 	girix.output[["Validation Parameters"]] <<- validationParams
 
-	girix.output[["Averaged costs per quarter (treatment group)"]] <<- costsPerQuarter.treated
-	girix.output[["Averaged costs per quarter (control group)"]] <<- costsPerQuarter.control
+	girix.output[["Averaged costs per Year (treatment group)"]] <<- matchedCosts$treatedPerYear
+	girix.output[["Averaged costs per Year (control group)"]] <<- matchedCosts$controlPerYear
 
 	timingTag("Output")
 	girix.output[["Stats"]] <<- as.data.frame(stats)

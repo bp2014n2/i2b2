@@ -5,8 +5,8 @@ source("../lib/style.r")
 costs_chart <- function(control, treated) {
 
   par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
+  cost_chart(treated, "Treatment Group")
   cost_chart(control, "Control Group")
-  cost_chart(treated, "Treaded Group")
 
 }
 

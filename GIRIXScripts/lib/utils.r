@@ -43,8 +43,8 @@ countCharOccurrences <- function(char, s) {
   return (nchar(s) - nchar(s2))
 }
 
-sort.data.frame <- function(data_frame, column) {
-  data_frame.sorted <- data_frame[order(-data_frame[,column]),]
+sort.data.frame <- function(data_frame, column, decreasing=FALSE) {
+  data_frame.sorted <- data_frame[order(data_frame[,column], decreasing=decreasing),]
   rownames(data_frame.sorted) <- NULL
   return(data_frame.sorted)
 }

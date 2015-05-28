@@ -188,15 +188,15 @@ exec <- function() {
 	patientset.c <- i2b2$crc$getPatients(patient_set=patientset.c.id)
 	patientset.t <- i2b2$crc$getPatients(patient_set=patientset.t.id)
 	if(nrow(patientset.c) == 0) {
-	    failScript('Control group is empty')
-	    return()
-  	}
+	  failScript('Control group is empty')
+	  return()
+  }
 	if(nrow(patientset.t) == 0) {
-	    failScript('Target group is empty')
-	    return()
-  	}
+	  failScript('Target group is empty')
+	  return()
+  }
   
-  	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
+  excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
 	patientset.c <<- patientset.c[!(patientset.c[,"patient_num"] %in% excludedPatients),]
 	patientset.t <<- patientset.t[!(patientset.t[,"patient_num"] %in% excludedPatients),]
 	rownames(patientset.c) <- 1:nrow(patientset.c)
@@ -223,12 +223,12 @@ exec <- function() {
 
 	print("outputting")
 	options(scipen=10)
-	treatmentMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	treatmentMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
-	controlMean <<- toString(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
-	controlMedian <<- toString(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+	treatmentMean <<- as.character(round(mean(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
+	treatmentMedian <<- as.character(round(median(probabilities[probabilities[,"target.vector"]==1,"probabilities"]),4))
+	controlMean <<- as.character(round(mean(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
+	controlMedian <<- as.character(round(median(probabilities[probabilities[,"target.vector"]==0,"probabilities"]),4))
 	scoreDifferences <<- abs(matched$score.treated - matched$score.control)
-	scoreDiffMean <<- toString(round(mean(scoreDifferences), 4))
+	scoreDiffMean <<- as.character(round(mean(scoreDifferences), 4))
 
 	stats["treatment group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==1,])
 	stats["control group patient count"] <- nrow(probabilities[probabilities[,"target.vector"]==0,])
@@ -240,17 +240,23 @@ exec <- function() {
 	colnames(validationParams) <- c("arithmetic mean of treatment scores", "median of treatment scores", "arithmetic mean of control scores", "median of control scores", 
 									"arithmetic mean of score differences")
   if(!is.null(matchedCosts)) {
-	matchedPatients <- data.frame(pnums.treated, round(matched$score.treated, 4), round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
-					pnums.control, round(matched$score.control, 4), round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2), round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2))
+  	matchedPatients <- data.frame(
+  	  as.character(round(scoreDifferences, 4)),
+      pnums.treated,
+  	  round(matched$score.treated, 4),
+  	  round(matchedCosts$pY[pnums.treated,"summe_aller_kosten"], 2),
+  	  round(matchedCosts$tY[pnums.treated,"summe_aller_kosten"], 2),
+  		pnums.control,
+  		round(matched$score.control, 4),
+  		round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2),
+  		round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2)
+    )
   }
 
-  	# sort according to score differences
-  	# to do: why are the entries in matchedPatients strings??
-  	matchedPatients <<- matchedPatients[order(scoreDifferences),]
-
-	colnames(matchedPatients) <- c("Treatment group p_num", "Score", "Costs year before", "Costs treatment year", 
-						  "Control group p_num", "Score", "Costs year before", "Costs treatment year")
-	rownames(matchedPatients) <- c()
+	colnames(matchedPatients) <- c("Score Difference", "Treatment group p_num", "Score Treatment", "Costs year before Treatment", "Costs treatment year Treatment", 
+						  "Control group p_num", "Score Control", "Costs year before Control", "Costs treatment year Control")
+	matchedPatients <- sort.data.frame(matchedPatients, which(colnames(matchedPatients) == 'Score Difference'))
+  matchedPatients <- apply(matchedPatients, 2, as.character)
 
 	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 
 													"patients, because they are in both experimental and control group.")

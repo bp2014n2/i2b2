@@ -141,7 +141,7 @@ exec <- function() {
   time.prediction.1 <- proc.time()
   time.prediction <- sum(c(time.prediction.1-time.prediction.0)[3])
     
-  prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == 'probability'))
+  prediction.sorted <- sort.data.frame(prediction, which(colnames(prediction) == 'probability'), decreasing=TRUE)
   prediction.sorted$probability <- prediction.sorted$probability * 100
     
   newdata.target.interval <- list(start=POSIXltToi2b2Date(as.Date(newdata.interval$start) + as.numeric(difftime(model.target.interval$start, model.interval$start))), end=POSIXltToi2b2Date(as.Date(newdata.interval$end) + as.numeric(difftime(model.target.interval$end, model.interval$end))))
@@ -155,7 +155,7 @@ exec <- function() {
     
   probabilities <- prediction.sorted$probability
   summary <- data.frame(c(max(probabilities), min(probabilities), mean(probabilities), median(probabilities)))
-  dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value')
+  dimnames(summary) <- list(c('Max', 'Min', 'Mean', 'Median'), 'Value (in %)')
     
   coefficients.top <- data.frame(head(sort(risk[[risk.type]]$coef(fit), TRUE), 5))
   rownames(coefficients.top) <- sapply(rownames(coefficients.top), function(x) getConceptName(x))

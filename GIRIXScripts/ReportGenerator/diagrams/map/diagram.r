@@ -42,6 +42,9 @@ map <- function(){
   color<-sample(1:7,length(map_data),replace=T)
 
   patient_data <- i2b2$crc$getPatientsWithPlz(model.patient_set)
+  if(nrow(patient_data) == 0) {
+    stop("Patient set empty!")
+  }
   patient_data$zip <- substring(patient_data$statecityzip_path, nchar(patient_data$statecityzip_path)-2, nchar(patient_data$statecityzip_path)-1)
 
   zip_data <- aggregate(x=patient_data$counts, by=list(patient_data$zip), FUN=sum)

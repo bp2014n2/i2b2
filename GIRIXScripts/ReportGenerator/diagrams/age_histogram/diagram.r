@@ -142,6 +142,9 @@ age_histogram_main <- function() {
   }
   # age_in_years_num is not set in database so calculate it
   patients$age_in_years_num = age(as.Date(patients$birth_date), Sys.Date())
+  if(nrow(patients) == 0) {
+    stop("Patient set empty!")
+  }
   # create the diagram
   hist_age_extended(patients)
 }

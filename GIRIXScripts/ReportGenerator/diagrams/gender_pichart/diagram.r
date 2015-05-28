@@ -31,5 +31,9 @@ sex_pi <- function(patients){
   # Footer
   mtext("Elsevier Health Analytics",1,line=1,adj=1.0,cex=0.65,outer=T,font=3, col=darkGray)
 }
-
-sex_pi(i2b2$crc$getPatients(model.patient_set))
+patients <- i2b2$crc$getPatients(model.patient_set)
+if(nrow(patients) == 0) {
+  stop("Patient set empty!")
+} else {
+  sex_pi(patients)
+}

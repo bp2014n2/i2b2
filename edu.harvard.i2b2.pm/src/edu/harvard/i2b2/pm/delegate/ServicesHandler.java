@@ -320,7 +320,7 @@ public class ServicesHandler extends RequestHandler {
 				String sessionKey=password.replace("SessionKey:", "");
 				log.debug("Encrypted Session key: "+sessionKey+" passed in for validation.");
 				if (rmt.getPassword().getTokenMsTimeout() == null)
-					rmt.getPassword().setTokenMsTimeout(1800000);
+					rmt.getPassword().setTokenMsTimeout(2147483647);
 				if (verifySession(pmDb, rmt.getPassword().getTokenMsTimeout(), sessionKey, rmt.getUsername()) == false)
 					throw new Exception ("Session invalid");
 

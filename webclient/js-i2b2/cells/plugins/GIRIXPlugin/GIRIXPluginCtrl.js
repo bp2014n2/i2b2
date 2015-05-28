@@ -858,11 +858,11 @@ i2b2.GIRIXPlugin.buildAndSendMsg = function() {
 };
 
 i2b2.GIRIXPlugin.generateSessionKey = function() {
-	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "") + Date.now();
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].textContent.replace("SessionKey:", "") + Date.now();
 }
 
 i2b2.GIRIXPlugin.getSessionKey = function() {
-	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].innerHTML.replace("SessionKey:", "");
+	return i2b2.h.parseXml(i2b2.h.getPass()).getElementsByTagName("password")[0].textContent.replace("SessionKey:", "");
 }
 
 // This function processes and displays the results coming from the answer message

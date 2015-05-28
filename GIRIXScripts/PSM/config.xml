@@ -22,32 +22,37 @@
 			<type>patient_set</type>
             </input>
 		<input>
-			<name>Treatment Quarter</name>
-			<description>Select the date of the treatment you want to evaluate.</description>
+			<name>Automatic, individual treatment date determination</name>
+			<description>Drag the specific treatment in here that all patients of the treatment group received</description>
+			<type>concept</type>
+		</input>            
+		<input>
+			<name>Treatment quarter</name>
+			<description>Select the date of the treatment you want to evaluate. (IMPORTANT: Will be used only for control group, if a concept is provided in "Automatic, individual treatment date determination"). !!Equals the kinda date to be observed!!</description>
 			<type>quarterOfYear</type>
 			<default>2009</default>			
 		</input>
-                <input>
+        <input>
 			<name>Exact matching</name>
 			<description>Select if a feature should be exact for matching</description>
 			<type>checkboxes</type>
-                        <checkboxes>
-                          <checkbox>
-                            <name>Age</name>
-                            <default></default>
-                          </checkbox>
-                          <checkbox>
-                            <name>Gender</name>
-                            <default>selected</default>
-                          </checkbox>
-                        </checkboxes>
+		        <checkboxes>
+		            <checkbox>
+		                <name>Age</name>
+		                <default></default>
+		            </checkbox>
+		            <checkbox>
+		                <name>Gender</name>
+		                <default>selected</default>
+		            </checkbox>
+		        </checkboxes>
 		</input>
-                <input>
+        <input>
 			<name>Feature Settings</name>
 			<description></description>
 			<type>headline</type>
 		</input>
-                <input>
+        <input>
 			<name>Feature Selection</name>
 			<description>Select the features you want to use for score calculation</description>
 			<type>checkboxes</type>

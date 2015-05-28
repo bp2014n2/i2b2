@@ -119,11 +119,11 @@
 		</output>
 
 		<output>
-			<name>Averaged costs per quarter (treatment group)</name>
+			<name>Averaged costs per Year (treatment group)</name>
 			<description></description>
 		</output>
 		<output>
-			<name>Averaged costs per quarter (control group)</name>
+			<name>Averaged costs per Year (control group)</name>
 			<description></description>
 		</output>
 

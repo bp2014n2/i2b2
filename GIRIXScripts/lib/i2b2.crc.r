@@ -138,7 +138,7 @@ i2b2$crc$getPatientSetDescription <- function(patient_set, silent=T) {
 #' @return list of patients with patient_num, sex_cd, birth_date 
 #' @export
 #' @examples
-#' getPatients(patient_set=-1, limit=100)
+#' getPatientsWithLimit(patient_set=-1, limit=100)
 i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100, silent=T) {
   queries.patients <- paste("SELECT patient_num, sex_cd, birth_date
     FROM i2b2demodata.patient_dimension
@@ -163,7 +163,7 @@ i2b2$crc$getPatientsWithLimit <- function(patient_set=-1, limit=100, silent=T) {
 #' @export
 #' @examples
 #' getObservationsWithLimit(list(start=i2b2DateToPOSIXlt("01/01/2009"), end=i2b2DateToPOSIXlt("01/01/2010")), 
-#'   concepts=c("\\ICD\\"), level=3, patients_limit=1000)
+#'   concepts=c("ICD:", "ATC:"), level=3, patients_limit=1000)
 i2b2$crc$getObservationsWithLimit <- function(interval, concepts=c(), level=3, patients_limit, silent=T) {
   queries.observations <- "SELECT patient_num, concept_cd_sub, count(*) AS counts
   FROM (

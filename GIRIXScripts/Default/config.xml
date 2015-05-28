@@ -10,6 +10,18 @@
 		<numberOfPatientSets>0</numberOfPatientSets>
 		<numberOfConcepts>0</numberOfConcepts>
 	</settings>
+	<additionalInputs>
+		<input>
+			<name>Random concept</name>
+			<description></description>
+			<type>concept</type>
+		</input>
+		<input>
+			<name>Random patient set</name>
+			<description>bla</description>
+			<type>patient_set</type>
+		</input>
+	</additionalInputs>
 	<customOutputs>
 		<output>
 			<name>foo</name>

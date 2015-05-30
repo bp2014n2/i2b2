@@ -296,11 +296,15 @@ exec <- function() {
   matchedPatients <<- apply(matchedPatients, 2, as.character)
 
 
-	matchDesc <<-  paste("WARNING: Left out", length(excludedPatients), 
-													" patients, because they are in both experimental and control group.")
-	matchDesc <<- paste(matchDesc, "\nWARNING: Left out ", length(excludedPatientsOfTGroup), " patients of XX patients in 
-						treatment group, because they actually did not receive the treatment")
-
+	matchDesc <- ""
+ 	if (length(excludedPatients) > 0) {
+		matchDesc <<-  paste(matchDesc, "WARNING: Left out", length(excludedPatients), 
+							" patients, because they are in both experimental and control group.")		 		
+ 	}
+	if (length(excludedPatientsOfTGroup)) {
+		matchDesc <<- paste(matchDesc, "\nWARNING: Left out ", length(excludedPatientsOfTGroup), " patients of XX patients in 
+								treatment group, because they actually did not receive the treatment")
+	}	
 	print(matchedPatients[1:2,])
 	print(validationParams)
 

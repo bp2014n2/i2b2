@@ -90,7 +90,7 @@ i2b2$crc$getObservationsDependingOnTreatment <- function(treatment.path, concept
       FROM i2b2demodata.qt_patient_set_collection
       WHERE result_instance_id = %d))) obs
       INNER JOIN p_date ON obs.patient_num = p_date.patient_num
-      AND (start_date >= p_date.latest_tdate - interval '%d years' AND start_date <= p_date.latest_tdate)) observations
+      AND (start_date >= p_date.latest_tdate - interval '%d years' AND start_date < p_date.latest_tdate)) observations
     GROUP BY patient_num, concept_cd_sub"
 
 #  treatment.path <<- paste0(treatment.path, "%%") 
@@ -135,7 +135,7 @@ i2b2$crc$getObservationsDependingOnTreatmentForConcept <- function(treatment.pat
     ) obs
     INNER JOIN p_date ON obs.patient_num = p_date.patient_num
     AND (
-      start_date >= p_date.latest_tdate - interval '%d years' AND start_date <= p_date.latest_tdate
+      start_date >= p_date.latest_tdate - interval '%d years' AND start_date < p_date.latest_tdate
     ) 
     GROUP BY obs.patient_num"
 

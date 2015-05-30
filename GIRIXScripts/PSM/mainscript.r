@@ -103,15 +103,17 @@ splitByAge <- function(features) {
 }
 
 ## todo: !!RELIES ON GLOBAL VARIABLES!!
-queryCosts <- function(patientset.t.id, patientset.c.id) {
+queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3, treatment.path) {
 	print("querying costs") #debug  
 	treatmentDate <- getDate(treatmentYear, treatmentQuarter)
-	costs <<- i2b2$crc$getAllYearCosts(c(patientset.t.id, patientset.c.id))
-	timingTag("costs db query")
-  
-	costs.treated <- costs[costs[,"patient_num"] %in% pnums.treated,]
-	costs.control <- costs[costs[,"patient_num"] %in% pnums.control,]
 
+	costs.treated <<- i2b2$crc$getAllYearCostsDependingOnTreatment(patientSet.id=patientset.t.id, 
+						treatment.path=treatment.path, intervalLength.Years=intervalLength.Years)
+	# todo: interval for control group as well (not from beginning like now)
+	costs.control <<- i2b2$crc$getAllYearCosts(patientset.c.id)
+	timingTag("costs db queries")
+
+	costs <<- rbind(costs.treated, costs.control)
 	costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
 	costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
 	costs[,"datum"] <- as.Date(costs[,"datum"])
@@ -253,7 +255,8 @@ exec <- function() {
 	pnums.treated <<- matched$pnum.treated
 	pnums.control <<- matched$pnum.control  # contains together with pnums.treated the matching information(order matters)
 
-	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id)
+	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id, intervalLength.Years=3,
+						treatment.path=treatment.path)
 
 	print("outputting")
 	options(scipen=10)

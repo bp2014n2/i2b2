@@ -406,3 +406,30 @@ i2b2$crc$getAllYearCosts <- function(patient_set_ids, silent=T) {
   result <- executeCRCQuery(query, patient_condition, silent=silent)
   return(result)
 }
+
+i2b2$crc$getAllYearCostsDependingOnTreatment <- function(patientSet.id, treatment.path, intervalLength.Years, silent=T) {
+  # returns summe_aller_kosten for each patient in patient_set for every year
+  # to do: integrate to lib dataPrep.r/data access <- peter (y...? <- marc)
+
+  query <- "SELECT tdates.patient_num, datum, summe_aller_kosten, zahnarztkosten, arztkosten, apothekenkosten, krankenhauskosten, hilfsmittel, heilmittel, dialysesachkosten, krankengeld
+  FROM (
+    SELECT patient_num, MIN(start_date) AS latest_tdate 
+    FROM i2b2demodata.observation_fact 
+    WHERE concept_cd IN ( 
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE concept_path LIKE '%s%%')
+    AND (TRUE = FALSE
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
+    GROUP BY patient_num) tdates
+  INNER JOIN i2b2demodata.AVK_FDB_T_Leistungskosten
+  ON (tdates.patient_num = i2b2demodata.AVK_FDB_T_Leistungskosten.patient_num
+  AND (datum >= tdates.latest_tdate - interval '%d years' AND datum < tdates.latest_tdate))"
+
+  result <- executeCRCQuery(query, escape(treatment.path), patientSet.id, intervalLength.Years, silent=silent)
+  return(result)
+}
+

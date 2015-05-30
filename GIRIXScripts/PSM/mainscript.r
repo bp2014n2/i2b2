@@ -204,14 +204,6 @@ exec <- function() {
     patientset.t.forConcept <<- i2b2$crc$getPatientsForConcept(patient_set=patientset.t.id, concept.path=treatment.path)
   }
   patientset.t  <<- i2b2$crc$getPatients(patient_set=patientset.t.id)
-	if(nrow(patientset.c) == 0) {
-	    failScript(errorMessage='Control group is empty')
-	    return()
-  	}
-	if(length(patientset.t.forConcept) == 0) {
-  	  failScript(errorMessage='Treatment group is empty')
-	    return()
-  }
 	
 	if (treatment.path != "") {
     excludedPatientsOfTGroup <<- patientset.t[!(patientset.t[,"patient_num"] %in% patientset.t.forConcept),"patient_num"]
@@ -236,8 +228,17 @@ exec <- function() {
 	rownames(patientset.t) <- NULL
 	featureMatrix.t <<-	featureMatrix.t[!(rownames(featureMatrix.t) %in% excludedPatients),]
 	featureMatrix.c <<- featureMatrix.c[!(rownames(featureMatrix.c) %in% excludedPatients),]
+	
+	if(nrow(patientset.c) == 0) {
+	  failScript(errorMessage='Control group is empty')
+	  return()
+	}
+	if(nrow(patientset.t) == 0) {
+	  failScript(errorMessage='Treatment group is empty')
+	  return()
+	}
 
-  print("Matching")
+	print("Matching")
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
@@ -254,6 +255,16 @@ exec <- function() {
 	print("preparing pnums") #debug
 	pnums.treated <<- matched$pnum.treated
 	pnums.control <<- matched$pnum.control  # contains together with pnums.treated the matching information(order matters)
+	
+	if(length(pnums.control[duplicated(pnums.control)]) != 0) {
+	  failScript('Duplicates in Control Group')
+	  return()
+	}
+	
+	if(length(intersect(pnums.treated, pnums.control)) != 0) {
+	  failScript('Patients in Control and Treatment Group')
+	  return()
+	}
 
 	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id, intervalLength.Years=3,
 						treatment.path=treatment.path)
@@ -298,23 +309,32 @@ exec <- function() {
 	matchedPatients <- sort.data.frame(matchedPatients, which(colnames(matchedPatients) == 'Score Difference'))
   matchedPatients <<- apply(matchedPatients, 2, as.character)
 
+  matchDesc <<- c()
+  
+  if(length(excludedPatients) != 0) {
+    matchDesc <<- c(matchDesc, paste("WARNING: Left out", length(excludedPatients), 
+                       "patients, because they are in both experimental and control group.\n"))
+  }
 
-	matchDesc <- ""
- 	if (length(excludedPatients) > 0) {
-		matchDesc <<-  paste(matchDesc, "WARNING: Left out", length(excludedPatients), 
-							" patients, because they are in both experimental and control group.")		 		
- 	}
-	if (length(excludedPatientsOfTGroup)) {
-		matchDesc <<- paste(matchDesc, "\nWARNING: Left out ", length(excludedPatientsOfTGroup), " patients of XX patients in 
-								treatment group, because they actually did not receive the treatment")
-	}	
+  if(nrow(patientset.c) < 2*nrow(patientset.t)) {
+    matchDesc <<- c(matchDesc, 'WARNING: Control group should to be at least twice as large as treatment group')
+  }
+  
+	if(treatment.path != "" && length(excludedPatientsOfTGroup) != 0) {
+    matchDesc <<- c(matchDesc, paste("WARNING: Left out ", length(excludedPatientsOfTGroup), " patients of XX patients in 
+						treatment group, because they actually did not receive the treatment\n"))
+	}
+
 	print(matchedPatients[1:2,])
 	print(validationParams)
 
 	costs_chart(matchedCosts$controlPerYear, matchedCosts$treatedPerYear)
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
-	girix.output[["Matching description"]] <<- matchDesc
+	if(length(matchDesc) == 0) {
+	  matchDesc <- c("No additional Messages")
+	}
+	girix.output[["Matching description"]] <<- data.frame(Messages=matchDesc)
 	girix.output[["Validation Parameters"]] <<- validationParams
 
 	girix.output[["Averaged costs per Year (treatment group)"]] <<- matchedCosts$treatedPerYear

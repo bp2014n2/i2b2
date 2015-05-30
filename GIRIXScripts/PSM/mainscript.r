@@ -64,7 +64,7 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
 
 primitivePSM <- function(patients) {
   matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=FALSE, 
-  				   ties=FALSE, version="fast", replace=FALSE) # params excluded due to no matches: caliper=0.2
+  				   ties=FALSE, version="fast", replace=FALSE, caliper=0.2)
   timingTag("matching")
   if(!is.list(matched)) {
     return(NULL)

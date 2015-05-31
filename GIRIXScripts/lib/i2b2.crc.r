@@ -429,19 +429,20 @@ i2b2$crc$getAllYearCostsDependingOnTreatment <- function(patientSet.id, treatmen
   ON (tdates.patient_num = i2b2demodata.AVK_FDB_T_Leistungskosten.patient_num
   AND (datum >= tdates.latest_tdate - interval '%d years' AND datum < tdates.latest_tdate + interval '%d years'))"
 
-  result <- executeCRCQuery(query, escape(treatment.path), patientSet.id, years.before, years.after, silent=silent)
+  result <- executeCRCQuery(query, escape(treatment.path), patientSet.id, yearsBefore, yearsAfter, silent=silent)
   return(result)
 }
 
-i2b2$crc$getLastCostQuarter <- function(silent=T)
+i2b2$crc$getLastCostQuarter <- function(silent=T) {
   query <- "SELECT MAX(datum)
   FROM i2b2demodata.AVK_FDB_T_Leistungskosten"
 
   return(executeCRCQuery(query, silent=silent))
+}
 
-i2b2$crc$getFirstCostQuarter <- function(silent=T)
+i2b2$crc$getFirstCostQuarter <- function(silent=T) {
   query <- "SELECT MIN(datum)
   FROM i2b2demodata.AVK_FDB_T_Leistungskosten"
 
   return(executeCRCQuery(query, silent=silent))
-
+}

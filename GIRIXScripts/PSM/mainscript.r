@@ -103,20 +103,74 @@ splitByAge <- function(features) {
 }
 
 ## todo: !!RELIES ON GLOBAL VARIABLES!!
-queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3, treatment.path) {
+queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter, treatment.path="", matchedNums) {
 	print("querying costs") #debug  
 	treatmentDate <- getDate(treatmentYear, treatmentQuarter)
-
-	costs.treated <<- i2b2$crc$getAllYearCostsDependingOnTreatment(patientSet.id=patientset.t.id, 
-						treatment.path=treatment.path, intervalLength.Years=intervalLength.Years)
+  
+  if (treatment.path == "") {
+    costs.treated <<- i2b2$crc$getAllYearCosts(patientset.t.id)
+    costs.treated <- costs.treated[costs.treated[,"patient_num"] %in% matchedNums[,1],]
+  } else {
+    costs.treated <<- i2b2$crc$getAllYearCostsDependingOnTreatment(patientSet.id=patientset.t.id, 
+                        treatment.path=treatment.path, yearsBefore=yearsBefore, yearsAfter=yearsAfter)
+    costs.treated <- costs.treated[costs.treated[,"patient_num"] %in% matchedNums[,1],]
+    patientNumIndices <- match(costs.treated[,"patient_num"],matchedNums[,1])
+    costQuartersWithMatchedNums <- cbind(costs.treated[,"patient_num"],matchedNums[patientNumIndices,2],costs.treated[,"datum"])
+    colnames(costQuartersWithMatchedNums) <- c("patient_num_t","patient_num_c","datum")
+  }
+	
 	# todo: interval for control group as well (not from beginning like now)
 	costs.control <<- i2b2$crc$getAllYearCosts(patientset.c.id)
+	costs.control <- costs.control[costs.control[,"patient_num"] %in% matchedNums[,2],]
+  
+  if (treatment.path == "") {
+    
+  } else {
+    print(paste("unfiltered costs.control has",nrow(costs.control),"rows"))
+    costs.control <- costs.control[paste(costs.control[,"patient_num"],costs.control[,"datum"]) %in% paste(costQuartersWithMatchedNums[,"patient_num_c"],costQuartersWithMatchedNums[,"datum"]),]
+    print(paste("filtered costs.control has",nrow(costs.control),"rows"))
+    totalQuarters <- (yearsBefore + yearsAfter) * 4
+    lastPatientNum <- 0
+    i <- 1
+    costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
+    minDate <- as.Date(i2b2$crc$getFirstCostQuarter()[1,1])
+    quarterNums <- c()
+    for(pnum in costs.treated[,"patient_num"]) {
+      if (pnum != lastPatientNum) { #is there a new patient num?
+        lastPatientNum <- pnum
+        quartersPerPnum <- nrow(costs.treated[costs.treated[,"patient_num"]==pnum,])
+        if (quartersPerPnum != totalQuarters) {
+          if (costs.treated[i,"datum"] == minDate) { #is first quarter of that patient the earliest possible one? -> set first quarterNum accordingly
+            quarterNum <- -(yearsBefore * 4) + (totalQuarters - quartersPerPnum)
+          } else {
+            quarterNum <- -(yearsBefore * 4)
+          }
+        } else {
+          quarterNum <- -(yearsBefore * 4)
+        }
+      }
+      quarterNums <- append(quarterNums,quarterNum)
+      quarterNum <- quarterNum + 1
+      i <- i + 1
+    }
+  }
 	timingTag("costs db queries")
+	
+	print(paste("i is",i))
+	print(paste("quarterNums has",nrow(quarterNums),"rows"))
+	print(paste("costs.treated has",nrow(costs.treated),"rows"))
+	print(paste("costs.control has",nrow(costs.control),"rows"))
+  
+	costs.treated[,"datum"] <- quarterNums
+	costs.control[,"datum"] <- quarterNums
 
 	costs <<- rbind(costs.treated, costs.control)
-	costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
-	costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
-	costs[,"datum"] <- as.Date(costs[,"datum"])
+  
+  if (treatment.path == "") {
+    costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
+    costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
+    costs[,"datum"] <- as.Date(costs[,"datum"])
+  }
 
 	costsPerQuater.treated <- aggregate(. ~ datum, data=costs.treated, mean)
 	costsPerQuater.control <- aggregate(. ~ datum, data=costs.control, mean)
@@ -125,10 +179,16 @@ queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3,
 	costsPerQuater.treated$patient_num <- NULL
 	costsPerQuater.control$patient_num <- NULL
 	costsPerQuater$patient_num <- NULL
-  
-	costsPerQuater.treated[,"datum"] <- getYear(costsPerQuater.treated[,"datum"])
-	costsPerQuater.control[,"datum"] <- getYear(costsPerQuater.control[,"datum"])
-	costsPerQuater[,"datum"] <- getYear(costsPerQuater[,"datum"])
+	
+	if (treatment.path == "") {
+	  costsPerQuater.treated[,"datum"] <- getYear(costsPerQuater.treated[,"datum"])
+	  costsPerQuater.control[,"datum"] <- getYear(costsPerQuater.control[,"datum"])
+	  costsPerQuater[,"datum"] <- getYear(costsPerQuater[,"datum"])
+	} else {
+	  costsPerQuater.treated[,"datum"] <- trunc((costsPerQuater.treated[,"datum"]+16)/4) - 4
+	  costsPerQuater.control[,"datum"] <- trunc((costsPerQuater.control[,"datum"]+16)/4) - 4
+	  costsPerQuater[,"datum"] <- trunc((costsPerQuater[,"datum"]+16)/4) - 4
+	}
   
 	costsPerYear.treated <- aggregate(. ~ datum, data=costsPerQuater.treated, sum)
 	costsPerYear.control <- aggregate(. ~ datum, data=costsPerQuater.control, sum)
@@ -146,14 +206,18 @@ queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3,
 	mtext("Control Group",adj=1,padj=2,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 	
 	matchedCosts <- list()
-
-	yearBeforeTreatmentDate <- getDate(as.integer(treatmentYear) - 1, treatmentQuarter)
-	yearAfterTreatmentDate <- getDate(as.integer(treatmentYear) + 1, treatmentQuarter)
+	if (treatment.path == "") {
+	  yearBeforeTreatmentDate <- getDate(as.integer(treatmentYear) - 1, treatmentQuarter)
+	  yearAfterTreatmentDate <- getDate(as.integer(treatmentYear) + 1, treatmentQuarter)
   
-	matchedCosts$pY <- costs[yearBeforeTreatmentDate <= costs[, "datum"] & costs[, "datum"] < treatmentDate,]
-	matchedCosts$tY <- costs[treatmentDate <= costs[, "datum"] & costs[, "datum"] < yearAfterTreatmentDate,]
-	if(nrow(matchedCosts$pY) == 0 || nrow(matchedCosts$tY) == 0) {
-	  return(NULL)
+	  matchedCosts$pY <- costs[yearBeforeTreatmentDate <= costs[, "datum"] & costs[, "datum"] < treatmentDate,]
+	  matchedCosts$tY <- costs[treatmentDate <= costs[, "datum"] & costs[, "datum"] < yearAfterTreatmentDate,]
+	  if(nrow(matchedCosts$pY) == 0 || nrow(matchedCosts$tY) == 0) {
+	    return(NULL)
+	  }
+	} else {
+	  matchedCosts$pY <- costs[costs[, "datum"] == -1,]
+	  matchedCosts$tY <- costs[costs[, "datum"] == 0,]
 	}
 	matchedCosts$pY <- aggregate(summe_aller_kosten ~ patient_num, data = matchedCosts$pY, sum)
 	row.names(matchedCosts$pY) <- matchedCosts$pY[,"patient_num"]
@@ -167,13 +231,16 @@ queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3,
 
 exec <- function() {
 	# girix input processing
+  yearsBefore <- 1
+  yearsAfter <- 3
 	patientset.t.id <- strtoi(girix.input['Treatment group'])
 	patientset.c.id <- strtoi(girix.input['Control group'])
 	treatment.path <<- girix.input['Automatic, individual treatment date determination']
 	treatmentDate <- eval(parse(text=girix.input['Treatment quarter']))
-	treatmentYear <<- treatmentDate["year"]
+	treatmentYear <<- as.integer(treatmentDate["year"])
 	treatmentQuarter <<- treatmentDate["quarter"]
-	interval <- list(start=i2b2DateToPOSIXlt('01/01/2000'), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
+	intervalLength.Years <<- 3
+  interval <- list(start=as.Date(getDate(treatmentYear-intervalLength.Years,treatmentQuarter)), end=as.Date(getDate(treatmentYear,treatmentQuarter)))
 	features <- eval(parse(text=girix.input['Feature Selection']))
 	splitBy <- eval(parse(text=girix.input['Exact matching']))
 	level <- strtoi(girix.input['Feature level'])
@@ -214,7 +281,7 @@ exec <- function() {
 	if (treatment.path == "") {
 		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	} else {
-		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, treatment.path=treatment.path, level=level, patients=patientset.t, timeOfObservation=interval$end,  
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = intervalLength.Years, treatment.path=treatment.path, level=level, patients=patientset.t, timeOfObservation=interval$end,  
 																	  patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	}
 	timingTag("featureMatrix.t")
@@ -266,8 +333,8 @@ exec <- function() {
 	  return()
 	}
 
-	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id, intervalLength.Years=3,
-						treatment.path=treatment.path)
+	matchedCosts <<- queryCosts(patientset.c.id=patientset.c.id,patientset.t.id=patientset.t.id, yearsBefore=yearsBefore, yearsAfter=yearsAfter,
+						treatment.path=treatment.path, matchedNums=cbind(pnums.treated,pnums.control))
 
 	print("outputting")
 	options(scipen=10)
@@ -302,6 +369,7 @@ exec <- function() {
   		round(matchedCosts$pY[pnums.control,"summe_aller_kosten"], 2),
   		round(matchedCosts$tY[pnums.control,"summe_aller_kosten"], 2)
     )
+    matchedPatients <- na.omit(matchedPatients) #should be left out later
   }
 
 	colnames(matchedPatients) <- c("Score Difference", "Treatment group p_num", "Score Treatment", "Costs year before Treatment", "Costs treatment year Treatment", 

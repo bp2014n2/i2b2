@@ -59,6 +59,33 @@ i2b2$crc$getObservations <- function(interval, concepts=c(), level=3, patient_se
   return(executeCRCQuery(queries.observations, level + 4, concept_condition, interval$start, interval$end, patient_set < 0, patient_set, silent=silent))
 }
 
+#' 
+#' Get the first date of occurence for a given concept and patient_set
+#' @name getDateOfFirstOccurence
+#' @param concept.path concept for which date of first_occurence is searched for
+#' @param patient_set patient_set which is used, negative values mean all patients
+#' @param silent boolean, print query to console
+#' @return dataframe with patient_num and first_occurence
+#' @export
+#' @examples
+#' getDateOfFirstOccurence('\\ICD\\M\\')
+#' getDateOfFirstOccurence('\\ICD\\M\\', patient_set=1)
+i2b2$crc$getDateOfFirstOccurence <- function(concept.path, patient_set=-1, silent=T) {
+  query <- "SELECT patient_num, MIN(start_date) AS first_occurence 
+    FROM i2b2demodata.observation_fact 
+    WHERE concept_cd IN ( 
+      SELECT concept_cd
+      FROM i2b2demodata.concept_dimension
+      WHERE concept_path LIKE '%s%%')
+    AND (TRUE = %s
+    OR patient_num IN (
+      SELECT patient_num
+      FROM i2b2demodata.qt_patient_set_collection
+      WHERE result_instance_id = %d))
+    GROUP BY patient_num"
+  return(executeCRCQuery(query, escape(concept.path), patient_set < 0, patient_set, silent=silent))
+}
+
 i2b2$crc$getObservationsDependingOnTreatment <- function(treatment.path, concepts=c(), intervalLength.Years = 3, level=3, patient_set=-1) {
   queries.observations <- "WITH p_date AS (SELECT patient_num, latest_tdate 
   FROM ( 

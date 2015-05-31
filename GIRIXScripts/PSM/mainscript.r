@@ -214,7 +214,7 @@ exec <- function() {
 	if (treatment.path == "") {
 		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	} else {
-		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, treatment.path=treatment.path, level=level, patients=patientset.t, timeOfObservation=interval$end,  
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = 3, treatment.path=treatment.path, level=level, patients=patientset.t,  
 																	  patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	}
 	timingTag("featureMatrix.t")

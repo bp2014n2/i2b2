@@ -138,7 +138,8 @@ queryCosts <- function(patientset.t.id, patientset.c.id, intervalLength.Years=3,
 	costsToPlot.c <- costsPerYear.control[,c("datum", "summe_aller_kosten")]
 
 	ymax = max(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"])
-  plot(costsToPlot.t,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n",ylim=c(0,ymax))
+	ymin = min(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"], 0)
+  plot(costsToPlot.t,type="l",xlab="Jahr",ylab="Kosten",bty="n",ylim=c(ymin,ymax))
 	lines(costsToPlot.c,type="l",col=accentColor[2])
 	abline(v=as.Date(treatmentDate), lwd=1.25, col=darkGray)
 	mtext("Treatment Date", at=as.Date(treatmentDate),adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)

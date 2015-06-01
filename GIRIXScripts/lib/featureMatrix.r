@@ -80,7 +80,11 @@ generateTargetVector <- function(interval, patients, patient_set=-1, concept.pat
   time.start <- proc.time()
   
   observations <- i2b2$crc$getObservationsForConcept(concept.path=concept.path, interval=interval, patient_set=patient_set)
-  observations$concept_cd_sub <- 'target'
+  if(nrow(observations) > 0) {
+    observations$concept_cd_sub <- 'target'
+  } else {
+    return(rep(0, times=nrow(patients)))
+  }
   
   time.end <- proc.time()
   

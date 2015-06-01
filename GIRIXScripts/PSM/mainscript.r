@@ -196,8 +196,14 @@ queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter
 	ymin = min(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"], 0)
   plot(costsToPlot.t,type="l",xlab="Jahr",ylab="Kosten",bty="n",ylim=c(ymin,ymax))
 	lines(costsToPlot.c,type="l",col=accentColor[2])
-	abline(v=as.Date(treatmentDate), lwd=1.25, col=darkGray)
-	mtext("Treatment Date", at=as.Date(treatmentDate),adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+	if (treatment.path == "") {
+	  abline(v=as.Date(treatmentDate), lwd=1.25, col=darkGray)
+	  mtext("Treatment Date", at=as.Date(treatmentDate),adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+	} else {
+	  abline(v=0, lwd=1.25, col=darkGray)
+	  mtext("Treatment Date", at=0,adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
+	}
+	
 	mtext("Treatment Group",adj=1,xpd=TRUE,cex=0.65,family="Lato",font=4,col=baseColor)
 	mtext("Control Group",adj=1,padj=2,xpd=TRUE,cex=0.65,family="Lato",font=4,col=accentColor[2])
 	
@@ -227,7 +233,7 @@ queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter
 
 exec <- function() {
 	# girix input processing
-  yearsBefore <- 1
+  yearsBefore <- 1 # observation range may never be broader than cost data range
   yearsAfter <- 3
 	patientset.t.id <- strtoi(girix.input['Treatment group'])
 	patientset.c.id <- strtoi(girix.input['Control group'])

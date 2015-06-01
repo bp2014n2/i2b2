@@ -2,33 +2,45 @@ library(plotrix)
 source("../lib/ColorPlateGenerator.r")
 source("../lib/style.r")
 
-costs_chart <- function(control, treated) {
+costs_chart <- function(control, treated,treatmentProvided=F) {
 
-  par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
+  control <- control[match(names(control), names(treated))]
+  binded <- rbind(control, treated)
+  binded$datum <- NULL
+  binded$summe_aller_kosten <- NULL
+  sorting <- order(sapply(binded, var))
+  #par(mai=c(1.2,1.2,1.2,1.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
   ymax <- max(treated$summe_aller_kosten, control$summe_aller_kosten)
+  ymin <- min(treated$summe_aller_kosten, control$summe_aller_kosten, 0)
   
-  cost_chart(treated, "Treatment Group", ymax)
-  cost_chart(control, "Control Group", ymax)
+  cost_chart(treated, "Treatment Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
+  cost_chart(control, "Control Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
 
 }
 
-cost_chart <- function(group, name, ymax) {
-  par(mai=c(0.2,0.2,0.2,0.2),omi=c(0.2,0.2,0.2,0.2),las=1, col="black")
+cost_chart <- function(group, name, ylim, sorting, treatmentProvided) {
+  op <- par(col="black")
 
   colors <- rev(tetradicColors(baseColor, 8))
-
-  years <- group$datum
+  p.col <<- colors
+  if (treatmentProvided) {
+    years <- group$datum
+  } else {
+    years <- format(group$datum, "%Y")
+  }
   total <- group$summe_aller_kosten
-
-  order(sapply(group, var))
+  p.years <<- years
+  p.ylim <<- ylim
 
   group$datum <- NULL
   group$summe_aller_kosten <- NULL
 
-  group <- group[order(sapply(group, var))]
+  group <- group[sorting]
+  p.group <<- group
 
-  stackpoly(group, main="",xaxlab=rep("", nrow(group)),border="white", stack=TRUE, axis2=F, col=colors, ylim=c(0,ymax))
+  stackpoly(group, main="",xaxlab=years,border="white", stack=TRUE, axis2=F, col=colors, ylim=ylim)
 
   legend("topright", name)
-  legend("topleft", rev(names(group)), cex=0.95,border=F,bty="n",fill=colors)
+  legend("topleft", rev(names(group)), cex=0.95,border=F,bty="n",fill=rev(colors))
+  par(op)
 }

@@ -37,7 +37,7 @@ generateFeatureMatrix <- function(interval, patients, patient_set=-1, features, 
   return(feature_matrix)
 }
 
-generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, timeOfObservation, patients, patient_set=-1, features, filter, level=3, treatment.path, addFeatures=c()) {
+generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, patients, patient_set=-1, features, filter, level=3, treatment.path, addFeatures=c()) {
   
   time.start <- proc.time()
 
@@ -60,13 +60,17 @@ generateFeatureMatrixDependingOnTreatment <- function(intervalLength.Years = 3, 
 
   #observations <<- observations[observations[,"patient_num"] %in% patients,]
   #rownames(observations) <- 1:nrow(observations)
-  
+  first_occurences <- i2b2$crc$getDateOfFirstOccurence(treatment.path, patient_set=patient_set)
+  patients$birth_date <- as.Date(patients$birth_date)
+  first_occurences$first_occurence <- as.Date(first_occurences$first_occurence)
+  patients <- merge(patients, first_occurences)
   time.end <- proc.time()
   
   time.query <<- time.query + sum(c(time.end-time.start)[3])
   
   feature_matrix <- generateObservationMatrix(observations, features, patients$patient_num)
-  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(as.Date(patients$birth_date), timeOfObservation))
+  feature_matrix <- cBind(feature_matrix, sex=strtoi(patients$sex_cd), age=age(patients$birth_date, patients$first_occurence))
+  
   return(feature_matrix)
 }
 

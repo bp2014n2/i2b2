@@ -123,9 +123,7 @@ queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter
 	costs.control <<- i2b2$crc$getAllYearCosts(patientset.c.id)
 	costs.control <- costs.control[costs.control[,"patient_num"] %in% matchedNums[,2],]
   
-  if (treatment.path == "") {
-    
-  } else {
+  if (treatment.path != "") {
     print(paste("unfiltered costs.control has",nrow(costs.control),"rows"))
     costs.control <- costs.control[paste(costs.control[,"patient_num"],costs.control[,"datum"]) %in% paste(costQuartersWithMatchedNums[,"patient_num_c"],costQuartersWithMatchedNums[,"datum"]),]
     print(paste("filtered costs.control has",nrow(costs.control),"rows"))
@@ -153,24 +151,21 @@ queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter
       quarterNum <- quarterNum + 1
       i <- i + 1
     }
+    print(paste("i is",i))
+    print(paste("quarterNums has",nrow(quarterNums),"rows"))
+    print(paste("costs.treated has",nrow(costs.treated),"rows"))
+    print(paste("costs.control has",nrow(costs.control),"rows"))
   }
 	timingTag("costs db queries")
-	
-	print(paste("i is",i))
-	print(paste("quarterNums has",nrow(quarterNums),"rows"))
-	print(paste("costs.treated has",nrow(costs.treated),"rows"))
-	print(paste("costs.control has",nrow(costs.control),"rows"))
-  
-	costs.treated[,"datum"] <- quarterNums
-	costs.control[,"datum"] <- quarterNums
-
-	costs <<- rbind(costs.treated, costs.control)
   
   if (treatment.path == "") {
     costs.treated[,"datum"] <- as.Date(costs.treated[,"datum"])
     costs.control[,"datum"] <- as.Date(costs.control[,"datum"])
-    costs[,"datum"] <- as.Date(costs[,"datum"])
+  } else {
+    costs.treated[,"datum"] <- quarterNums
+    costs.control[,"datum"] <- quarterNums
   }
+	costs <<- rbind(costs.treated, costs.control)
 
 	costsPerQuater.treated <- aggregate(. ~ datum, data=costs.treated, mean)
 	costsPerQuater.control <- aggregate(. ~ datum, data=costs.control, mean)
@@ -198,7 +193,8 @@ queryCosts <- function(patientset.t.id, patientset.c.id, yearsBefore, yearsAfter
 	costsToPlot.c <- costsPerYear.control[,c("datum", "summe_aller_kosten")]
 
 	ymax = max(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"])
-  plot(costsToPlot.t,type="l",xlab="Quartal/Jahr",ylab="Kosten",bty="n",ylim=c(0,ymax))
+	ymin = min(costsToPlot.c[,"summe_aller_kosten"],costsToPlot.t[,"summe_aller_kosten"], 0)
+  plot(costsToPlot.t,type="l",xlab="Jahr",ylab="Kosten",bty="n",ylim=c(ymin,ymax))
 	lines(costsToPlot.c,type="l",col=accentColor[2])
 	abline(v=as.Date(treatmentDate), lwd=1.25, col=darkGray)
 	mtext("Treatment Date", at=as.Date(treatmentDate),adj=0.5,xpd=TRUE,cex=0.65,family="Lato",font=4,col=darkGray)
@@ -281,7 +277,7 @@ exec <- function() {
 	if (treatment.path == "") {
 		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	} else {
-		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = intervalLength.Years, treatment.path=treatment.path, level=level, patients=patientset.t, timeOfObservation=interval$end,  
+		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = intervalLength.Years, treatment.path=treatment.path, level=level, patients=patientset.t,  
 																	  patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	}
 	timingTag("featureMatrix.t")
@@ -396,7 +392,7 @@ exec <- function() {
 	print(matchedPatients[1:2,])
 	print(validationParams)
 
-	costs_chart(matchedCosts$controlPerYear, matchedCosts$treatedPerYear)
+	costs_chart(matchedCosts$controlPerYear, matchedCosts$treatedPerYear, treatmentProvided=(treatment.path!=""))
 
 	girix.output[["Matched patients"]] <<- head(matchedPatients, n=100)
 	if(length(matchDesc) == 0) {

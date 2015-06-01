@@ -89,10 +89,18 @@ plotProbabilities <- function(probabilities, maxY) {
 exec <- function() {
   model.interval.tmp <- eval(parse(text=girix.input['Model observations interval']))
   model.interval <- list(start=i2b2DateToPOSIXlt(model.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.interval.tmp['End']))
+  if(model.interval$end < model.interval$start) {
+    failScript("Model observations interval not valid (End before start)")
+    return()
+  }
   model.patient_set <- ifelse(nchar(girix.input['Model Patient set']) != 0, strtoi(girix.input['Model Patient set']), -1)
   
   model.target.interval.tmp <- eval(parse(text=girix.input['Target interval']))
   model.target.interval <- list(start=i2b2DateToPOSIXlt(model.target.interval.tmp['Start']), end=i2b2DateToPOSIXlt(model.target.interval.tmp['End']))
+  if(model.target.interval$end < model.target.interval$start) {
+    failScript("Target interval not valid (End before start)")
+    return()
+  }
   target.concept.path <- girix.input['Target concept']
   if(substr(target.concept.path, 1, 1) != '\\') {
     failScript("Concept not supported")
@@ -102,6 +110,10 @@ exec <- function() {
   
   newdata.interval.tmp <- eval(parse(text=girix.input['Prediction observations interval']))
   newdata.interval <- list(start=i2b2DateToPOSIXlt(newdata.interval.tmp['Start']), end=i2b2DateToPOSIXlt(newdata.interval.tmp['End']))
+  if(newdata.interval$end < newdata.interval$start) {
+    failScript("Prediction observations interval not valid (End before start)")
+    return()
+  }
   newdata.patient_set <- ifelse(nchar(girix.input['New Patient set']) != 0, strtoi(girix.input['New Patient set']), -1)
   
   features.filter <- c("\\ATC\\", "\\ICD\\")

@@ -85,6 +85,9 @@ frequence_of_visits <- function(patients) {
     )
   )
 
+  ymax <- max(patients.withObservation.aggregated$relative_visit_counts, patients.withoutObservation.aggregated$relative_visit_counts)
+  ymin <- 0
+
   # Plot
   plot(
     patients.withObservation.aggregated$date,
@@ -92,6 +95,7 @@ frequence_of_visits <- function(patients) {
     type="n",
     xlab="",
     ylab="relative count"
+    ylim=c(ymin,ymax)
   )
 
   # Line for patients with overvation

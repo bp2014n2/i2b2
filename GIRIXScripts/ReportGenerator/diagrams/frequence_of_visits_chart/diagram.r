@@ -94,7 +94,7 @@ frequence_of_visits <- function(patients) {
     patients.withObservation.aggregated$relative_visit_counts,
     type="n",
     xlab="",
-    ylab="relative count"
+    ylab="relative count",
     ylim=c(ymin,ymax)
   )
 

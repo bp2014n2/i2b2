@@ -2,7 +2,7 @@ library(plotrix)
 source("../lib/ColorPlateGenerator.r")
 source("../lib/style.r")
 
-costs_chart <- function(control, treated) {
+costs_chart <- function(control, treated,treatmentProvided=F) {
 
   control <- control[match(names(control), names(treated))]
   binded <- rbind(control, treated)
@@ -13,18 +13,21 @@ costs_chart <- function(control, treated) {
   ymax <- max(treated$summe_aller_kosten, control$summe_aller_kosten)
   ymin <- min(treated$summe_aller_kosten, control$summe_aller_kosten, 0)
   
-  cost_chart(treated, "Treatment Group", ylim=c(ymin, ymax), sorting=sorting)
-  cost_chart(control, "Control Group", ylim=c(ymin, ymax), sorting=sorting)
+  cost_chart(treated, "Treatment Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
+  cost_chart(control, "Control Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
 
 }
 
-cost_chart <- function(group, name, ylim, sorting) {
+cost_chart <- function(group, name, ylim, sorting, treatmentProvided) {
   op <- par(col="black")
 
   colors <- rev(tetradicColors(baseColor, 8))
   p.col <<- colors
-
-  years <- format(group$datum, "%Y")
+  if (treatmentProvided) {
+    years <- group$datum
+  } else {
+    years <- format(group$datum, "%Y")
+  }
   total <- group$summe_aller_kosten
   p.years <<- years
   p.ylim <<- ylim

@@ -36,9 +36,11 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
   target.vector <- c(rep(1, each=nrow(features.target)),rep(0, each=nrow(features.control)))
   featureMatrix <- rbind2(features.target,features.control)
   risk.type <- 'speedglm'
+  timingTag("just before risk prediction")
   fit <- risk[[risk.type]]$fit(featureMatrix, target.vector)
-  timingTag("log reg")
+
   probabilities <- risk[[risk.type]]$predict(fit, featureMatrix)
+    timingTag("risk prediction")
   splitted <- list()
   splitted[[1]] <- cBind(featureMatrix, probabilities=probabilities$probability, target.vector)
   if (sex) {
@@ -56,16 +58,17 @@ psm <- function(features.target, features.control, age=FALSE, sex=FALSE) {
     splitted <- age
   }
   result <- list()
+  timingTag("just before matching")
   result$matched <- do.call(rbind, lapply(splitted, primitivePSM))
+  timingTag("Matching")
   rownames(result$matched) <- NULL
   result$probabilities <- cBind(patient_num=probabilities$patient_num, probabilities=probabilities$probability, target.vector)
   return(result)
 }
 
 primitivePSM <- function(patients) {
-  matched <- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, exact=FALSE, 
+  matched <<- Match(Tr=patients[,'target.vector'], X=patients[,'probabilities'], M=1, 
   				   ties=FALSE, version="fast", replace=FALSE, caliper=0.2)
-  timingTag("matching")
   if(!is.list(matched)) {
     return(NULL)
   }
@@ -266,7 +269,7 @@ exec <- function() {
 	if(features["ATC"] == TRUE) {
 		filter <- append(filter, '\\ATC\\')
 	}
-	timingTag("-")
+	timingTag("just before querying")
 	features <- i2b2$crc$getConcepts(concepts=filter, level=level)
 	patientset.c <<- i2b2$crc$getPatients(patient_set=patientset.c.id)
   if (treatment.path != "") {
@@ -279,16 +282,15 @@ exec <- function() {
 	  patientset.t <- patientset.t[patientset.t[,"patient_num"] %in% patientset.t.forConcept,]
 	}
 
-	print("querying featureMatrices")
+
 	if (treatment.path == "") {
 		featureMatrix.t <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.t, patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	} else {
 		featureMatrix.t <<- generateFeatureMatrixDependingOnTreatment(intervalLength.Years = intervalLength.Years, treatment.path=treatment.path, level=level, patients=patientset.t,  
 																	  patient_set=patientset.t.id, features=features, filter=filter, addFeatures=addFeatures)
 	}
-	timingTag("featureMatrix.t")
 	featureMatrix.c <<- generateFeatureMatrix(level=level, interval=interval, patients=patientset.c, patient_set=patientset.c.id, features=features, filter=filter, addFeatures)
-	timingTag("featureMatrix.c")
+	timingTag("queried for feature matrix")
 	
 	excludedPatients <<- intersect(patientset.c$patient_num,patientset.t$patient_num)
 	patientset.c <<- patientset.c[!(patientset.c$patient_num %in% excludedPatients),]
@@ -307,7 +309,7 @@ exec <- function() {
 	  return()
 	}
 
-	print("Matching")
+	print("matching")
 	result <<- psm(features.target=featureMatrix.t,features.control=featureMatrix.c, sex=splitBy["Gender"], age=splitBy["Age"])
 
 	probabilities <<- result$probabilities
@@ -319,7 +321,7 @@ exec <- function() {
 	  return()
 	}
   
-	timingTag("Matching")
+
 
 	print("preparing pnums") #debug
 	pnums.treated <<- matched$pnum.treated

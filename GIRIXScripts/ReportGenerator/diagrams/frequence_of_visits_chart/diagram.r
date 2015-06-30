@@ -93,8 +93,8 @@ frequence_of_visits <- function(patients) {
     patients.withObservation.aggregated$date,
     patients.withObservation.aggregated$relative_visit_counts,
     type="n",
-    xlab="",
-    ylab="relative count",
+    xlab="Year",
+    ylab="Probability",
     ylim=c(ymin,ymax)
   )
 
@@ -125,8 +125,8 @@ frequence_of_visits <- function(patients) {
 
   text(
     head(patients.withObservation.aggregated$date, 1),
-    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.9,
-    paste("With", icdText),
+    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.95,
+    paste("Patients with", icdText),
     adj=0,
     cex=1,
     col=baseColor
@@ -134,8 +134,8 @@ frequence_of_visits <- function(patients) {
 
   text(
     head(patients.withObservation.aggregated$date, 1),
-    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.85,
-    paste("Without", icdText),
+    max(patients.withoutObservation.aggregated$relative_visit_counts, patients.withObservation.aggregated$relative_visit_counts)*0.90,
+    paste("Patients without", icdText),
     adj=0,
     cex=1,
     col=accentColor[1]

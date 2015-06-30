@@ -103,7 +103,7 @@ hist_age_extended <- function(patients) {
       text(
         ages.hist$counts[i],    # X Position
         x[i],                   # Position of the i'th bar
-        ages.hist$counts[i],    # Text
+        formatC(ages.hist$counts[i], format="d", big.mark='.'),     # Text
         xpd=T,                  # Plotting clipped to figure region
         adj=1.2,                # Move text to left to be on the bar
         cex=0.8,                # Font size 80%
@@ -116,7 +116,7 @@ hist_age_extended <- function(patients) {
   arrows(ages.hist$mean,-0.25,ages.hist$mean,20.75,lwd=1.5,length=0,xpd=T,col=accentColor[1]) 
   arrows(ages.hist$mean,-0.25,ages.hist$mean,0,lwd=3,length=0,xpd=T)
   arrows(ages.hist$mean,20.75,ages.hist$mean,21,lwd=3,length=0,xpd=T)
-  text(ages.hist$mean,22,"Average",adj=0.5,xpd=T,cex=0.65,font=3)
+  text(formatC(ages.hist$mean, format="d", big.mark='.'),22,"Average",adj=0.5,xpd=T,cex=0.65,font=3)
 
   # Header
   text(ages.hist$mean,21.5,round(ages.hist$mean, digits=0)+20,adj=0.5,xpd=T,cex=0.65,family="Lato",font=4)

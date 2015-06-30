@@ -70,6 +70,7 @@ map <- function(){
   plot(map_data,col=colors[color_nr],border = "black", lwd = 1)
 
   # Legend
-  legend("bottomleft", levels(color_nr), cex=0.95,border=F,bty="n",fill=colors)
+    col=darkGray                # Default color
+  legend("bottomleft", levels(color_nr), cex=0.95,border=F,bty="n",fill=colors,col=darkGray)
 }
 map()

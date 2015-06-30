@@ -13,8 +13,8 @@ costs_chart <- function(control, treated,treatmentProvided=F) {
   ymax <- max(treated$summe_aller_kosten, control$summe_aller_kosten)
   ymin <- min(treated$summe_aller_kosten, control$summe_aller_kosten, 0)
   
-  cost_chart(treated, "Treatment Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
   cost_chart(control, "Control Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
+  cost_chart(treated, "Treatment Group", ylim=c(ymin, ymax), sorting=sorting,treatmentProvided=treatmentProvided)
 
 }
 
